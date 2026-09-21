@@ -87,8 +87,6 @@ const Sidebar = ({ onAddNode, currentLanguage = 'fr' }) => {
       nodeHoverColor: '#b71c1c',
       nodeTextColor: '#fff',
       items: [
-        { id: 'RK+SCC', label: t.addRotaryKiln },
-        { id: 'GF', label: t.addGrateFurnace },
         { id: 'FB', label: t.addFluidizedBed },
       ],
     },
@@ -99,9 +97,7 @@ const Sidebar = ({ onAddNode, currentLanguage = 'fr' }) => {
       nodeHoverColor: '#e65100',
       nodeTextColor: '#fff',
       items: [
-        { id: 'WHB', label: t.addWasteHeatBoiler },
         { id: 'HX_TubeAndShell', label: t.TubeAndShell },
-        { id: 'IACT', label: t.addIACT },
       ],
     },
     {
@@ -138,25 +134,24 @@ const Sidebar = ({ onAddNode, currentLanguage = 'fr' }) => {
       items: [
         { id: 'IDFAN', label: t.addIDFan },
         { id: 'STACK', label: t.addStack },
-        { id: 'CO2', label: t.addCO2Capture },
       ],
     },
     {
-      key: 'Echangeurs',
-      title: t.Echangeurs,
-      nodeColor: '#ffcdd2',
-      nodeHoverColor: '#ef9a9a',
+      key: 'Water_treatment',
+      title: t.waterTreatment,
+      nodeColor: '#2e7d32',
+      nodeHoverColor: '#1b5e20',
+      nodeTextColor: '#fff',
       items: [
-        { id: 'Cooling_HX_air', label: t.Cooling_HX_air },
-        { id: 'Cooling_HX_eau', label: t.Cooling_HX_eau },
-      ],
-    },
-    {
-      key: 'DivConv',
-      title: t.DivConv,
-      items: [
-        { id: '2to1', label: t.twotoone },
-        { id: '1to2', label: t.onetotwo },
+        { id: 'EAU_BRUTE_ENTREE', label: t.addEauBruteEntree },
+        { id: 'BOUE_ENTREE', label: t.addBoueEntree },
+        { id: 'EAU_SORTIE', label: t.addEauSortie },
+        { id: 'BOUE_SORTIE', label: t.addBoueSortie },
+        { id: 'EPAISSISSEMENT', label: t.addEpaississement },
+        { id: 'DESHYDRATATION', label: t.addDeshydratation },
+        { id: 'DIGESTEUR', label: t.addDigesteur },
+        { id: 'EXELYS', label: t.addExelys },
+        { id: 'BIOTHELYS', label: t.addBiothelys },
       ],
     },
   ];

@@ -185,6 +185,16 @@ function Flow({
     // Échangeurs — rouge clair
     'Cooling_HX_air': { background: '#ffcdd2', color: '#000' },
     'Cooling_HX_eau': { background: '#ffcdd2', color: '#000' },
+    // Traitement de l'eau — vert foncé
+    'EAU_BRUTE_ENTREE': { background: '#2e7d32', color: '#fff' },
+    'BOUE_ENTREE':      { background: '#2e7d32', color: '#fff' },
+    'EAU_SORTIE':       { background: '#2e7d32', color: '#fff' },
+    'BOUE_SORTIE':      { background: '#2e7d32', color: '#fff' },
+    'EPAISSISSEMENT':   { background: '#2e7d32', color: '#fff' },
+    'DESHYDRATATION':   { background: '#2e7d32', color: '#fff' },
+    'DIGESTEUR':        { background: '#2e7d32', color: '#fff' },
+    'EXELYS':           { background: '#2e7d32', color: '#fff' },
+    'BIOTHELYS':        { background: '#2e7d32', color: '#fff' },
   };
 
   const onAddNode = useCallback(
@@ -196,7 +206,7 @@ function Flow({
         position: { x: headNode ? headNode.position.x + 200 : 0, y: 100 },
         sourcePosition: 'right',
         targetPosition: 'left',
-        type: label === 'STACK' ? 'output' : ['RK+SCC', 'GF', 'FB'].includes(label) ? 'input' : undefined,
+        type: ['STACK', 'EAU_SORTIE', 'BOUE_SORTIE'].includes(label) ? 'output' : ['RK+SCC', 'GF', 'FB', 'EAU_BRUTE_ENTREE', 'BOUE_ENTREE'].includes(label) ? 'input' : undefined,
         style: nodeStyle.background ? { backgroundColor: nodeStyle.background, color: nodeStyle.color, border: '1px solid rgba(0,0,0,0.15)', borderRadius: '4px' } : undefined,
       };
       setNodes((prevNodes) => [...prevNodes, newNode]);
@@ -421,7 +431,7 @@ function Flow({
   return (
     <>
     <div className="app-banner">
-      <span>INCINERATION TOOL</span>
+      <span>BIOSOLIDS INCINERATION DESIGN TOOL</span>
     </div>
     <div className="Zone-fond-blanc">
       <Sidebar onAddNode={onAddNode} currentLanguage={currentLanguage} />

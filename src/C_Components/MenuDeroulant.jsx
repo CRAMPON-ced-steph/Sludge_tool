@@ -154,12 +154,6 @@ function DropdownMenu({
       backgroundColor: COLORS.PURPLE,
     },
     {
-      id: 'graph',
-      label: translate(showGraph ? 'Hide Graph' : 'Show Graph'),
-      onClick: onToggleGraph,
-      backgroundColor: COLORS.GREEN,
-    },
-    {
       id: 'dashboard',
       label: translate('Consommations'),
       onClick: onShowDashboard,
