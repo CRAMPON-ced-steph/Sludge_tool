@@ -115,20 +115,6 @@ const Sidebar = ({ onAddNode, currentLanguage = 'fr' }) => {
       ],
     },
     {
-      key: 'Wet_treatment',
-      title: t.wetTreatment,
-      nodeColor: '#1e88e5',
-      nodeHoverColor: '#0d47a1',
-      nodeTextColor: '#fff',
-      items: [
-        { id: 'QUENCH', label: t.addQuench },
-        { id: 'WATER_INJECTION', label: t.addWATER_INJECTION },
-        { id: 'COOLINGTOWER', label: t.addCoolingTower },
-        { id: 'DENOX', label: t.addDenoxCatalyst },
-        { id: 'SCRUBBER', label: t.addScrubber },
-      ],
-    },
-    {
       key: 'Exit',
       title: t.exit,
       items: [
