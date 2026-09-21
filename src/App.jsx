@@ -3,6 +3,7 @@ import { ReactFlowProvider } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
 import Flow from './Main_FLOW';
+import { UnitProvider } from './context/UnitContext';
 import { writeDefaultsToStorage, initFromStorage } from './A_Transverse_fonction/opexDataService';
 
 function App() {
@@ -12,9 +13,11 @@ function App() {
   }, []);
 
   return (
-    <ReactFlowProvider>
-      <Flow />
-    </ReactFlowProvider>
+    <UnitProvider>
+      <ReactFlowProvider>
+        <Flow />
+      </ReactFlowProvider>
+    </UnitProvider>
   );
 }
 
