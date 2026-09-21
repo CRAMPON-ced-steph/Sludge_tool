@@ -64,12 +64,7 @@ function LockScrollButton() {
   );
 }
 
-function Flow({
-  currentUser,
-  adminEmail,
-  onShowEmailManagement,
-  onLogout
-}) {
+function Flow() {
   const { unitSystem, toggle: toggleUnit } = useUnit();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -434,19 +429,15 @@ function Flow({
       <Sidebar onAddNode={onAddNode} currentLanguage={currentLanguage} />
       
       <DropdownMenu
-        currentUser={currentUser}
-        adminEmail={adminEmail}
         showDataFlowDisplay={showDataFlowDisplay}
         showGraph={showGraph}
         showOPEX={showOPEX}
         onToggleDataFlow={() => setShowDataFlowDisplay(!showDataFlowDisplay)}
         onToggleGraph={() => setShowGraph(!showGraph)}
         onShowDashboard={() => setShowDashboard(true)}
-        onShowEmailManagement={onShowEmailManagement}
         onToggleOPEX={toggleOPEX}
         onSaveProject={handleSaveProject}
         onLoadProject={handleLoadProject}
-        onLogout={onLogout}
         onScreenshot={handleScreenshot}
         onEditRapport={handleEditRapport}
         currentLanguage={currentLanguage}

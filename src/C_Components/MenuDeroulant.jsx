@@ -15,23 +15,19 @@ const COLORS = {
 };
 
 function DropdownMenu({
-  currentUser,
-  adminEmail,
   showDataFlowDisplay,
   showGraph,
   showOPEX,
   onToggleDataFlow,
   onToggleGraph,
   onShowDashboard,
-  onShowEmailManagement,
   onToggleOPEX,
   onSaveProject,
   onLoadProject,
-  onLogout,
-  onScreenshot, // Nouvelle prop pour la capture d'écran
+  onScreenshot,
   onEditRapport,
   currentLanguage = 'fr',
-  onLanguageChange 
+  onLanguageChange
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -46,12 +42,10 @@ function DropdownMenu({
         'Hide Graph': 'Masquer Graphique',
         'Show Graph': 'Afficher Graphique',
         'Consommations': 'Consommations',
-        'Gérer Utilisateurs': 'Gérer Utilisateurs',
         'Fermer OPEX': 'Fermer OPEX',
         'Ouvrir OPEX': 'Ouvrir OPEX',
         'Save Project': 'Sauvegarder Projet',
         'Load Project': 'Charger Projet',
-        'Logout': 'Déconnexion',
         'Language': 'Langue',
         'Screenshot': 'Capture d\'écran',
         'Edit Rapport': 'Éditer Rapport'
@@ -64,12 +58,10 @@ function DropdownMenu({
         'Hide Graph': 'Hide Graph',
         'Show Graph': 'Show Graph',
         'Consommations': 'Consumption',
-        'Gérer Utilisateurs': 'Manage Users',
         'Fermer OPEX': 'Close OPEX',
         'Ouvrir OPEX': 'Open OPEX',
         'Save Project': 'Save Project',
         'Load Project': 'Load Project',
-        'Logout': 'Logout',
         'Language': 'Language',
         'Screenshot': 'Screenshot',
         'Edit Rapport': 'Edit Report'
@@ -82,12 +74,10 @@ function DropdownMenu({
         'Hide Graph': 'Diagramm ausblenden',
         'Show Graph': 'Diagramm anzeigen',
         'Consommations': 'Verbrauch',
-        'Gérer Utilisateurs': 'Benutzer verwalten',
         'Fermer OPEX': 'OPEX schließen',
         'Ouvrir OPEX': 'OPEX öffnen',
         'Save Project': 'Projekt speichern',
         'Load Project': 'Projekt laden',
-        'Logout': 'Abmelden',
         'Language': 'Sprache',
         'Screenshot': 'Bildschirmfoto',
         'Edit Rapport': 'Bericht bearbeiten'
@@ -100,12 +90,10 @@ function DropdownMenu({
         'Hide Graph': 'Ocultar Gráfico',
         'Show Graph': 'Mostrar Gráfico',
         'Consommations': 'Consumos',
-        'Gérer Utilisateurs': 'Gestionar Usuarios',
         'Fermer OPEX': 'Cerrar OPEX',
         'Ouvrir OPEX': 'Abrir OPEX',
         'Save Project': 'Guardar Proyecto',
         'Load Project': 'Cargar Proyecto',
-        'Logout': 'Cerrar Sesión',
         'Language': 'Idioma',
         'Screenshot': 'Captura de pantalla',
         'Edit Rapport': 'Editar Informe'
@@ -118,12 +106,10 @@ function DropdownMenu({
         'Hide Graph': 'Nascondi Grafico',
         'Show Graph': 'Mostra Grafico',
         'Consommations': 'Consumi',
-        'Gérer Utilisatori': 'Gestisci Utenti',
         'Fermer OPEX': 'Chiudi OPEX',
         'Ouvrir OPEX': 'Apri OPEX',
         'Save Project': 'Salva Progetto',
         'Load Project': 'Carica Progetto',
-        'Logout': 'Disconnetti',
         'Language': 'Lingua',
         'Screenshot': 'Screenshot',
         'Edit Rapport': 'Modifica Report'
@@ -159,15 +145,6 @@ function DropdownMenu({
       onClick: onShowDashboard,
       backgroundColor: COLORS.BLUE,
     },
-    ...(currentUser === adminEmail
-      ? [{
-          id: 'email-management',
-          label: translate('Gérer Utilisateurs'),
-          onClick: onShowEmailManagement,
-          backgroundColor: COLORS.CYAN,
-        }]
-      : []
-    ),
     {
       id: 'opex',
       label: translate(showOPEX ? 'Fermer OPEX' : 'Ouvrir OPEX'),
@@ -198,12 +175,6 @@ function DropdownMenu({
       onClick: onLoadProject,
       backgroundColor: COLORS.CHARTREUSE,
     },
-    {
-      id: 'logout',
-      label: translate('Logout'),
-      onClick: onLogout,
-      backgroundColor: COLORS.CHOCOLATE,
-    }
   ];
 
   const handleItemClick = (onClick) => {
