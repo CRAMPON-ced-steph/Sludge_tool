@@ -4,6 +4,8 @@ import { molarMasses, massVolumique } from '../../A_Transverse_fonction/constant
 import { getLanguageCode } from '../../F_Gestion_Langues/Fonction_Traduction';
 import { translations } from './FB_traduction';
 import UnitInput from '../../C_Components/UnitInput';
+import { useUnit } from '../../context/UnitContext';
+import { fromSI, label as unitLabel } from '../../utils/units';
 
 const THERMAL_QUANTITIES = {
   Temp_boue_entree: 'temperature',
@@ -727,6 +729,13 @@ const CombustionTab = ({ innerData = {}, onInnerDataChange, onResultsChange, cur
   const residuConvergence = results.H_gaz ?? null;
   const f = (v, d = 2) => v != null && isFinite(v) ? v.toFixed(d) : '-';
 
+  const { unitSystem } = useUnit();
+  const disp = (val, qty, d = 2) => {
+    const v = fromSI(val, qty, unitSystem);
+    return v != null && isFinite(v) ? Number(v).toFixed(d) : '-';
+  };
+  const ul = (qty) => unitLabel(qty, unitSystem);
+
   // Masses relatives par kg d'air sec (référence = 1 kg) pour le calcul des fractions élémentaires.
   // On n'utilise pas masse_seche (= 0 par défaut) — les fractions sont indépendantes de la masse totale.
   const airMasses = useMemo(() => {
@@ -897,10 +906,13 @@ const CombustionTab = ({ innerData = {}, onInnerDataChange, onResultsChange, cur
           <ToggleSwitch label={t('Gaz appoint (itératif)')} checked={useGazAppoint} onChange={setUseGazAppoint} />
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px' }}>
-          {[{ label: 'Q_gaz (kg/h)', val: results.Q_gaz_mass }, { label: 'Q_gaz (Nm³/h)', val: results.Q_gaz_vol },
-            { label: 'H_in (kW)', val: results.H_in }, { label: 'H_out (kW)', val: results.H_out },
-          ].map(({ label, val }) => (
-            <div key={label}><label style={labelStyle}>{label}</label><div style={resultBox}>{f(val)}</div></div>
+          {[
+            { label: `Q_gaz (${ul('massFlow')})`, val: results.Q_gaz_mass, qty: 'massFlow' },
+            { label: `Q_gaz (${ul('volumeFlow')})`, val: results.Q_gaz_vol, qty: 'volumeFlow' },
+            { label: `H_in (${ul('energy')})`, val: results.H_in, qty: 'energy' },
+            { label: `H_out (${ul('energy')})`, val: results.H_out, qty: 'energy' },
+          ].map(({ label, val, qty }) => (
+            <div key={label}><label style={labelStyle}>{label}</label><div style={resultBox}>{disp(val, qty)}</div></div>
           ))}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', marginTop: '15px' }}>
@@ -1712,8 +1724,8 @@ const CombustionTab = ({ innerData = {}, onInnerDataChange, onResultsChange, cur
             <thead>
               <tr style={{ backgroundColor: '#D4B5A0' }}>
                 <th style={{ ...TH, width: '40%' }}>Paramètre</th>
-                <th style={{ ...TH, backgroundColor: '#FFE6CC' }}>Entrée (kW)</th>
-                <th style={{ ...TH, backgroundColor: '#E6F3FF' }}>Sortie (kW)</th>
+                <th style={{ ...TH, backgroundColor: '#FFE6CC' }}>Entrée ({ul('energy')})</th>
+                <th style={{ ...TH, backgroundColor: '#E6F3FF' }}>Sortie ({ul('energy')})</th>
               </tr>
             </thead>
             <tbody>
@@ -1729,19 +1741,19 @@ const CombustionTab = ({ innerData = {}, onInnerDataChange, onResultsChange, cur
               ].map(({ label, in: vin, out: vout }) => (
                 <tr key={label}>
                   <td style={{ ...TD, fontWeight: 'bold' }}>{label}</td>
-                  <td style={{ ...TD, backgroundColor: '#FFE6CC' }}>{vin != null ? vin.toFixed(2) : '-'}</td>
-                  <td style={{ ...TD, backgroundColor: '#E6F3FF' }}>{vout != null ? vout.toFixed(2) : '-'}</td>
+                  <td style={{ ...TD, backgroundColor: '#FFE6CC' }}>{vin != null ? disp(vin, 'energy') : '-'}</td>
+                  <td style={{ ...TD, backgroundColor: '#E6F3FF' }}>{vout != null ? disp(vout, 'energy') : '-'}</td>
                 </tr>
               ))}
               <tr style={{ fontWeight: 'bold' }}>
                 <td style={{ ...TD, backgroundColor: '#B0D0E8' }}>TOTAL ENTRÉE (H_in)</td>
-                <td style={{ ...TD, backgroundColor: '#ADD8E6' }}>{f(results.H_in)}</td>
+                <td style={{ ...TD, backgroundColor: '#ADD8E6' }}>{disp(results.H_in, 'energy')}</td>
                 <td style={{ ...TD, backgroundColor: '#B0D0E8' }}>-</td>
               </tr>
               <tr style={{ fontWeight: 'bold' }}>
                 <td style={{ ...TD, backgroundColor: '#B0D0E8' }}>TOTAL SORTIE (H_out)</td>
                 <td style={{ ...TD, backgroundColor: '#B0D0E8' }}>-</td>
-                <td style={{ ...TD, backgroundColor: '#ADD8E6' }}>{f(results.H_out)}</td>
+                <td style={{ ...TD, backgroundColor: '#ADD8E6' }}>{disp(results.H_out, 'energy')}</td>
               </tr>
               <tr style={{ opacity: 0.75 }}>
                 <td style={{ ...TD, fontStyle: 'italic', backgroundColor: '#f8f8f8' }}>Résidu (H_out − H_in) — doit être ≈ 0</td>
@@ -1760,14 +1772,14 @@ const CombustionTab = ({ innerData = {}, onInnerDataChange, onResultsChange, cur
         <div style={cardTitle}>🌡️ {t('Air Préchauffé — Résultats')}</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
           {[
-            { label: 'Temp. air après préch.', val: results.Tair_ap_prechauffe },
-            { label: 'Enthalpie air préch.', val: results.Hair_ap_prechauffage },
-            { label: 'Hf fumées voûte', val: results.Hf_voute },
-            { label: 'Hf fumées après HX', val: results.Hf_voute_ap_HX },
-            { label: 'Temp. air soufflante', val: results.Temp_air_soufflante },
-            { label: 'Q_gaz', val: results.Q_gaz_mass },
-          ].map(({ label, val }) => (
-            <div key={label}><label style={labelStyle}>{t(label)}</label><div style={resultBox}>{f(val)}</div></div>
+            { label: `Temp. air après préch. (${ul('temperature')})`, val: results.Tair_ap_prechauffe, qty: 'temperature' },
+            { label: `Enthalpie air préch. (${ul('energy')})`, val: results.Hair_ap_prechauffage, qty: 'energy' },
+            { label: `Hf fumées voûte (${ul('energy')})`, val: results.Hf_voute, qty: 'energy' },
+            { label: `Hf fumées après HX (${ul('energy')})`, val: results.Hf_voute_ap_HX, qty: 'energy' },
+            { label: `Temp. air soufflante (${ul('temperature')})`, val: results.Temp_air_soufflante, qty: 'temperature' },
+            { label: `Q_gaz (${ul('massFlow')})`, val: results.Q_gaz_mass, qty: 'massFlow' },
+          ].map(({ label, val, qty }) => (
+            <div key={label}><label style={labelStyle}>{t(label)}</label><div style={resultBox}>{disp(val, qty)}</div></div>
           ))}
         </div>
       </div>

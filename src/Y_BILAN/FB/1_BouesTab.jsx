@@ -3,6 +3,8 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { getTranslatedParameter, getLanguageCode } from '../../F_Gestion_Langues/Fonction_Traduction';
 import { translations } from './FB_traduction';
 import UnitInput from '../../C_Components/UnitInput';
+import { useUnit } from '../../context/UnitContext';
+import { fromSI, label as unitLabel } from '../../utils/units';
 
 // ✅ Hook personnalisé pour traductions dynamiques
 const useTranslation = (currentLanguage = 'fr') => {
@@ -139,8 +141,12 @@ const defaultChons = () => ({
 // ============================================================
 
 const BouesTab = ({ innerData, currentLanguage  }) => {
-  // ✅ Utiliser le hook pour traductions dynamiques
   const t = useTranslation(currentLanguage);
+  const { unitSystem } = useUnit();
+  const disp = (val, qty, d = 1) => {
+    const v = fromSI(val, qty, unitSystem);
+    return v != null && isFinite(v) ? Number(v).toFixed(d) : '-';
+  };
 
   // ============================================================
   // STATE
@@ -575,16 +581,16 @@ const BouesTab = ({ innerData, currentLanguage  }) => {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', alignItems: 'start' }}>
           {[
-            { label: t('Matière brute') || 'Matière brute', unit: '[kg/h]', val: boue.BoueBrute },
-            { label: t('Matière volatile') || 'Matière volatile', unit: '[kg/h]', val: boue.MV },
-            { label: t('Matière minérale') || 'Matière minérale', unit: '[kg/h]', val: boue.MM },
-            { label: t('Eau extraite') || 'Eau extraite', unit: '[kg/h]', val: boue.EauExtraite },
-          ].map(({ label, unit, val }) => (
+            { label: t('Matière brute') || 'Matière brute', val: boue.BoueBrute },
+            { label: t('Matière volatile') || 'Matière volatile', val: boue.MV },
+            { label: t('Matière minérale') || 'Matière minérale', val: boue.MM },
+            { label: t('Eau extraite') || 'Eau extraite', val: boue.EauExtraite },
+          ].map(({ label, val }) => (
             <div key={label}>
               <label style={labelStyle}>
-                {label} {unit}
+                {label} [{unitLabel('massFlow', unitSystem)}]
               </label>
-              <input type="text" value={Number(val).toFixed(1)} readOnly style={readOnlyStyle} />
+              <input type="text" value={disp(val, 'massFlow')} readOnly style={readOnlyStyle} />
             </div>
           ))}
         </div>
@@ -622,7 +628,7 @@ const BouesTab = ({ innerData, currentLanguage  }) => {
                 style={inputStyle}
               />
               <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '4px' }}>
-                {Number(chons[`kg${el}`] || 0).toFixed(1)} kg/h
+                {disp(chons[`kg${el}`] || 0, 'massFlow')} {unitLabel('massFlow', unitSystem)}
               </div>
             </div>
           ))}
