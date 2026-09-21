@@ -3,6 +3,8 @@ import { getLanguageCode } from '../../F_Gestion_Langues/Fonction_Traduction';
 import { translations } from './FB_traduction';
 import { getOpexData } from '../../A_Transverse_fonction/opexDataService';
 import { CO2_kg_m3, H2O_kg_m3, O2_kg_m3, N2_kg_m3 } from '../../A_Transverse_fonction/conv_calculation';
+import { useUnit } from '../../context/UnitContext';
+import { fromSI, label as unitLabel } from '../../utils/units';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -394,6 +396,13 @@ const FB_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
   const languageCode = getLanguageCode(currentLanguage);
   const t = (key) => translations[languageCode]?.[key] || translations['fr']?.[key] || key;
 
+  const { unitSystem } = useUnit();
+  const d = (val, qty, dec = 2) => {
+    const v = fromSI(val, qty, unitSystem);
+    return v != null && isFinite(v) ? Number(v).toFixed(dec) : '—';
+  };
+  const ul = (qty) => unitLabel(qty, unitSystem);
+
   // ── Section 1 : Boues ────────────────────────────────────────────────────────
   const daysPerWeek        = innerData.daysPerWeek        ?? 0;
   const hoursPerDay        = innerData.hoursPerDay        ?? 0;
@@ -606,6 +615,11 @@ const FB_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
       <h1 style={styles.mainTitle}>
         Four à Lit Fluidisé (FB) — Rapport de synthèse
       </h1>
+      <div style={{ fontSize: 11, color: '#555', fontStyle: 'italic', marginBottom: 16, padding: '4px 10px', backgroundColor: '#f0f4ff', borderRadius: 4, display: 'inline-block' }}>
+        {unitSystem === 'SI'
+          ? 'All values expressed in SI units (kg/h, °C, kW, Nm³/h, bar)'
+          : 'All values expressed in US customary units (lb/h, °F, BTU/h, scfh, psi)'}
+      </div>
 
       {/* ── SECTION 1 : Boues ──────────────────────────────────────────────── */}
       <Section title={`1. ${t('Caractéristiques des Boues')}`}>
@@ -621,11 +635,11 @@ const FB_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
             <KV label={t('Type de boue')}          value={sludgeType}                />
             <KV label={t('Siccité')}               value={fmt(MS_pourcent, 1)}  unit="%" />
             <KV label="MV"                         value={fmt(MV_pourcent, 1)}  unit="%" />
-            <KV label={t('Débit MS')}              value={fmt(MS, 0)}      unit="kg MS/h" />
-            <KV label="Débit boue brute"           value={fmt(MasseBoueBrute, 0)} unit="kg/h" />
-            <KV label="Débit MV"                   value={fmt(MV, 0)}      unit="kg MV/h" />
-            <KV label="Eau extraite"               value={fmt(EauExtraite, 0)} unit="kg/h" />
-            <KV label="Cendres (MM)"               value={fmt(MM, 0)}      unit="kg/h" />
+            <KV label={t('Débit MS')}              value={d(MS, 'massFlow', 0)}           unit={`${ul('massFlow')} MS`} />
+            <KV label="Débit boue brute"           value={d(MasseBoueBrute, 'massFlow', 0)} unit={ul('massFlow')} />
+            <KV label="Débit MV"                   value={d(MV, 'massFlow', 0)}           unit={`${ul('massFlow')} MV`} />
+            <KV label="Eau extraite"               value={d(EauExtraite, 'massFlow', 0)}  unit={ul('massFlow')} />
+            <KV label="Cendres (MM)"               value={d(MM, 'massFlow', 0)}           unit={ul('massFlow')} />
           </SubSection>
         </div>
 
@@ -704,14 +718,14 @@ const FB_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
         {/* Air de combustion + Paramètres combustion */}
         <div style={styles.twoCol}>
           <SubSection title="Air de combustion">
-            <KV label="Masse air sec total [kg/h]"          value={fmt(Masse_air_sec, 0)}           />
-            <KV label="Débit air total [Nm³/h]"             value={fmt(Q_air_comb_tot, 0)}         />
-            <KV label="Dont : air combustible [Nm³/h]"      value={fmt(Volume_air_combustible_total, 0)} />
-            <KV label="Dont : air de balayage [Nm³/h]"      value={fmt(Volume_air_balayage, 0)}          />
-            <KV label="T° air fluidisation av. préchauffage [°C]" value={fmt(Temp_air_fluidisation, 0)}  />
-            <KV label="T° air ap. préchauffage (lit) [°C]"  value={fmt(Tair_ap_prechauffe, 0)}         />
-            <KV label="T° air soufflante [°C]"              value={fmt(Temp_air_soufflante, 0)}        />
-            <KV label="Eau dans l'air comburant [kg/h]"     value={fmt(Meau_air_comburant, 2)}           />
+            <KV label="Masse air sec total"           value={d(Masse_air_sec, 'massFlow', 0)}             unit={ul('massFlow')} />
+            <KV label="Débit air total"              value={d(Q_air_comb_tot, 'volumeFlow', 0)}          unit={ul('volumeFlow')} />
+            <KV label="Dont : air combustible"       value={d(Volume_air_combustible_total, 'volumeFlow', 0)} unit={ul('volumeFlow')} />
+            <KV label="Dont : air de balayage"       value={d(Volume_air_balayage, 'volumeFlow', 0)}     unit={ul('volumeFlow')} />
+            <KV label="T° air fluidisation av. préch." value={d(Temp_air_fluidisation, 'temperature', 0)} unit={ul('temperature')} />
+            <KV label="T° air ap. préchauffage (lit)"  value={d(Tair_ap_prechauffe, 'temperature', 0)}   unit={ul('temperature')} />
+            <KV label="T° air soufflante"              value={d(Temp_air_soufflante, 'temperature', 0)}  unit={ul('temperature')} />
+            <KV label="Eau dans l'air comburant"     value={d(Meau_air_comburant, 'massFlow', 2)}        unit={ul('massFlow')} />
           </SubSection>
 
           <SubSection title="Paramètres de combustion">
@@ -719,47 +733,47 @@ const FB_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
             <KV label="Excès d'air lit [%]"                 value={fmt(Exces_air_lit, 1)}                />
             <KV label="Excès d'air combustible [%]"         value={fmt(Exces_air_combustible, 1)}        />
             <KV label="O₂ calculé (sec) [%]"               value={fmt((O2_calcule || 0) * 100, 2)}      />
-            <KV label="Débit gaz naturel [kg/h]"            value={fmt(Q_gaz_mass, 2)}                  />
-            <KV label="Débit gaz naturel [Nm³/h]"           value={fmt(Q_gaz_vol, 2)}                 />
+            <KV label="Débit gaz naturel"           value={d(Q_gaz_mass, 'massFlow', 2)}        unit={ul('massFlow')} />
+            <KV label="Débit gaz naturel"           value={d(Q_gaz_vol, 'volumeFlow', 2)}      unit={ul('volumeFlow')} />
           </SubSection>
         </div>
 
         {/* Fumées voûte + Paramètres thermiques */}
         <div style={styles.twoCol}>
           <SubSection title="Fumées sortie voûte">
-            <KV label="T° fumées voûte [°C]"                value={fmt(Temp_fumee_voute, 0)}           />
-            <KV label="T° fumées ap. HX [°C]"              value={fmt(Tf_voute_ap_HX, 0)}             />
-            <KV label="Débit fumées humides [Nm³/h]"        value={fmt(FG_wet, 0)}                 />
-            <KV label="Débit fumées sèches [Nm³/h]"         value={fmt(FG_dry, 0)}                 />
-            <KV label="Densité fumées [kg/Nm³]"             value={fmt(Rho_FG_kg_Nm3, 4)}               />
+            <KV label="T° fumées voûte"          value={d(Temp_fumee_voute, 'temperature', 0)} unit={ul('temperature')} />
+            <KV label="T° fumées ap. HX"         value={d(Tf_voute_ap_HX, 'temperature', 0)}  unit={ul('temperature')} />
+            <KV label="Débit fumées humides"      value={d(FG_wet, 'volumeFlow', 0)}            unit={ul('volumeFlow')} />
+            <KV label="Débit fumées sèches"       value={d(FG_dry, 'volumeFlow', 0)}            unit={ul('volumeFlow')} />
+            <KV label="Densité fumées [kg/Nm³]"  value={fmt(Rho_FG_kg_Nm3, 4)}               />
           </SubSection>
 
           <SubSection title="Paramètres thermiques">
-            <KV label="Rendement HX [%]"                    value={fmt(Rdt_HX, 1)}                       />
-            <KV label="Enthalpie fumées voûte [kW]"         value={fmt(Hf_voute, 1)}                  />
-            <KV label="Enthalpie fumées ap. HX [kW]"        value={fmt(Hf_voute_ap_HX, 1)}            />
-            <KV label="Chaleur récupérée air [kW]"          value={fmt(Hair_ap_prechauffage, 1)}       />
+            <KV label="Rendement HX [%]"             value={fmt(Rdt_HX, 1)}                             />
+            <KV label="Enthalpie fumées voûte"      value={d(Hf_voute, 'energy', 1)}           unit={ul('energy')} />
+            <KV label="Enthalpie fumées ap. HX"     value={d(Hf_voute_ap_HX, 'energy', 1)}    unit={ul('energy')} />
+            <KV label="Chaleur récupérée air"       value={d(Hair_ap_prechauffage, 'energy', 1)} unit={ul('energy')} />
           </SubSection>
         </div>
 
         {/* Résultat de convergence + Gaz sortie four */}
         <div style={styles.twoCol}>
           <SubSection title="Résultat de convergence">
-            <KV label="Débit gaz naturel convergé [kg/h]"   value={fmt(Q_gaz_mass, 3)}            />
-            <KV label="Débit gaz naturel convergé [Nm³/h]"  value={fmt(Q_gaz_vol, 3)}           />
-            <KV label="O₂ calculé (sec) [%]"               value={fmt((O2_calcule || 0) * 100, 2)} />
-            <KV label="T° sortie HX [°C]"                   value={fmt(T_OUT, 0)}                  />
-            <KV label="Pression sortie HX [mmCE]"           value={fmt(P_out_mmCE)}                />
+            <KV label="Débit gaz naturel convergé"  value={d(Q_gaz_mass, 'massFlow', 3)}     unit={ul('massFlow')} />
+            <KV label="Débit gaz naturel convergé"  value={d(Q_gaz_vol, 'volumeFlow', 3)}   unit={ul('volumeFlow')} />
+            <KV label="O₂ calculé (sec) [%]"        value={fmt((O2_calcule || 0) * 100, 2)} />
+            <KV label="T° sortie HX"                 value={d(T_OUT, 'temperature', 0)}      unit={ul('temperature')} />
+            <KV label="Pression sortie HX [mmCE]"   value={fmt(P_out_mmCE)}                />
           </SubSection>
 
           <SubSection title="Gaz sortie four">
-            <KV label="Débit humide total [kg/h]"           value={fmt(FG_wet_total, 0)}           />
-            <KV label="Débit sec [Nm³/h]"                   value={fmt(FG_OUT_vol.dry, 0)}       />
-            <KV label="Débit humide [Nm³/h]"                value={fmt(FG_OUT_vol.wet, 0)}       />
+            <KV label="Débit humide total"  value={d(FG_wet_total, 'massFlow', 0)}      unit={ul('massFlow')} />
+            <KV label="Débit sec"           value={d(FG_OUT_vol.dry, 'volumeFlow', 0)} unit={ul('volumeFlow')} />
+            <KV label="Débit humide"        value={d(FG_OUT_vol.wet, 'volumeFlow', 0)} unit={ul('volumeFlow')} />
             <GasTable
               data={{
-                'kg/h':   FG_OUT_mass,
-                'Nm³/h': {
+                [ul('massFlow')]:   FG_OUT_mass,
+                [ul('volumeFlow')]: {
                   CO2: FG_OUT_vol.CO2,
                   H2O: FG_OUT_vol.H2O,
                   O2:  FG_OUT_vol.O2,
@@ -771,13 +785,13 @@ const FB_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
         </div>
 
         {/* Bilan énergétique simplifié */}
-        <SubSection title="Bilan énergétique simplifié (kW)">
+        <SubSection title={`Bilan énergétique simplifié (${ul('energy')})`}>
           <table style={styles.table}>
             <thead>
               <tr style={{ backgroundColor: '#D4B5A0' }}>
                 <th style={{ ...styles.th, width: '40%' }}>Paramètre</th>
-                <th style={{ ...styles.th, backgroundColor: '#FFE6CC' }}>Entrée (kW)</th>
-                <th style={{ ...styles.th, backgroundColor: '#E6F3FF' }}>Sortie (kW)</th>
+                <th style={{ ...styles.th, backgroundColor: '#FFE6CC' }}>Entrée ({ul('energy')})</th>
+                <th style={{ ...styles.th, backgroundColor: '#E6F3FF' }}>Sortie ({ul('energy')})</th>
               </tr>
             </thead>
             <tbody>
@@ -793,19 +807,19 @@ const FB_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
               ].map(({ label, vin, vout }) => (
                 <tr key={label}>
                   <td style={{ ...styles.tdLabel, fontWeight: 'bold' }}>{label}</td>
-                  <td style={{ ...styles.td, backgroundColor: '#FFF8F0' }}>{vin != null ? fmt(vin, 2) : '—'}</td>
-                  <td style={{ ...styles.td, backgroundColor: '#F0F6FF' }}>{vout != null ? fmt(vout, 2) : '—'}</td>
+                  <td style={{ ...styles.td, backgroundColor: '#FFF8F0' }}>{vin != null ? d(vin, 'energy') : '—'}</td>
+                  <td style={{ ...styles.td, backgroundColor: '#F0F6FF' }}>{vout != null ? d(vout, 'energy') : '—'}</td>
                 </tr>
               ))}
               <tr style={{ fontWeight: 'bold' }}>
                 <td style={{ ...styles.tdLabel, backgroundColor: '#B0D0E8' }}>TOTAL ENTRÉE (H_in)</td>
-                <td style={{ ...styles.td, backgroundColor: '#ADD8E6' }}>{fmt(H_in, 2)}</td>
+                <td style={{ ...styles.td, backgroundColor: '#ADD8E6' }}>{d(H_in, 'energy')}</td>
                 <td style={{ ...styles.td, backgroundColor: '#B0D0E8' }}>—</td>
               </tr>
               <tr style={{ fontWeight: 'bold' }}>
                 <td style={{ ...styles.tdLabel, backgroundColor: '#B0D0E8' }}>TOTAL SORTIE (H_out)</td>
                 <td style={{ ...styles.td, backgroundColor: '#B0D0E8' }}>—</td>
-                <td style={{ ...styles.td, backgroundColor: '#ADD8E6' }}>{fmt(H_out, 2)}</td>
+                <td style={{ ...styles.td, backgroundColor: '#ADD8E6' }}>{d(H_out, 'energy')}</td>
               </tr>
               <tr style={{ opacity: 0.8 }}>
                 <td style={{ ...styles.tdLabel, fontStyle: 'italic', backgroundColor: '#f8f8f8' }}>
@@ -838,9 +852,9 @@ const FB_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
         </SubSection>
         <div style={styles.twoCol}>
           <SubSection title="Résidus solides">
-            <KV label="Cendres de foyer (sec) [kg/h]"  value={fmt(Residus.DryBottomAsh)} />
-            <KV label="Cendres de foyer (hum.) [kg/h]" value={fmt(Residus.WetBottomAsh)} />
-            <KV label="Cendres volantes [kg/h]"        value={fmt(Residus.FlyAsh)}       />
+            <KV label="Cendres de foyer (sec)"  value={d(Residus.DryBottomAsh, 'massFlow')} unit={ul('massFlow')} />
+            <KV label="Cendres de foyer (hum.)" value={d(Residus.WetBottomAsh, 'massFlow')} unit={ul('massFlow')} />
+            <KV label="Cendres volantes"         value={d(Residus.FlyAsh, 'massFlow')}       unit={ul('massFlow')} />
           </SubSection>
           <SubSection title="Consommation réactifs de traitement">
             {reactifDisplay.length > 0
@@ -882,8 +896,8 @@ const FB_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
                 <KV label={`Charge eau théorique [kg eau/h/m²]${ChargEau_kg_h_m2 > 540 ? ' ⚠' : ''}`}
                                                                           value={fmt(ChargEau_kg_h_m2, 2)}
                 />
-                <KV label="Capacité thermique du four [kW]"               value={fmt(CapaciteThermique, 1)}        />
-                <KV label="Densité thermique du four [kW/m²]"             value={fmt(DensiteThermique_kW_m2, 1)}      />
+                <KV label="Capacité thermique du four" value={d(CapaciteThermique, 'energy', 1)} unit={ul('energy')} />
+                <KV label="Densité thermique du four [kW/m²]" value={fmt(DensiteThermique_kW_m2, 1)} />
               </div>
             </div>
           )}
@@ -892,17 +906,17 @@ const FB_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
         <SubSection title="HX côté fumées">
           <div style={{ ...styles.twoCol, gap: 32 }}>
             <div>
-              <KV label="T° fumées voûte [°C]"             value={fmt(Temp_fumee_voute, 0)}      />
-              <KV label="Débit fumées humides [Nm³/h]"     value={fmt(FG_wet, 0)}            />
-              <KV label="Pression freeboard [mmCE]"        value={fmt(P_freeboard_mmCE, 0)}        />
-              <KV label="Débit fumées entrée HX [m³/h]"    value={fmt(Q_FG_wet_entree, 0)}   />
-              <KV label="Enthalpie fumées entrée [kW]"     value={fmt(Hf_voute, 1)}             />
+              <KV label="T° fumées voûte"          value={d(Temp_fumee_voute, 'temperature', 0)} unit={ul('temperature')} />
+              <KV label="Débit fumées humides"     value={d(FG_wet, 'volumeFlow', 0)}            unit={ul('volumeFlow')} />
+              <KV label="Pression freeboard [mmCE]" value={fmt(P_freeboard_mmCE, 0)}        />
+              <KV label="Débit fumées entrée HX [m³/h]" value={fmt(Q_FG_wet_entree, 0)}   />
+              <KV label="Enthalpie fumées entrée"  value={d(Hf_voute, 'energy', 1)}             unit={ul('energy')} />
             </div>
             <div>
-              <KV label="T° fumées sortie HX [°C]"         value={fmt(Tf_voute_ap_HX, 0)}       />
+              <KV label="T° fumées sortie HX"       value={d(Tf_voute_ap_HX, 'temperature', 0)} unit={ul('temperature')} />
               <KV label="Pression sortie HX fumées [mmCE]" value={fmt(P_sortie_HX_fg_mmCE, 0)}    />
               <KV label="Débit fumées sortie HX [m³/h]"   value={fmt(Q_FG_wet_sortie, 0)}   />
-              <KV label="Enthalpie fumées sortie [kW]"     value={fmt(Hf_voute_ap_HX, 1)}      />
+              <KV label="Enthalpie fumées sortie"          value={d(Hf_voute_ap_HX, 'energy', 1)} unit={ul('energy')} />
             </div>
           </div>
         </SubSection>
@@ -910,17 +924,17 @@ const FB_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
         <SubSection title="HX côté air">
           <div style={{ ...styles.twoCol, gap: 32 }}>
             <div>
-              <KV label="T° air soufflante [°C]"           value={fmt(Temp_air_soufflante, 0)}  />
-              <KV label="Débit air [Nm³/h]"                value={fmt(Q_air_comb_tot, 0)}   />
-              <KV label="PDC HX côté air [mmCE]"           value={fmt(PDC_HX_cote_air_mmCE, 1)}   />
-              <KV label="Pression entrée HX air [mmCE]"    value={fmt(P_cote_air_entree_mmCE, 0)} />
-              <KV label="Débit air entrée HX [m³/h]"       value={fmt(Q_air_entree_HX, 0)}   />
-              <KV label="Enthalpie air entrée [kW]"        value={fmt(H_air_soufflante, 1)}    />
+              <KV label="T° air soufflante"          value={d(Temp_air_soufflante, 'temperature', 0)} unit={ul('temperature')} />
+              <KV label="Débit air"                  value={d(Q_air_comb_tot, 'volumeFlow', 0)}     unit={ul('volumeFlow')} />
+              <KV label="PDC HX côté air [mmCE]"    value={fmt(PDC_HX_cote_air_mmCE, 1)}   />
+              <KV label="Pression entrée HX air [mmCE]" value={fmt(P_cote_air_entree_mmCE, 0)} />
+              <KV label="Débit air entrée HX [m³/h]" value={fmt(Q_air_entree_HX, 0)}   />
+              <KV label="Enthalpie air entrée"       value={d(H_air_soufflante, 'energy', 1)}       unit={ul('energy')} />
             </div>
             <div>
-              <KV label="T° air ap. préchauffe [°C]"       value={fmt(Tair_ap_prechauffe, 0)}   />
-              <KV label="Débit air sortie HX [m³/h]"       value={fmt(Q_air_sortie_HX, 0)}   />
-              <KV label="Enthalpie air sortie [kW]"        value={fmt(Hair_ap_prechauffage, 1)} />
+              <KV label="T° air ap. préchauffe"      value={d(Tair_ap_prechauffe, 'temperature', 0)} unit={ul('temperature')} />
+              <KV label="Débit air sortie HX [m³/h]" value={fmt(Q_air_sortie_HX, 0)}   />
+              <KV label="Enthalpie air sortie"        value={d(Hair_ap_prechauffage, 'energy', 1)} unit={ul('energy')} />
             </div>
           </div>
         </SubSection>
@@ -929,8 +943,8 @@ const FB_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
           <div style={{ ...styles.twoCol, gap: 32 }}>
             <div>
               <KV label="Rendement HX [%]"                 value={fmt(Rdt_HX, 1)}                             />
-              <KV label="Q chaleur cédée fumées [kW]"      value={fmt(Hf_voute - Hf_voute_ap_HX, 1)}   />
-              <KV label="Q chaleur reçue air [kW]"         value={fmt(Hair_ap_prechauffage - H_air_soufflante, 1)} />
+              <KV label="Q chaleur cédée fumées"   value={d(Hf_voute - Hf_voute_ap_HX, 'energy', 1)}             unit={ul('energy')} />
+              <KV label="Q chaleur reçue air"      value={d(Hair_ap_prechauffage - H_air_soufflante, 'energy', 1)} unit={ul('energy')} />
               <KV label="DTLM [K]"                         value={fmt(DTLM_HX, 2)}                            />
               <KV label="Facteur UA [W/K]"                 value={fmt(Facteur_UA, 0)}                         />
             </div>
@@ -947,14 +961,14 @@ const FB_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
         <SubSection title="Ventilateur">
           <div style={{ ...styles.twoCol, gap: 32 }}>
             <div>
-              <KV label="Débit air à pulser [Nm³/h]"       value={fmt(Q_air_pulser, 0)}             />
-              <KV label="Pression ventilateur [mmCE]"      value={fmt(P_cote_air_entree_mmCE, 0)}         />
-              <KV label="T° air soufflante [°C]"           value={fmt(Temp_air_soufflante, 0)}          />
+              <KV label="Débit air à pulser"         value={d(Q_air_pulser, 'volumeFlow', 0)}         unit={ul('volumeFlow')} />
+              <KV label="Pression ventilateur [mmCE]" value={fmt(P_cote_air_entree_mmCE, 0)}         />
+              <KV label="T° air soufflante"           value={d(Temp_air_soufflante, 'temperature', 0)} unit={ul('temperature')} />
             </div>
             <div>
               <KV label="Débit ventilateur [m³/h]"         value={fmt(Q_air_ventilateur, 0)}         />
               <KV label="Rendement ventilateur [%]"        value={fmt(Rendement_ventilateur_HX * 100, 1)} />
-              <KV label="Puissance électrique [kW]"        value={fmt(Puissance_elec_ventilateur, 1)}  />
+              <KV label="Puissance électrique"  value={d(Puissance_elec_ventilateur, 'energy', 1)} unit={ul('energy')} />
             </div>
           </div>
         </SubSection>
