@@ -66,6 +66,24 @@ body {
   text-transform: uppercase;
 }
 
+.unit-toggle-btn {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  color: white;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.unit-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
 /*Bordure cadre rouge entourant la zone de travail*/
 #app {
   width: 100vw;

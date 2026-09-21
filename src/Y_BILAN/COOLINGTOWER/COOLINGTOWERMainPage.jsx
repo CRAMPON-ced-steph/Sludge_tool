@@ -46,7 +46,7 @@ const COOLINGTOWERMainPage = ({ nodeData, title, onSendData, onClose, onGoBack, 
     onSendData({
       result: {
         ...innerData,
-        FG_OUT_kg_h : innerData['FG_OUT_kg_h'],
+        FG_OUT : innerData['FG_OUT'],
         PollutantInput : innerData['PInput'],
         T_OUT : innerData['T_OUT'],
         PollutantOutput :   innerData['Poutput'],
@@ -68,7 +68,7 @@ const COOLINGTOWERMainPage = ({ nodeData, title, onSendData, onClose, onGoBack, 
 };
 
 
-//  const TEST = nodeData.innerData.FG_CO2_kg_h;
+//  const TEST = nodeData.innerData.FG_CO2;
   return (
 <div className="cadre_pour_onglet_principal">
       <div

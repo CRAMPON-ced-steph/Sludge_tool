@@ -5,15 +5,15 @@
 /**
  * Calcule les masses en kg/h des composants pour une composition d'air donnée
  */
-export const calculateAirMassComposition = (airRow, masse_seche_kg_h, humidite_kg_h = 0) => {
-  const total_masse = masse_seche_kg_h + humidite_kg_h;
+export const calculateAirMassComposition = (airRow, masse_seche, humidite = 0) => {
+  const total_masse = masse_seche + humidite;
   return {
-    CO2_kg_h: total_masse * (airRow.CO2_pct / 100),
-    H2O_kg_h: total_masse * (airRow.H2O_pct / 100),
-    O2_kg_h: total_masse * (airRow.O2_pct / 100),
-    N2_kg_h: total_masse * (airRow.N2_pct / 100),
-    SO2_kg_h: total_masse * (airRow.SO2_pct / 100),
-    Cl_kg_h: total_masse * (airRow.Cl_pct / 100),
+    CO2: total_masse * (airRow.CO2_pct / 100),
+    H2O: total_masse * (airRow.H2O_pct / 100),
+    O2: total_masse * (airRow.O2_pct / 100),
+    N2: total_masse * (airRow.N2_pct / 100),
+    SO2: total_masse * (airRow.SO2_pct / 100),
+    Cl: total_masse * (airRow.Cl_pct / 100),
   };
 };
 
@@ -21,17 +21,17 @@ export const calculateAirMassComposition = (airRow, masse_seche_kg_h, humidite_k
  * Calcule les fractions massiques en % pour une composition d'air
  */
 export const calculateAirMassicFractions = (
-  CO2_kg_h, H2O_kg_h, O2_kg_h, N2_kg_h, SO2_kg_h, Cl_kg_h,
+  CO2, H2O, O2, N2, SO2, Cl,
   FractionMassiqueC, FractionMassiqueH, FractionMassiqueO, 
   FractionMassiqueN, FractionMassiqueS, FractionMassiqueCl
 ) => {
   return {
-    C_pct: FractionMassiqueC(CO2_kg_h, H2O_kg_h, O2_kg_h, N2_kg_h, SO2_kg_h, Cl_kg_h) || 0,
-    H_pct: FractionMassiqueH(CO2_kg_h, H2O_kg_h, O2_kg_h, N2_kg_h, SO2_kg_h, Cl_kg_h) || 0,
-    O_pct: FractionMassiqueO(CO2_kg_h, H2O_kg_h, O2_kg_h, N2_kg_h, SO2_kg_h, Cl_kg_h) || 0,
-    N_pct: FractionMassiqueN(CO2_kg_h, H2O_kg_h, O2_kg_h, N2_kg_h, SO2_kg_h, Cl_kg_h) || 0,
-    S_pct: FractionMassiqueS(CO2_kg_h, H2O_kg_h, O2_kg_h, N2_kg_h, SO2_kg_h, Cl_kg_h) || 0,
-    Cl_pct: FractionMassiqueCl(CO2_kg_h, H2O_kg_h, O2_kg_h, N2_kg_h, SO2_kg_h, Cl_kg_h) || 0,
+    C_pct: FractionMassiqueC(CO2, H2O, O2, N2, SO2, Cl) || 0,
+    H_pct: FractionMassiqueH(CO2, H2O, O2, N2, SO2, Cl) || 0,
+    O_pct: FractionMassiqueO(CO2, H2O, O2, N2, SO2, Cl) || 0,
+    N_pct: FractionMassiqueN(CO2, H2O, O2, N2, SO2, Cl) || 0,
+    S_pct: FractionMassiqueS(CO2, H2O, O2, N2, SO2, Cl) || 0,
+    Cl_pct: FractionMassiqueCl(CO2, H2O, O2, N2, SO2, Cl) || 0,
   };
 };
 
@@ -40,25 +40,25 @@ export const calculateAirMassicFractions = (
  */
 export const calculateAirElementMasses = (
   C_pct, H_pct, O_pct, N_pct, S_pct, Cl_pct, 
-  masse_seche_kg_h, humidite_kg_h = 0
+  masse_seche, humidite = 0
 ) => {
-  const total_masse = masse_seche_kg_h + humidite_kg_h;
+  const total_masse = masse_seche + humidite;
   return {
-    C_kg_h: total_masse * (C_pct / 100),
-    H_kg_h: total_masse * (H_pct / 100),
-    O_kg_h: total_masse * (O_pct / 100),
-    N_kg_h: total_masse * (N_pct / 100),
-    S_kg_h: total_masse * (S_pct / 100),
-    Cl_kg_h: total_masse * (Cl_pct / 100),
+    C: total_masse * (C_pct / 100),
+    H: total_masse * (H_pct / 100),
+    O: total_masse * (O_pct / 100),
+    N: total_masse * (N_pct / 100),
+    S: total_masse * (S_pct / 100),
+    Cl: total_masse * (Cl_pct / 100),
   };
 };
 
 /**
  * Calcule les moles d'un élément à partir de sa masse
  */
-export const calculateMoles = (masse_kg_h, masse_molaire) => {
-  if (!masse_kg_h || !masse_molaire) return 0;
-  return (masse_kg_h / masse_molaire) * 1000;
+export const calculateMoles = (masse, masse_molaire) => {
+  if (!masse || !masse_molaire) return 0;
+  return (masse / masse_molaire) * 1000;
 };
 
 /**

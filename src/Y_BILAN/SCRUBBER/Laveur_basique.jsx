@@ -25,7 +25,7 @@ const SO2ScrubberCalculator = ({ innerData = {}, setInnerData, currentLanguage =
 
   // ===== ÉTATS PRINCIPAUX =====
   const [fumeParams, setFumeParams] = useState({
-    'Débit volumique fumées (Nm³/h)': getInitialValue('FG_humide_EAU_tot_Nm3_h', 1),
+    'Débit volumique fumées (Nm³/h)': getInitialValue('FG_humide_EAU_tot', 1),
     'Concentration SO2 entrée (mg/Nm³)': getInitialValue('concSO2Entree', 1),
     'Concentration SO2 sortie souhaitée (mg/Nm³)': getInitialValue('concSO2Sortie', 0.1),
     'Température fumées (°C)': getInitialValue('T_FG_out_acid', 1),

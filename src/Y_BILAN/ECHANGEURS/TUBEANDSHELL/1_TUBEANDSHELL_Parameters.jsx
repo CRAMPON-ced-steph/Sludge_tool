@@ -123,7 +123,7 @@ const TubeAndShellParameters = ({ innerData, upstreamT_IN, upstreamFG_IN, upstre
   const FG_IN     = upstreamFG_IN || { CO2: 0, H2O: 0, O2: 0, N2: 0 };
   const P_IN      = upstreamP_IN ?? 0;
 
-  const FG_tot_Nm3_h =
+  const FG_tot =
     CO2_kg_m3(FG_IN.CO2 || 0) + H2O_kg_m3(FG_IN.H2O || 0) +
     O2_kg_m3(FG_IN.O2   || 0) + N2_kg_m3(FG_IN.N2   || 0);
 
@@ -220,8 +220,8 @@ const TubeAndShellParameters = ({ innerData, upstreamT_IN, upstreamFG_IN, upstre
     innerData.T_IN            = T_FG_in;
     innerData.T_OUT           = T_FG_out_calc;
     innerData.P_OUT           = P_out_mmCE;
-    innerData.FG_OUT_kg_h     = { CO2: FG_IN.CO2, H2O: FG_IN.H2O, O2: FG_IN.O2, N2: FG_IN.N2 };
-    innerData.FG_humide_tot   = FG_tot_Nm3_h;
+    innerData.FG_OUT     = { CO2: FG_IN.CO2, H2O: FG_IN.H2O, O2: FG_IN.O2, N2: FG_IN.N2 };
+    innerData.FG_humide_tot   = FG_tot;
     innerData.FG_sec_tot      = CO2_kg_m3(FG_IN.CO2 || 0) + O2_kg_m3(FG_IN.O2 || 0) + N2_kg_m3(FG_IN.N2 || 0);
     innerData.H_FG_in_kWh     = H_FG_in_kWh;
     innerData.H_FG_out_kWh    = H_FG_out_kWh;
@@ -229,7 +229,7 @@ const TubeAndShellParameters = ({ innerData, upstreamT_IN, upstreamFG_IN, upstre
     innerData.Q_utile_eau_kWh = Q_utile_eau_kWh;
     innerData.T_moyen_eau     = T_moyen_eau;
     innerData.cp_fluide       = cp_fluide_val;
-    innerData.m_eau_kg_h      = fluide === 'eau' ? m_eau_CpL : V_air_CpL;
+    innerData.m_eau      = fluide === 'eau' ? m_eau_CpL : V_air_CpL;
     innerData.D_TLM           = d_tlm;
     innerData.Fact_UA         = fact_ua;
     innerData.Surface_m2      = surface;
@@ -285,7 +285,7 @@ const TubeAndShellParameters = ({ innerData, upstreamT_IN, upstreamFG_IN, upstre
         <div style={sectionStyle}>
           <SectionTitle text="Côté fumées" />
           <InputRow label="T fumées entrée"          disabled value={T_FG_in.toFixed(1)}       unit="[°C]" />
-          <InputRow label="Débit vol. fumées entrée" disabled value={FG_tot_Nm3_h.toFixed(0)}   unit="[Nm³/h]" />
+          <InputRow label="Débit vol. fumées entrée" disabled value={FG_tot.toFixed(0)}   unit="[Nm³/h]" />
           <InputRow label="T fumées sortie"          value={params.T_fumee_out ?? 0} onChange={(v) => set('T_fumee_out', v)} unit="[°C]" />
           <InputRow label="PDC écono"                value={params.PDC_econo}        onChange={(v) => set('PDC_econo', v)}   unit="[mmCE]" />
           <InputRowCalc label="Enthalpie fumées entrée"  value={H_FG_in_kWh}  unit="[kWh]" />

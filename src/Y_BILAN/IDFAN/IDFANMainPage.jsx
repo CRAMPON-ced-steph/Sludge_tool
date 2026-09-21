@@ -28,7 +28,7 @@ const IDFANMainPage = ({ nodeData, title, onSendData, onClose, onGoBack, current
 
   // Valeurs amont capturées une fois au montage — stables à travers les changements d'onglet
   const T_IN_upstream  = useRef(nodeData?.result?.T_OUT ?? 200).current;
-  const FG_IN_upstream = useRef(nodeData?.result?.FG_OUT_kg_h || { CO2: 1, H2O: 1, O2: 1, N2: 1 }).current;
+  const FG_IN_upstream = useRef(nodeData?.result?.FG_OUT || { CO2: 1, H2O: 1, O2: 1, N2: 1 }).current;
   const P_IN_upstream  = useRef(nodeData?.result?.P_OUT ?? 0).current;
 
   const tabs = [
@@ -64,7 +64,7 @@ const IDFANMainPage = ({ nodeData, title, onSendData, onClose, onGoBack, current
     onSendData({
       result: {
         ...innerData,
-        FG_OUT_kg_h : innerData['FG_OUT_kg_h'],
+        FG_OUT : innerData['FG_OUT'],
         PollutantInput : innerData['PInput'],
         T_OUT : innerData['T_OUT'],
         PollutantOutput :   innerData['Poutput'],
@@ -98,7 +98,7 @@ const IDFANMainPage = ({ nodeData, title, onSendData, onClose, onGoBack, current
 
 
 
-//  const TEST = nodeData.innerData.FG_CO2_kg_h;
+//  const TEST = nodeData.innerData.FG_CO2;
 
 
   return (

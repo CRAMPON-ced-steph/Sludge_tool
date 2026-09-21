@@ -6,6 +6,7 @@ import '@xyflow/react/dist/style.css';
 import DropdownMenu from './C_Components/MenuDeroulant';
 import { takeScreenshot } from './H_SaveAndLoad/screenshotUtils';
 import Toggle10choice from './F_Gestion_Langues/togglechoice';
+import { useUnit } from './context/UnitContext';
 
 import {
   RKMainPage, FBMainPage, WHBMainPage,
@@ -70,6 +71,7 @@ function Flow({
   onShowEmailManagement,
   onLogout
 }) {
+  const { unitSystem, toggle: toggleUnit } = useUnit();
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [headNode, setHeadNode] = useState(null);
@@ -432,6 +434,13 @@ function Flow({
     <>
     <div className="app-banner">
       <span>BIOSOLIDS INCINERATION DESIGN TOOL</span>
+      <button
+        onClick={toggleUnit}
+        className="unit-toggle-btn"
+        title={unitSystem === 'SI' ? 'Switch to US customary units' : 'Switch to SI units'}
+      >
+        {unitSystem === 'SI' ? '🇺🇸 US units' : '🇪🇺 SI units'}
+      </button>
     </div>
     <div className="Zone-fond-blanc">
       <Sidebar onAddNode={onAddNode} currentLanguage={currentLanguage} />

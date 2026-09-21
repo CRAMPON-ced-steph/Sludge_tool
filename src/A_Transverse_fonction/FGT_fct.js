@@ -1,5 +1,8 @@
 import { molarMasses } from '../A_Transverse_fonction/constantes';
 
+// All variables below are in SI units internally.
+// Use toSI() on input, fromSI() on output, label() for display.
+
 export const R_1 = (pollutant, product) => {
   switch (pollutant) {
     case 'SOx':
@@ -99,16 +102,16 @@ export const R_3 = (pollutant, product) => {
 
 
 
-export const Calcul_FGT = (R1, R2, R3, efficacite_treatement, mass_inlet_kg_h, stoechio_imposee) => {
+export const Calcul_FGT = (R1, R2, R3, efficacite_treatement, mass_inlet, stoechio_imposee) => {
   let mass_reduction, mass_reactif_st, mass_reactif_reel, mass_residus, mass_sortie;
 
 
-    mass_reduction = mass_inlet_kg_h * efficacite_treatement; // masse de polluant à abattre
+    mass_reduction = mass_inlet * efficacite_treatement; // masse de polluant à abattre
     mass_reactif_st = mass_reduction * R1;
     mass_reactif_reel = mass_reactif_st * stoechio_imposee;
     mass_residus = R2 * (mass_reactif_reel - mass_reactif_st) + R3 * mass_reduction;
 
-    mass_sortie = mass_inlet_kg_h - mass_reduction;
+    mass_sortie = mass_inlet - mass_reduction;
 
   return {
     mass_reduction,

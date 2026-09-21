@@ -43,38 +43,38 @@ const DimensionnementTab = ({ innerData = {}, innerDataTick, onDataChange, curre
 
   const [parametres, setParametres] = useState({
     NombreFour: innerData?.NombreFour?.toString() ?? '1',
-    DebitVolFumeesHumide_Nm3hFour: innerData?.FG_wet_Nm3_h ?? 0,
+    DebitVolFumeesHumide_Nm3hFour: innerData?.FG_wet ?? 0,
     VolTotalAirInstrumentation_Nm3h: innerData?.Volume_air_balayage ?? 0,
     Modele: innerData?.Modele ?? 'R36',
     DiametreVouteKey: innerData?.DiametreVouteKey ?? '2.258',
     DiametreTrous_mm: innerData?.DiametreTrous_mm?.toString() ?? '5',
-    TempNiveauVoute_C: innerData?.TempNiveauVoute_C?.toString() ?? '720',
+    TempNiveauVoute: innerData?.TempNiveauVoute?.toString() ?? '720',
     NeutralisationCentre: innerData?.NeutralisationCentre ?? true,
-    TempFreeboard_C: innerData?.Temp_fumee_voute_C ?? 870,
+    TempFreeboard: innerData?.Temp_fumee_voute ?? 870,
     PressionFreeboard_mmCe: '0',
     PressionVouteDefaut_mmCe: innerData?.PressionVouteDefaut_mmCe?.toString() ?? '2000',
-    TempEntreeBoiteVent_C: innerData?.Tair_ap_prechauffe_C ?? 0,
-    VolAirEntreeBoiteVent_Nm3h: innerData?.Q_air_comb_tot_Nm3_h ?? 0,
+    TempEntreeBoiteVent: innerData?.Tair_ap_prechauffe ?? 0,
+    VolAirEntreeBoiteVent_Nm3h: innerData?.Q_air_comb_tot ?? 0,
     VitesseReelleTuyere_ms: '90',
   });
 
   useEffect(() => {
     setParametres((prev) => ({
       ...prev,
-      DebitVolFumeesHumide_Nm3hFour: innerData?.FG_wet_Nm3_h ?? prev.DebitVolFumeesHumide_Nm3hFour,
+      DebitVolFumeesHumide_Nm3hFour: innerData?.FG_wet ?? prev.DebitVolFumeesHumide_Nm3hFour,
       VolTotalAirInstrumentation_Nm3h: innerData?.Volume_air_balayage ?? prev.VolTotalAirInstrumentation_Nm3h,
-      TempFreeboard_C: innerData?.Temp_fumee_voute_C ?? prev.TempFreeboard_C,
+      TempFreeboard: innerData?.Temp_fumee_voute ?? prev.TempFreeboard,
     }));
-  }, [innerData?.FG_wet_Nm3_h, innerData?.Volume_air_balayage, innerData?.Temp_fumee_voute_C]);
+  }, [innerData?.FG_wet, innerData?.Volume_air_balayage, innerData?.Temp_fumee_voute]);
 
   const calculsComplets = useMemo(() => {
     const NombreFour = Number(parametres.NombreFour) || 1;
     const DebitVolFumeesHumide_Nm3hFour = (Number(parametres.DebitVolFumeesHumide_Nm3hFour) || 0) / NombreFour;
     const VolTotalAirInstrumentation_Nm3h = Number(parametres.VolTotalAirInstrumentation_Nm3h) || 0;
-    const TempFreeboard_C = Number(parametres.TempFreeboard_C) || 870;
+    const TempFreeboard = Number(parametres.TempFreeboard) || 870;
     const PressionFreeboard_mmCe = 0;
-    const DebitFumeesHumides_m3hFour = calculDebitPT(DebitVolFumeesHumide_Nm3hFour, PressionFreeboard_mmCe, TempFreeboard_C);
-    const VolAirInstr20PctHautFour_Nm3h = calculDebitPT(0.2 * VolTotalAirInstrumentation_Nm3h, PressionFreeboard_mmCe, TempFreeboard_C);
+    const DebitFumeesHumides_m3hFour = calculDebitPT(DebitVolFumeesHumide_Nm3hFour, PressionFreeboard_mmCe, TempFreeboard);
+    const VolAirInstr20PctHautFour_Nm3h = calculDebitPT(0.2 * VolTotalAirInstrumentation_Nm3h, PressionFreeboard_mmCe, TempFreeboard);
 
     const Modele = parametres.Modele;
     const reacteur = REACTEURS[Modele];
@@ -97,17 +97,17 @@ const DimensionnementTab = ({ innerData = {}, innerDataTick, onDataChange, curre
     const PressionVouteDefaut_mmCe = Number(parametres.PressionVouteDefaut_mmCe) || 2000;
     const DiametreTrous_mm = Number(parametres.DiametreTrous_mm) || 5;
     const DiametreVoute_m = voute.DiametreVoute;
-    const TempEntreeBoiteVent_C = Number(parametres.TempEntreeBoiteVent_C);
+    const TempEntreeBoiteVent = Number(parametres.TempEntreeBoiteVent);
     const VolAirEntreeBoiteVent_Nm3h = Number(parametres.VolAirEntreeBoiteVent_Nm3h);
-    const TempNiveauVoute_C = Number(parametres.TempNiveauVoute_C) || 720;
-    const DebitAirReelBoiteVentM3h_init_m3h = calculDebitPT(VolAirEntreeBoiteVent_Nm3h, PressionVouteDefaut_mmCe, TempEntreeBoiteVent_C);
+    const TempNiveauVoute = Number(parametres.TempNiveauVoute) || 720;
+    const DebitAirReelBoiteVentM3h_init_m3h = calculDebitPT(VolAirEntreeBoiteVent_Nm3h, PressionVouteDefaut_mmCe, TempEntreeBoiteVent);
 
     let VitesseReelleTuyere_ms = Number(parametres.VitesseReelleTuyere_ms) || 90;
 
     // Iteration 1
-    let PDC_Voute_Iter1 = Calcul_DH_Voute(PressionVouteDefaut_mmCe, TempEntreeBoiteVent_C, VitesseReelleTuyere_ms);
+    let PDC_Voute_Iter1 = Calcul_DH_Voute(PressionVouteDefaut_mmCe, TempEntreeBoiteVent, VitesseReelleTuyere_ms);
     let PressionVoute_mmCe = 2000 - PDC_Voute_Iter1 * 1000;
-    let DebitAirReelBoiteVent_m3h = calculDebitPT(VolAirEntreeBoiteVent_Nm3h, PressionVoute_mmCe, TempNiveauVoute_C);
+    let DebitAirReelBoiteVent_m3h = calculDebitPT(VolAirEntreeBoiteVent_Nm3h, PressionVoute_mmCe, TempNiveauVoute);
 
     const SurfaceVoute_m2 = (Math.PI * Math.pow(DiametreVoute_m, 2)) / 4;
 
@@ -130,9 +130,9 @@ const DimensionnementTab = ({ innerData = {}, innerDataTick, onDataChange, curre
     const VitesseReelleTuyereIter1_ms = VitesseReelleTuyere_ms;
 
     // Iteration 2
-    PDC_Voute_Iter1 = Calcul_DH_Voute(PressionVouteDefaut_mmCe, TempEntreeBoiteVent_C, VitesseReelleTuyere_ms);
+    PDC_Voute_Iter1 = Calcul_DH_Voute(PressionVouteDefaut_mmCe, TempEntreeBoiteVent, VitesseReelleTuyere_ms);
     PressionVoute_mmCe = 2000 - PDC_Voute_Iter1 * 1000;
-    DebitAirReelBoiteVent_m3h = calculDebitPT(VolAirEntreeBoiteVent_Nm3h, PressionVoute_mmCe, TempNiveauVoute_C);
+    DebitAirReelBoiteVent_m3h = calculDebitPT(VolAirEntreeBoiteVent_Nm3h, PressionVoute_mmCe, TempNiveauVoute);
     DebitAirReelBoiteVentM3h_m3s = DebitAirReelBoiteVent_m3h / 3600;
     DebitReelTuyeres_m3s = DebitAirReelBoiteVentM3h_init_m3h / 3600 / NbrTuyeres;
     SurfaceTuyeresReelle_m2 = DebitReelTuyeres_m3s / 90;
@@ -148,12 +148,12 @@ const DimensionnementTab = ({ innerData = {}, innerDataTick, onDataChange, curre
       DebitVolFumeesHumide_Nm3hFour,
       VolTotalAirInstrumentation_Nm3h,
       DiametreTrous_mm,
-      TempNiveauVoute_C,
+      TempNiveauVoute,
       NeutralisationCentre,
-      TempFreeboard_C,
+      TempFreeboard,
       PressionFreeboard_mmCe,
       PressionVouteDefaut_mmCe,
-      TempEntreeBoiteVent_C,
+      TempEntreeBoiteVent,
       VolAirEntreeBoiteVent_Nm3h,
       Modele,
       DiametreVouteKey: parametres.DiametreVouteKey,
@@ -309,7 +309,7 @@ const DimensionnementTab = ({ innerData = {}, innerDataTick, onDataChange, curre
             </label>
             <input
               type="text"
-              value={`${parametres.TempFreeboard_C} °C`}
+              value={`${parametres.TempFreeboard} °C`}
               readOnly
               style={readOnlyStyle}
             />
@@ -405,8 +405,8 @@ const DimensionnementTab = ({ innerData = {}, innerDataTick, onDataChange, curre
             />
           </div>
           {[
-            { label: 'Temperature Entree Boite à Vent [°C]', key: 'TempEntreeBoiteVent_C', step: '10', readOnly: true },
-            { label: 'Temperature Niveau Voute [°C]', key: 'TempNiveauVoute_C', step: '10' },
+            { label: 'Temperature Entree Boite à Vent [°C]', key: 'TempEntreeBoiteVent', step: '10', readOnly: true },
+            { label: 'Temperature Niveau Voute [°C]', key: 'TempNiveauVoute', step: '10' },
             { label: 'Pression niveau Voute par Defaut [mmCE]', key: 'PressionVouteDefaut_mmCe', step: '100' },
             { label: 'Débit Air humide Entree Boite à Vent [Nm3/h]', key: 'VolAirEntreeBoiteVent_Nm3h', step: '10', decimals: 2, readOnly: true },
             { label: 'Vitesse Reelle Tuyere [m/s]', key: 'VitesseReelleTuyere_ms', step: '1' },
@@ -584,15 +584,15 @@ const DimensionnementTab = ({ innerData = {}, innerDataTick, onDataChange, curre
                 })(),
                 {
                   label: 'Charge MS théorique du radier [kg MS/h/m²]',
-                  val: calculsComplets.SurfaceVoute_m2 > 0 ? ((innerData?.MS_kg_h ?? 0) / calculsComplets.NombreFour / calculsComplets.SurfaceVoute_m2).toFixed(2) : '-',
+                  val: calculsComplets.SurfaceVoute_m2 > 0 ? ((innerData?.MS ?? 0) / calculsComplets.NombreFour / calculsComplets.SurfaceVoute_m2).toFixed(2) : '-',
                 },
                 {
                   label: 'Charge MV théorique [kg MV/h/m²]',
-                  val: calculsComplets.SurfaceVoute_m2 > 0 ? ((innerData?.MV_kg_h ?? 0) / calculsComplets.NombreFour / calculsComplets.SurfaceVoute_m2).toFixed(2) : '-',
+                  val: calculsComplets.SurfaceVoute_m2 > 0 ? ((innerData?.MV ?? 0) / calculsComplets.NombreFour / calculsComplets.SurfaceVoute_m2).toFixed(2) : '-',
                 },
                 (() => {
                   const chargeEau = calculsComplets.SurfaceVoute_m2 > 0
-                    ? (innerData?.EauExtraite_kg_h ?? 0) / calculsComplets.NombreFour / calculsComplets.SurfaceVoute_m2
+                    ? (innerData?.EauExtraite ?? 0) / calculsComplets.NombreFour / calculsComplets.SurfaceVoute_m2
                     : null;
                   const alerte = chargeEau !== null && chargeEau > 540 ? t('Charge eau > 540 kg/h/m²') : null;
                   return { label: 'Charge eau théorique [kg eau/h/m²]', val: chargeEau !== null ? chargeEau.toFixed(2) : '-', alerte };
@@ -600,20 +600,20 @@ const DimensionnementTab = ({ innerData = {}, innerDataTick, onDataChange, curre
                 {
                   label: 'Capacité thermique du four [kW]',
                   val: (() => {
-                    const H_in = innerData?.H_in_kW ?? 0;
-                    const H_pertes = innerData?.H_pertes_kW ?? 0;
-                    const H_imbrule = innerData?.H_imbrule_kW ?? 0;
-                    const H_air_instr = innerData?.H_air_balayage_kW ?? 0;
+                    const H_in = innerData?.H_in ?? 0;
+                    const H_pertes = innerData?.H_pertes ?? 0;
+                    const H_imbrule = innerData?.H_imbrule ?? 0;
+                    const H_air_instr = innerData?.H_air_balayage ?? 0;
                     return (H_in - H_pertes - H_imbrule - H_air_instr).toFixed(1);
                   })(),
                 },
                 {
                   label: 'Densité thermique du four [kW/m²]',
                   val: (() => {
-                    const H_in = innerData?.H_in_kW ?? 0;
-                    const H_pertes = innerData?.H_pertes_kW ?? 0;
-                    const H_imbrule = innerData?.H_imbrule_kW ?? 0;
-                    const H_air_instr = innerData?.H_air_balayage_kW ?? 0;
+                    const H_in = innerData?.H_in ?? 0;
+                    const H_pertes = innerData?.H_pertes ?? 0;
+                    const H_imbrule = innerData?.H_imbrule ?? 0;
+                    const H_air_instr = innerData?.H_air_balayage ?? 0;
                     const capacite = H_in - H_pertes - H_imbrule - H_air_instr;
                     const surface = calculsComplets.SurfaceVoute_m2;
                     return surface > 0 ? (capacite / surface).toFixed(1) : '-';

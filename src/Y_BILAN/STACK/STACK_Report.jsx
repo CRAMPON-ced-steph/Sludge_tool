@@ -42,16 +42,16 @@ const computeOpexCosts = (innerData) => {
   const { purchaseElectricityPrice = 0, ratioElec = 0, availability = 8000, currency = '€', airConsumptionPrice = 0, powerRatio = 0 } = getOpexData();
   const d = innerData || {};
   const elecRows = [1,2,3,4,5,6,7,8].map(i => ({ label: d[`labelElec${i}`] || `Poste ${i}`, kW: d[`consoElec${i}`] || 0 })).filter(r => r.kW > 0);
-  const totalElec_kW = elecRows.reduce((s, r) => s + r.kW, 0);
-  const coutElec = (totalElec_kW / 1000) * purchaseElectricityPrice;
-  const co2Elec = (ratioElec * totalElec_kW) / 1000;
+  const totalElec = elecRows.reduce((s, r) => s + r.kW, 0);
+  const coutElec = (totalElec / 1000) * purchaseElectricityPrice;
+  const co2Elec = (ratioElec * totalElec) / 1000;
   const conso_air = d.conso_air_co_N_m3 || 0;
   const coutAir = (conso_air / 1000) * airConsumptionPrice;
   const co2Air = (conso_air * powerRatio * ratioElec) / 1000;
   const totalCout_h = coutElec + coutAir;
   const totalCout_an = totalCout_h * availability;
   const totalCO2_kgh = co2Elec + co2Air;
-  return { elecRows, totalElec_kW, coutElec, co2Elec, coutAir, co2Air, totalCout_h, totalCout_an, totalCO2_kgh, currency, availability };
+  return { elecRows, totalElec, coutElec, co2Elec, coutAir, co2Air, totalCout_h, totalCout_an, totalCO2_kgh, currency, availability };
 };
 
 const STACK_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
@@ -60,9 +60,9 @@ const STACK_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
   // ── Gaz de combustion ──────────────────────────────────────────────────────
   const T_OUT    = innerData.T_OUT || 0;
   const T_STACK_in = innerData.T_STACK_in || T_OUT;
-  const FG_OUT_kg_h   = innerData.FG_OUT_kg_h || {};
-  const FG_OUT_Nm3_h  = innerData.FG_STACK_OUT_Nm3_h || innerData.FG_OUT_Nm3_h || {};
-  const FG_wet_total  = (FG_OUT_kg_h.CO2 || 0) + (FG_OUT_kg_h.H2O || 0) + (FG_OUT_kg_h.O2 || 0) + (FG_OUT_kg_h.N2 || 0);
+  const FG_OUT_mass   = innerData.FG_OUT_mass || {};
+  const FG_OUT_vol  = innerData.FG_STACK_OUT || innerData.FG_OUT_vol || {};
+  const FG_wet_total  = (FG_OUT_mass.CO2 || 0) + (FG_OUT_mass.H2O || 0) + (FG_OUT_mass.O2 || 0) + (FG_OUT_mass.N2 || 0);
   const O2_calcule    = innerData.O2_calcule || innerData.O2calcul || 0;
 
   // ── Émissions polluantes ───────────────────────────────────────────────────
@@ -80,9 +80,9 @@ const STACK_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
   const pollutantType = innerData.stack_pollutant_type || '—';
   const zone          = innerData.stack_zone;
   const isGaz         = innerData.stack_is_gaz;
-  const Qv_Nm3_h      = innerData.stack_Qv_Nm3_h;
-  const Qv_m3_h       = innerData.stack_Qv_m3_h;
-  const Qm_kg_h       = innerData.stack_Qm_kg_h;
+  const Qv_norm      = innerData.stack_Qv_norm;
+  const Qv_real       = innerData.stack_Qv_real;
+  const Qm       = innerData.stack_Qm;
 
   // ── Consommations électriques (Design tab) ─────────────────────────────────
   const elecRows = [1,2,3,4,5,6,7,8]
@@ -104,13 +104,13 @@ const STACK_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
             <KV label={t('stackInletTemp')} value={fmt(T_STACK_in, 0)} />
             <KV label={t('o2Dry')} value={fmt(O2_calcule)} unit="%" />
             <KV label={t('wetFlowTotal')} value={fmt(FG_wet_total)} />
-            <KV label={t('dryFlowNm3h')}    value={fmt(FG_OUT_Nm3_h.dry  ?? innerData.FG_sec_tot,  0)} />
-            <KV label={t('wetFlowNm3h')} value={fmt(FG_OUT_Nm3_h.wet  ?? innerData.FG_humide_tot, 0)} />
+            <KV label={t('dryFlowNm3h')}    value={fmt(FG_OUT_vol.dry  ?? innerData.FG_sec_tot,  0)} />
+            <KV label={t('wetFlowNm3h')} value={fmt(FG_OUT_vol.wet  ?? innerData.FG_humide_tot, 0)} />
           </SubSection>
           <SubSection title={t('gasComposition')}>
             <GasTable data={{
-              'kg/h':   FG_OUT_kg_h,
-              'Nm³/h':  { CO2: FG_OUT_Nm3_h.CO2, H2O: FG_OUT_Nm3_h.H2O, O2: FG_OUT_Nm3_h.O2, N2: FG_OUT_Nm3_h.N2 },
+              'kg/h':   FG_OUT_mass,
+              'Nm³/h':  { CO2: FG_OUT_vol.CO2, H2O: FG_OUT_vol.H2O, O2: FG_OUT_vol.O2, N2: FG_OUT_vol.N2 },
             }} />
           </SubSection>
         </div>
@@ -131,9 +131,9 @@ const STACK_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
         ) : (
           <div style={styles.twoCol}>
             <SubSection title={t('gasFlows')}>
-              <KV label={t('wetMassFlow')}   value={fmt(Qm_kg_h,  0)} />
-              <KV label={t('dryVolume')}              value={fmt(Qv_Nm3_h, 0)} />
-              <KV label={t('realVolAtTemp')}  value={fmt(Qv_m3_h,  0)} />
+              <KV label={t('wetMassFlow')}   value={fmt(Qm,  0)} />
+              <KV label={t('dryVolume')}              value={fmt(Qv_norm, 0)} />
+              <KV label={t('realVolAtTemp')}  value={fmt(Qv_real,  0)} />
               <KV label={t('referencePolluant')}           value={pollutantType} />
               <KV label={t('typeLabel')}                            value={isGaz ? t('gas') : t('dust')} />
               <KV label={t('regulatoryZone')}              value={zone !== undefined ? `${t('zone')} ${zone}` : '—'} />
@@ -164,7 +164,7 @@ const STACK_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
 
       {/* ── Section 4 : OPEX ──────────────────────────────────────────────── */}
       <Section title={`4. ${t('opexHourlyCosts')}`}>
-        {opex.totalElec_kW === 0
+        {opex.totalElec === 0
           ? <p style={{ color: '#999', fontSize: 12, padding: '10px 14px' }}>{t('noOpexData')}</p>
           : (
             <div>

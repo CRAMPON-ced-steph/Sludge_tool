@@ -30,8 +30,8 @@ const STACKFlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr', setI
   // Extract input data with safe fallbacks
   const FlyAsh_g_Nm3 = emissions2[t('flyAshContent')] || 0;
   const O2ref = emissions2[t('O2RefPercent')] || 11;
-  const Debit_fumees_humide_Nm3_h = innerData?.FG_humide_tot || 1;
-  const Debit_fumees_sec_Nm3_h = innerData?.FG_sec_tot || 1;
+  const Debit_fumees_humide = innerData?.FG_humide_tot || 1;
+  const Debit_fumees_sec = innerData?.FG_sec_tot || 1;
   const FG_O2_calcule = innerData?.O2calcul || 12;
   const masses_pollutant_input = innerData?.PollutantOutput || {};
 
@@ -113,7 +113,7 @@ const STACKFlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr', setI
         masses={masses_pollutant_input}
         O2_mesure={FG_O2_calcule}
         O2_ref={O2ref}
-        Debit_fumees_sec_Nm3_h={Debit_fumees_sec_Nm3_h}
+        Debit_fumees_sec={Debit_fumees_sec}
       />
     </div>
   );

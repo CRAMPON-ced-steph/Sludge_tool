@@ -25,24 +25,24 @@ const Sd_m2 = (D) => {
   return Math.PI * D * D * 0.25;
 };
 
-const H_fumee_chonscl = (temp, FG_chonscl_kg_h) => {
+const H_fumee_chonscl = (temp, FG_chonscl) => {
   const firstTerm = temp * (
-    0.226 * (FG_chonscl_kg_h.CO2 || 0) +
-    0.427 * (FG_chonscl_kg_h.H2O || 0) +
-    0.225 * (FG_chonscl_kg_h.O2 || 0) +
-    0.239 * (FG_chonscl_kg_h.N2 || 0) +
-    0.164 * (FG_chonscl_kg_h.SO2 || 0) +
-    0.19 * (FG_chonscl_kg_h.HCl || 0)
+    0.226 * (FG_chonscl.CO2 || 0) +
+    0.427 * (FG_chonscl.H2O || 0) +
+    0.225 * (FG_chonscl.O2 || 0) +
+    0.239 * (FG_chonscl.N2 || 0) +
+    0.164 * (FG_chonscl.SO2 || 0) +
+    0.19 * (FG_chonscl.HCl || 0)
   );
   const secondTerm = Math.pow(temp, 2) * (
-    46.5e-6 * (FG_chonscl_kg_h.CO2 || 0) +
-    80.5e-6 * (FG_chonscl_kg_h.H2O || 0) +
-    24.5e-6 * (FG_chonscl_kg_h.O2 || 0) +
-    27e-6 * (FG_chonscl_kg_h.N2 || 0) +
-    25.5e-6 * (FG_chonscl_kg_h.SO2 || 0) +
-    11.5e-6 * (FG_chonscl_kg_h.HCl || 0)
+    46.5e-6 * (FG_chonscl.CO2 || 0) +
+    80.5e-6 * (FG_chonscl.H2O || 0) +
+    24.5e-6 * (FG_chonscl.O2 || 0) +
+    27e-6 * (FG_chonscl.N2 || 0) +
+    25.5e-6 * (FG_chonscl.SO2 || 0) +
+    11.5e-6 * (FG_chonscl.HCl || 0)
   );
-  const thirdTerm = (FG_chonscl_kg_h.H2O || 0) * 597;
+  const thirdTerm = (FG_chonscl.H2O || 0) * 597;
   return firstTerm + secondTerm + thirdTerm;
 };
 
@@ -135,13 +135,13 @@ const HClScrubberCalculator = ({ innerData, setInnerData, currentLanguage = 'fr'
       const ConcHClAr = parseValue(concentrations['Conc. HCl arrosage (%)']);
 
       const Efficacite_venturi = parseValue(parametres['Efficacité venturi']);
-      const Temperature_eau_appoint_C = parseValue(parametres['Temp. eau appoint (°C)']);
+      const Temperature_eau_appoint = parseValue(parametres['Temp. eau appoint (°C)']);
       const Diametre_Cone_mm = parseValue(parametres['Diamètre cône (mm)']);
 
       // Validation
-      const Qm_total_in_kg_h = Qm_CO2 + Qm_H2O + Qm_O2 + Qm_N2 + Qm_SO2 + Qm_HCl;
+      const Qm_total_in = Qm_CO2 + Qm_H2O + Qm_O2 + Qm_N2 + Qm_SO2 + Qm_HCl;
 
-      if (Qm_total_in_kg_h === 0 || isNaN(Qm_total_in_kg_h)) {
+      if (Qm_total_in === 0 || isNaN(Qm_total_in)) {
         setErreur(t('ERR_invalid_mass_flow'));
         setResultats(null);
         return;
@@ -184,7 +184,7 @@ const HClScrubberCalculator = ({ innerData, setInnerData, currentLanguage = 'fr'
 
       // Évaporation
       const enthalpieEvap = 597;
-      const chaleurDisponible = Qm_total_in_kg_h * 0.25 * (temperature - temperatureFumeesSortie);
+      const chaleurDisponible = Qm_total_in * 0.25 * (temperature - temperatureFumeesSortie);
       const debMasEvap = chaleurDisponible / enthalpieEvap;
 
       // Débits d'eau
@@ -194,7 +194,7 @@ const HClScrubberCalculator = ({ innerData, setInnerData, currentLanguage = 'fr'
 
       // Débits de sortie
       const Qm_H2O_sortie = Qm_H2O + debMasEvap;
-      const Qm_total_sortie = Qm_total_in_kg_h + debMasEvap;
+      const Qm_total_sortie = Qm_total_in + debMasEvap;
 
       // Volumes de sortie
       const Volume_H2O_sortie = (Qm_H2O_sortie / constantes.MH2O) * 22.4;

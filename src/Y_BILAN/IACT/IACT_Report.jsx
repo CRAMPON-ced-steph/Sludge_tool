@@ -107,9 +107,9 @@ const computeOpexCosts = (innerData) => {
     { label: d.labelElec5 || 'Poste 5', kW: d.consoElec5 || 0 },
     { label: d.labelElec6 || 'Poste 6', kW: d.consoElec6 || 0 },
   ].filter(r => r.kW > 0);
-  const totalElec_kW = elecRows.reduce((s, r) => s + r.kW, 0);
-  const coutElec = (totalElec_kW / 1000) * purchaseElectricityPrice;
-  const co2Elec = (ratioElec * totalElec_kW) / 1000;
+  const totalElec = elecRows.reduce((s, r) => s + r.kW, 0);
+  const coutElec = (totalElec / 1000) * purchaseElectricityPrice;
+  const co2Elec = (ratioElec * totalElec) / 1000;
 
   const conso_air = d.conso_air_co_N_m3 || 0;
   const coutAir = (conso_air / 1000) * airConsumptionPrice;
@@ -120,7 +120,7 @@ const computeOpexCosts = (innerData) => {
   const totalCO2_kgh = co2Elec + co2Air;
 
   return {
-    elecRows, totalElec_kW, coutElec, co2Elec,
+    elecRows, totalElec, coutElec, co2Elec,
     conso_air, coutAir, co2Air,
     totalCout_h, totalCout_an, totalCO2_kgh,
     currency, availability,
@@ -131,13 +131,13 @@ const computeOpexCosts = (innerData) => {
 
 const OpexCostSection = ({ opex, t }) => {
   const {
-    elecRows, totalElec_kW, coutElec, co2Elec,
+    elecRows, totalElec, coutElec, co2Elec,
     conso_air, coutAir, co2Air,
     totalCout_h, totalCout_an, totalCO2_kgh,
     currency, availability,
   } = opex;
 
-  if (totalElec_kW === 0 && coutAir === 0) {
+  if (totalElec === 0 && coutAir === 0) {
     return <p style={{ color: '#999', fontSize: 12, padding: '10px 14px' }}>{t('OPEX non disponibles')}</p>;
   }
 
@@ -179,7 +179,7 @@ const OpexCostSection = ({ opex, t }) => {
                 const { purchaseElectricityPrice = 0 } = getOpexData();
                 return <tr key={r.label}><td style={styles.tdLabel}>{r.label}</td><td style={styles.td}>{fmt(r.kW)}</td><td style={styles.td}>{fmt((r.kW / 1000) * purchaseElectricityPrice, 2)}</td></tr>;
               })}
-              <tr style={{ fontWeight: 'bold', background: '#eaf0fb' }}><td style={styles.tdLabel}>{t('Total')}</td><td style={styles.td}>{fmt(totalElec_kW)}</td><td style={styles.td}>{fmt(coutElec, 2)}</td></tr>
+              <tr style={{ fontWeight: 'bold', background: '#eaf0fb' }}><td style={styles.tdLabel}>{t('Total')}</td><td style={styles.td}>{fmt(totalElec)}</td><td style={styles.td}>{fmt(coutElec, 2)}</td></tr>
             </tbody>
           </table>
         </div>
@@ -205,22 +205,22 @@ const IACT_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
 
   // Bilan énergétique
   const Delta_H_to_air    = innerData.Delta_H_to_air    || 0;
-  const V_air_chauffe     = innerData.V_air_chauffe_Nm3_h || 0;
+  const V_air_chauffe     = innerData.V_air_chauffe || 0;
   const H_FG_in           = innerData.H_FG_in  || 0;
   const H_FG_out          = innerData.H_FG_out || 0;
   const H_air_in          = innerData.H_air_in  || 0;
   const H_air_out         = innerData.H_air_out || 0;
 
   // Composition fumées
-  const FG_IN_kg_h  = innerData.FG_OUT_kg_h || {};  // composition entrée = sortie (pas de mélange)
-  const FG_OUT_kg_h = innerData.FG_OUT_kg_h || {};
+  const FG_IN  = innerData.FG_OUT || {};  // composition entrée = sortie (pas de mélange)
+  const FG_OUT = innerData.FG_OUT || {};
 
   // Volumes [Nm³/h] calculés depuis les masses
   const FG_in_Nm3 = {
-    CO2: CO2_kg_m3(FG_IN_kg_h.CO2 || 0),
-    H2O: H2O_kg_m3(FG_IN_kg_h.H2O || 0),
-    O2:  O2_kg_m3(FG_IN_kg_h.O2  || 0),
-    N2:  N2_kg_m3(FG_IN_kg_h.N2  || 0),
+    CO2: CO2_kg_m3(FG_IN.CO2 || 0),
+    H2O: H2O_kg_m3(FG_IN.H2O || 0),
+    O2:  O2_kg_m3(FG_IN.O2  || 0),
+    N2:  N2_kg_m3(FG_IN.N2  || 0),
   };
   const FG_wet_in  = Object.values(FG_in_Nm3).reduce((s, v) => s + v, 0);
   const FG_dry_in  = FG_in_Nm3.CO2 + FG_in_Nm3.O2 + FG_in_Nm3.N2;
@@ -269,7 +269,7 @@ const IACT_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
             <KV label={`${t('Débit sec')} [Nm³/h]`}    value={fmt(FG_dry_in, 0)} />
             <KV label={`${t('Débit humide')} [Nm³/h]`} value={fmt(FG_wet_in, 0)} />
             <GasTable data={{
-              'kg/h':   FG_IN_kg_h,
+              'kg/h':   FG_IN,
               'Nm³/h':  FG_in_Nm3,
             }} />
           </SubSection>
@@ -277,7 +277,7 @@ const IACT_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
             <KV label={`${t('Débit sec')} [Nm³/h]`}    value={fmt(FG_dry_in, 0)} />
             <KV label={`${t('Débit humide')} [Nm³/h]`} value={fmt(FG_wet_in, 0)} />
             <GasTable data={{
-              'kg/h':  FG_OUT_kg_h,
+              'kg/h':  FG_OUT,
               'Nm³/h': FG_in_Nm3,
             }} />
           </SubSection>

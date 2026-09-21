@@ -53,7 +53,7 @@ const SCRUBBERMainPage = ({ nodeData, title, onSendData, onClose, onGoBack, curr
     onSendData({
       result: {
         ...innerData,
-        FG_OUT_kg_h: innerData['FG_OUT_kg_h'],
+        FG_OUT: innerData['FG_OUT'],
         PollutantInput: innerData['PInput'],
         T_OUT: innerData['T_OUT'],
         PollutantOutput: innerData['Poutput'],

@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Calculator } from 'lucide-react';
 import { T_ref } from "./constantes";
 
+// All variables below are in SI units internally.
+// Use toSI() on input, fromSI() on output, label() for display.
+
 // ============================================================================
 // FONCTION PURE DE CALCUL DE COMBUSTION - VERSION CORRIGÉE
 // ============================================================================
@@ -186,8 +189,8 @@ export const calculerCombustion = (composition, O2_fumees, debit_gaz, temp_air) 
     const h_air_latent = 2501.6 * masse_H2O_air;
     const h_air_total = h_air_sensible + h_air_latent;
 
-    const hs_total_kJ = hs * debit_gaz * 3600;
-    const hi_total_kJ = Hi * debit_gaz * 3600;
+    const hs_total = hs * debit_gaz * 3600;
+    const hi_total = Hi * debit_gaz * 3600;
 
     // Enthalpies des fumées à T
     const cp_fum_moy = (CpO2(T) * V_O2_fum + CpCO2(T) * V_CO2_fum + 
@@ -198,7 +201,7 @@ export const calculerCombustion = (composition, O2_fumees, debit_gaz, temp_air) 
     const h_eau_latente = 2501.6 * masse_H2O_fum;
     const h_fumees_total = h_fum_sec_sensible + h_eau_sensible + h_eau_latente;
 
-    const rendement = (hs_total_kJ + h_air_total - h_fumees_total + delta_hf) / hi_total_kJ;
+    const rendement = (hs_total + h_air_total - h_fumees_total + delta_hf) / hi_total;
 
     // ✅ CORRECTION : Retourner également les volumes de gaz
     return {

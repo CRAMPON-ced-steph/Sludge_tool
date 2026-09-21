@@ -254,65 +254,40 @@ export default function CalculateurChaudiere({ currentLanguage = 'fr' }) {
                       <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '4px' }}>
                         {t('servicePressure', lang)}
                       </label>
-                      <input
-                        type="number"
-                        value={parametres.pressionService}
-                        onChange={(e) => updateParam('pressionService', parseFloat(e.target.value) || 0)}
-                        style={inputStyle}
-                        step="0.1"
-                      />
+                      <UnitInput valueSI={parametres.pressionService} quantity="pressure" onChange={(siVal) => updateParam('pressionService', parseFloat(siVal) || 0)} style={inputStyle}
+                        step="0.1" />
                     </div>
                     
                     <div>
                       <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '4px' }}>
                         {t('serviceTemperature', lang)} 
                       </label>
-                      <input
-                        type="number"
-                        value={parametres.tempService}
-                        onChange={(e) => updateParam('tempService', parseFloat(e.target.value) || 0)}
-                        style={inputStyle}
-                        step="1"
-                      />
+                      <UnitInput valueSI={parametres.tempService} quantity="temperature" onChange={(siVal) => updateParam('tempService', parseFloat(siVal) || 0)} style={inputStyle}
+                        step="1" />
                     </div>
                     
                     <div>
                       <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '4px' }}>
                         {t('vaporFlow', lang)} (kg/h)
                       </label>
-                      <input
-                        type="number"
-                        value={parametres.debitVapeur}
-                        onChange={(e) => updateParam('debitVapeur', parseFloat(e.target.value) || 0)}
-                        style={inputStyle}
-                        step="100"
-                      />
+                      <UnitInput valueSI={parametres.debitVapeur} quantity="massFlow" onChange={(siVal) => updateParam('debitVapeur', parseFloat(siVal) || 0)} style={inputStyle}
+                        step="100" />
                     </div>
                     
                     <div>
                       <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '4px' }}>
                         {t('feedwaterTemp', lang)}
                       </label>
-                      <input
-                        type="number"
-                        value={parametres.tempEauAlim}
-                        onChange={(e) => updateParam('tempEauAlim', parseFloat(e.target.value) || 0)}
-                        style={inputStyle}
-                        step="1"
-                      />
+                      <UnitInput valueSI={parametres.tempEauAlim} quantity="temperature" onChange={(siVal) => updateParam('tempEauAlim', parseFloat(siVal) || 0)} style={inputStyle}
+                        step="1" />
                     </div>
                     
                     <div>
                       <label style={{ display: 'block', fontWeight: 'bold', marginBottom: '4px' }}>
                         {t('wasteHHV', lang)} (MJ/kg)
                       </label>
-                      <input
-                        type="number"
-                        value={parametres.pciDechets}
-                        onChange={(e) => updateParam('pciDechets', parseFloat(e.target.value) || 0)}
-                        style={inputStyle}
-                        step="0.5"
-                      />
+                      <UnitInput valueSI={parametres.pciDechets} quantity="enthalpy" onChange={(siVal) => updateParam('pciDechets', parseFloat(siVal) || 0)} style={inputStyle}
+                        step="0.5" />
                     </div>
                     
                     <div>

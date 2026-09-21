@@ -31,23 +31,23 @@ const COOLINGTOWERFlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr
   const Bottom_Ash_Siccity = emissionsPollutants['siccity bottom ash [%]'];
 
   // ========== INPUT DATA WITH FALLBACK VALUES ==========
-  const Debit_fumees_humide_Nm3_h = innerData?.FG_humide_tot || 1;
-  const Debit_fumees_sec_Nm3_h = innerData?.FG_sec_tot || 1;
+  const Debit_fumees_humide = innerData?.FG_humide_tot || 1;
+  const Debit_fumees_sec = innerData?.FG_sec_tot || 1;
   const FG_O2_calcule = innerData?.O2calcul || 12;
   const masse_dechets = innerData?.MasseDechet || 0;
   const masses_pollutant_input = innerData?.PollutantOutput || {};
 
   // ========== RESIDUES INPUT DATA ==========
   const Residus_IN = innerData?.ResidusOutput || {
-    FlyAsh_kg_h: 0,
+    FlyAsh: 0,
     mass_residus_tot: 0,
-    WetBottomAsh_kg_h: 0,
+    WetBottomAsh: 0,
   };
 
   // ========== ASH CALCULATIONS ==========
-  const Fly_ash_in_kg_h = Residus_IN.FlyAsh_kg_h;
-  const Fly_ash_out_kg_h = (Debit_fumees_sec_Nm3_h * FlyAsh_g_Nm3) / 1000;
-  const COOLINGTOWER_Ash_kg_h = Fly_ash_in_kg_h - Fly_ash_out_kg_h;
+  const Fly_ash_in = Residus_IN.FlyAsh;
+  const Fly_ash_out = (Debit_fumees_sec * FlyAsh_g_Nm3) / 1000;
+  const COOLINGTOWER_Ash = Fly_ash_in - Fly_ash_out;
 
   // ========== OUTPUT POLLUTANT MASSES ==========
   const masses_pollutant_output = {
@@ -58,9 +58,9 @@ const COOLINGTOWERFlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr
     SO2: masses_pollutant_input.SO2 || 0,
     N2: masses_pollutant_input.N2 || 0,
     NOx: masses_pollutant_input.NOx || 0,
-    CO2: innerData?.FG_OUT_kg_h?.CO2 || 0,
+    CO2: innerData?.FG_OUT?.CO2 || 0,
     NH3: 0,
-    DustFlyAsh: Fly_ash_out_kg_h,
+    DustFlyAsh: Fly_ash_out,
     Mercury: masses_pollutant_input.Mercury || 0,
     PCDDF: masses_pollutant_input.PCDDF || 0,
     Cd_Ti: masses_pollutant_input.CdTi || 0,
@@ -70,14 +70,14 @@ const COOLINGTOWERFlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr
   // ========== UI DATA ==========
   const elementsGeneric = [
     { text: t('Waste Flow [kg/h]'), value: masse_dechets.toFixed(2) },
-    { text: t('Flue gas Flow Wet [Nm3/h]'), value: Debit_fumees_humide_Nm3_h.toFixed(0) },
-    { text: t('Flue gas Flow Dry [Nm3/h]'), value: Debit_fumees_sec_Nm3_h.toFixed(0) },
+    { text: t('Flue gas Flow Wet [Nm3/h]'), value: Debit_fumees_humide.toFixed(0) },
+    { text: t('Flue gas Flow Dry [Nm3/h]'), value: Debit_fumees_sec.toFixed(0) },
     { text: t('O2 calculated [%]'), value: FG_O2_calcule.toFixed(2) },
     { text: t('Fly ash content [g/Nm3]'), value: FlyAsh_g_Nm3.toFixed(2) },
   ];
 
   const residusCalculations = [
-    { text: t('COOLINGTOWER ash [kg/h]'), value: COOLINGTOWER_Ash_kg_h.toFixed(2) },
+    { text: t('COOLINGTOWER ash [kg/h]'), value: COOLINGTOWER_Ash.toFixed(2) },
   ];
 
   // ========== EVENT HANDLERS ==========
@@ -171,7 +171,7 @@ const COOLINGTOWERFlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr
         masses={masses_pollutant_input}
         O2_mesure={FG_O2_calcule}
         O2_ref={O2ref}
-        Debit_fumees_sec_Nm3_h={Debit_fumees_sec_Nm3_h}
+        Debit_fumees_sec={Debit_fumees_sec}
       />
 
       <h4>{t('Output flue gas')}</h4>
@@ -179,7 +179,7 @@ const COOLINGTOWERFlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr
         masses={masses_pollutant_output}
         O2_mesure={FG_O2_calcule}
         O2_ref={O2ref}
-        Debit_fumees_sec_Nm3_h={Debit_fumees_sec_Nm3_h}
+        Debit_fumees_sec={Debit_fumees_sec}
       />
 
       <h3>{t('Residues calculated')}</h3>

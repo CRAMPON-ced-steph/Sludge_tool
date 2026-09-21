@@ -16,10 +16,10 @@ const CalculationResults = ({ isOpen, results }) => {
 
   // Définition des clés à surligner avec leurs couleurs respectives
   const highlightConfig = {
-    H_tot_kW: "#FFA07A",        // Saumon
-    Qm_tot_kg_h: "#98FB98",     // Vert pâle
-    Qv_wet_Nm3_h: "#87CEEB",    // Bleu ciel
-    Qv_sec_Nm3_h: "#DDA0DD"     // Violet clair
+    H_tot: "#FFA07A",        // Saumon
+    Qm_tot: "#98FB98",     // Vert pâle
+    Qv_wet: "#87CEEB",    // Bleu ciel
+    Qv_sec: "#DDA0DD"     // Violet clair
   };
 
   const renderResults = (obj, isNested = false) => {

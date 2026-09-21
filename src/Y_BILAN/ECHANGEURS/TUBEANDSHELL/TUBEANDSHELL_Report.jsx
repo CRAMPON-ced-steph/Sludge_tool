@@ -84,13 +84,13 @@ const TUBEANDSHELL_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
   const P_OUT        = d.P_OUT       || 0;
   const FG_wet_Nm3h  = d.FG_humide_tot || 0;
   const FG_dry_Nm3h  = d.FG_sec_tot    || 0;
-  const FG_OUT_kg_h  = d.FG_OUT_kg_h   || {};
+  const FG_OUT  = d.FG_OUT   || {};
 
   // Côté fluide
   const Q_utile_kWh  = d.Q_utile_eau_kWh || 0;
   const T_moyen      = d.T_moyen_eau      || 0;
   const cp_fluide    = d.cp_fluide        || 0;
-  const m_fluide     = d.m_eau_kg_h       || 0;
+  const m_fluide     = d.m_eau       || 0;
 
   // Dimensionnement
   const d_tlm      = d.D_TLM      || 0;
@@ -99,10 +99,10 @@ const TUBEANDSHELL_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
 
   // Nm³/h depuis masses
   const FG_out_Nm3 = {
-    CO2: CO2_kg_m3(FG_OUT_kg_h.CO2 || 0),
-    H2O: H2O_kg_m3(FG_OUT_kg_h.H2O || 0),
-    O2:  O2_kg_m3(FG_OUT_kg_h.O2  || 0),
-    N2:  N2_kg_m3(FG_OUT_kg_h.N2  || 0),
+    CO2: CO2_kg_m3(FG_OUT.CO2 || 0),
+    H2O: H2O_kg_m3(FG_OUT.H2O || 0),
+    O2:  O2_kg_m3(FG_OUT.O2  || 0),
+    N2:  N2_kg_m3(FG_OUT.N2  || 0),
   };
 
   return (
@@ -155,7 +155,7 @@ const TUBEANDSHELL_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
           </SubSection>
           <SubSection title={t('Composition sortie')}>
             <GasTable data={{
-              'kg/h':   FG_OUT_kg_h,
+              'kg/h':   FG_OUT,
               'Nm³/h':  FG_out_Nm3,
             }} />
           </SubSection>

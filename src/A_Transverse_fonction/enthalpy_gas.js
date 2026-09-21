@@ -1,5 +1,8 @@
 import { T_ref } from "./constantes";
 
+// All variables below are in SI units internally.
+// Use toSI() on input, fromSI() on output, label() for display.
+
 export const fh_CO2 = (T) => {
   T += T_ref;
   const A = 1.0034;
@@ -184,7 +187,7 @@ export const fs_MgCO3 = (T) => {
   return result;
 };
 
-export const fh_C = (T) => {
+export const fh = (T) => {
   T += T_ref;
   const result = 4.186 * (2.673 * T + 0.002617 * T * T / 2 + 116900 / T - 1255.45) / 12;
 
@@ -226,7 +229,7 @@ export const fh_MnO = (T) => {
   return result;
 };
 
-export const fs_C = (T) => {
+export const fs = (T) => {
   T += T_ref;
   const result = 4.1868 * (2.673 * Math.log(T) + 0.002617 * T + 116900 / (T * T * 2) - 16.4928) / 12;
   return result;

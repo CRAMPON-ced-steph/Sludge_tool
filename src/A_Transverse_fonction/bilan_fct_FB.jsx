@@ -6,6 +6,9 @@
 import { fh_CO2, fh_O2, fh_CO, fh_HCl, fh_H2O, fh_H2, fh_SO2, fh_N2 } from "./enthalpy_gas";
 import { molarMasses, T_ref } from "./constantes"
 
+// All variables below are in SI units internally.
+// Use toSI() on input, fromSI() on output, label() for display.
+
 // ============================================
 // DONNÉES CONSTANTES
 // ============================================
@@ -196,51 +199,51 @@ export const Surface_echange = (FactUA, FactU_list, Encrassement) => {
 // Utilise les fonctions enthalpy_gas + conversion en kW
 // ============================================
 
-export const fh_CO2_kW = (T, masse_kg_h) => {
-  return fh_CO2(T) * masse_kg_h / 3600;
+export const fh_CO2_power = (T, masse) => {
+  return fh_CO2(T) * masse / 3600;
 };
 
-export const fh_CO_kW = (T, masse_kg_h) => {
-  return fh_CO(T) * masse_kg_h / 3600;
+export const fh_CO_power = (T, masse) => {
+  return fh_CO(T) * masse / 3600;
 };
 
-export const fh_H2_kW = (T, masse_kg_h) => {
-  return fh_H2(T) * masse_kg_h / 3600;
+export const fh_H2_power = (T, masse) => {
+  return fh_H2(T) * masse / 3600;
 };
 
-export const fh_H2O_kW = (T, masse_kg_h) => {
+export const fh_H2O_power = (T, masse) => {
   // Ajoute la chaleur latente de vaporisation (540 kcal/kg * 4.1868 J/kcal)
-  return (fh_H2O(T) ) * masse_kg_h / 3600;
+  return (fh_H2O(T) ) * masse / 3600;
 };
 
-export const fh_HCl_kW = (T, masse_kg_h) => {
-  return fh_HCl(T) * masse_kg_h / 3600;
+export const fh_HCl_power = (T, masse) => {
+  return fh_HCl(T) * masse / 3600;
 };
 
-export const fh_N2_kW = (T, masse_kg_h) => {
-  return fh_N2(T) * masse_kg_h / 3600;
+export const fh_N2_power = (T, masse) => {
+  return fh_N2(T) * masse / 3600;
 };
 
-export const fh_O2_kW = (T, masse_kg_h) => {
-  return fh_O2(T) * masse_kg_h / 3600;
+export const fh_O2_power = (T, masse) => {
+  return fh_O2(T) * masse / 3600;
 };
 
-export const fh_SO2_kW = (T, masse_kg_h) => {
-  return fh_SO2(T) * masse_kg_h / 3600;
+export const fh_SO2_power = (T, masse) => {
+  return fh_SO2(T) * masse / 3600;
 };
 
 // ============================================
 // ENTHALPIES MASSIQUES [kW] - Matières solides
 // ============================================
 
-export const fh_MM_kW = (T, masse_kg_h) => {
+export const fh_MM = (T, masse) => {
   const cp_MM = 0.285 * 4.1868; // [kJ/kg/K]
-  return cp_MM * masse_kg_h * T / 3600;
+  return cp_MM * masse * T / 3600;
 };
 
-export const fh_MS_kW = (T, masse_kg_h) => {
+export const fh_MS = (T, masse) => {
   const cp_MS = 0.285 * 4.1868; // [kJ/kg/K]
-  return cp_MS * masse_kg_h * T / 3600;
+  return cp_MS * masse * T / 3600;
 };
 
 // ============================================
@@ -265,16 +268,16 @@ export const H_Fumees = (MFCOTot, MFCO2Tot, MFH2OTot, MFH2Tot, MFN2Tot, MFO2Tot,
   return qCO + qCO2 + qH2O + qH2 + qN2 + qO2 + qSO2 + qHCl;
 };
 
-// ✅ CORRIGÉ: Utilise fh_*_kW au lieu de fh_*
-export const Hfvoute_kW = (T, m_hcl, m_co2, m_co, m_h2o, m_h2, m_O2exces, m_n2, m_so2reel) => {
-  const H_hcl = fh_HCl_kW(T, m_hcl);
-  const H_co2 = fh_CO2_kW(T, m_co2);
-  const H_co = fh_CO_kW(T, m_co);
-  const H_H2O = fh_H2O_kW(T, m_h2o);  // ✅ CORRIGÉ
-  const H_H2 = fh_H2_kW(T, m_h2);
-  const H_O2exces = fh_O2_kW(T, m_O2exces);
-  const H_N2 = fh_N2_kW(T, m_n2);
-  const H_so2reel = fh_SO2_kW(T, m_so2reel);
+// ✅ CORRIGÉ: Utilise fh_* au lieu de fh_*
+export const Hfvoute = (T, m_hcl, m_co2, m_co, m_h2o, m_h2, m_O2exces, m_n2, m_so2reel) => {
+  const H_hcl = fh_HCl_power(T, m_hcl);
+  const H_co2 = fh_CO2_power(T, m_co2);
+  const H_co = fh_CO_power(T, m_co);
+  const H_H2O = fh_H2O_power(T, m_h2o);  // ✅ CORRIGÉ
+  const H_H2 = fh_H2_power(T, m_h2);
+  const H_O2exces = fh_O2_power(T, m_O2exces);
+  const H_N2 = fh_N2_power(T, m_n2);
+  const H_so2reel = fh_SO2_power(T, m_so2reel);
   
   return H_hcl + H_co2 + H_co + H_H2O + H_H2 + H_O2exces + H_N2 + H_so2reel;
 };
@@ -333,7 +336,7 @@ export const PCI_incomplete = (MFCOTot, MFH2Tot) => {
   return (2415 * MFCOTot + 28240 * MFH2Tot) * 0.001163;
 };
 
-export const PCI_kcal_kg = (MS, MV, PCI) => {
+export const PCI = (MS, MV, PCI) => {
   return (MS / 100) * (MV / 100) * PCI - ((1 - MS / 100) * 598);
 };
 
@@ -345,8 +348,8 @@ export const PCI_kJ_kgMV = (sludgeType) => {
   return PCI_kJ_kgMV_VALUES[sludgeType] || 0;
 };
 
-export const PCS_kcal_kg = (PCI_kcal_kg, MS, MV, H) => {
-  return PCI_kcal_kg + 598 * (9 * MS / 100 * MV / 100 * H / 100 + (100 - MS) / 100);
+export const PCS = (PCI, MS, MV, H) => {
+  return PCI + 598 * (9 * MS / 100 * MV / 100 * H / 100 + (100 - MS) / 100);
 };
 
 export const PCS_kcal_kgMV = (PCI_kcal_kgMV, H) => {

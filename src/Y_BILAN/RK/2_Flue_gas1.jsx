@@ -11,7 +11,7 @@ import { translations } from './RK_traduction';
 
 import { calculateWaterContent } from '../../A_Transverse_fonction/bilan_fct_combustion';
 import { H_in_systemA } from '../../A_Transverse_fonction/bilan_fct_RK';
-import { H2O_kg_m3, CO2_kg_m3, O2_kg_m3, N2_kg_m3, CO2_m3_kg, H2O_m3_kg, N2_m3_kg, O2_m3_kg } from '../../A_Transverse_fonction/conv_calculation';
+import { H2O_kg_m3, CO2_kg_m3, O2_kg_m3, N2_kg_m3, CO2_m3, H2O_m3, N2_m3, O2_m3 } from '../../A_Transverse_fonction/conv_calculation';
 import { TEMP_FUMEE_INC, Q_AIR_DILUTION } from '../../A_Transverse_fonction/enthalpy_mix_gas';
 
 import '../../index.css';
@@ -72,100 +72,100 @@ const FlueGasParameters = ({ innerData, currentLanguage = 'fr' }) => {
 
   const Air_stoechio_kmole = (innerData.O2_stoechio_kmoles || 0) / 0.21;
   const Water_content_kg_Nm3 = calculateWaterContent(T_air, airRelativeMoisture);
-  const Air_combustion_stoechio_sec_tot_Nm3_h = Air_stoechio_kmole * 22.4;
-  const Air_combustion_stoechio_sec_tot_kg_h = Air_combustion_stoechio_sec_tot_Nm3_h * 1.293;
-  const Air_combustion_stoechio_H2O_kg_h = Water_content_kg_Nm3 * Air_combustion_stoechio_sec_tot_Nm3_h;
-  const Air_combustion_stoechio_O2_kg_h = 0.233 * Air_combustion_stoechio_sec_tot_kg_h;
-  const Air_combustion_stoechio_N2_kg_h = (1 - 0.233) * Air_combustion_stoechio_sec_tot_kg_h;
-  const Air_combustion_stoechio_CO2_kg_h = 0;
-  const Air_combustion_stoechio_CO2_Nm3_h = 0;
-  const Air_combustion_stoechio_H2O_Nm3_h = H2O_kg_m3(Air_combustion_stoechio_H2O_kg_h);
-  const Air_combustion_stoechio_O2_Nm3_h = O2_kg_m3(Air_combustion_stoechio_O2_kg_h);
-  const Air_combustion_stoechio_N2_Nm3_h = N2_kg_m3(Air_combustion_stoechio_N2_kg_h);
-  const Air_combustion_stoechio_humide_tot_Nm3_h = Air_combustion_stoechio_sec_tot_Nm3_h * Air_factor + Air_combustion_stoechio_H2O_Nm3_h;
-  const Air_combustion_stoechio_humide_tot_kg_h = Air_combustion_stoechio_humide_tot_Nm3_h * 1.293 + Air_combustion_stoechio_H2O_kg_h;
+  const Air_combustion_stoechio_sec_tot_vol = Air_stoechio_kmole * 22.4;
+  const Air_combustion_stoechio_sec_tot_mass = Air_combustion_stoechio_sec_tot_vol * 1.293;
+  const Air_combustion_stoechio_H2O_mass = Water_content_kg_Nm3 * Air_combustion_stoechio_sec_tot_vol;
+  const Air_combustion_stoechio_O2_mass = 0.233 * Air_combustion_stoechio_sec_tot_mass;
+  const Air_combustion_stoechio_N2_mass = (1 - 0.233) * Air_combustion_stoechio_sec_tot_mass;
+  const Air_combustion_stoechio_CO2_mass = 0;
+  const Air_combustion_stoechio_CO2_vol = 0;
+  const Air_combustion_stoechio_H2O_vol = H2O_kg_m3(Air_combustion_stoechio_H2O_mass);
+  const Air_combustion_stoechio_O2_vol = O2_kg_m3(Air_combustion_stoechio_O2_mass);
+  const Air_combustion_stoechio_N2_vol = N2_kg_m3(Air_combustion_stoechio_N2_mass);
+  const Air_combustion_stoechio_humide_tot_vol = Air_combustion_stoechio_sec_tot_vol * Air_factor + Air_combustion_stoechio_H2O_vol;
+  const Air_combustion_stoechio_humide_tot_mass = Air_combustion_stoechio_humide_tot_vol * 1.293 + Air_combustion_stoechio_H2O_mass;
 
   const masse_dechets = innerData.masse;
-  const cvw_kJ_kg = innerData.cvw_kJ_kg;
+  const cvw = innerData.cvw;
 
-  let FG_CO2_stoechio_Nm3_h = innerData.Cmoles * 22.4;
-  let FG_H2O_stoechio_Nm3_h = (innerData.Hmoles - innerData.Clmoles + innerData.masse_eau_input / 18) * 22.4 + Air_combustion_stoechio_H2O_kg_h * 22.4 / 18;
-  let FG_O2_stoechio_Nm3_h = (Air_factor - 1) * 0.21 * Air_combustion_stoechio_sec_tot_kg_h;
-  let FG_N2_stoechio_Nm3_h = innerData.Nmoles * 22.4 + Air_stoechio_kmole * 0.79 * 22.4 * Air_factor;
-  let FG_CO2_stoechio_kg_h = CO2_m3_kg(FG_CO2_stoechio_Nm3_h);
-  let FG_H2O_stoechio_kg_h = H2O_m3_kg(FG_H2O_stoechio_Nm3_h);
-  let FG_O2_stoechio_kg_h = O2_m3_kg(FG_O2_stoechio_Nm3_h);
-  let FG_N2_stoechio_kg_h = N2_m3_kg(FG_N2_stoechio_Nm3_h);
+  let FG_CO2_stoechio_vol = innerData.Cmoles * 22.4;
+  let FG_H2O_stoechio_vol = (innerData.Hmoles - innerData.Clmoles + innerData.masse_eau_input / 18) * 22.4 + Air_combustion_stoechio_H2O_mass * 22.4 / 18;
+  let FG_O2_stoechio_vol = (Air_factor - 1) * 0.21 * Air_combustion_stoechio_sec_tot_mass;
+  let FG_N2_stoechio_vol = innerData.Nmoles * 22.4 + Air_stoechio_kmole * 0.79 * 22.4 * Air_factor;
+  let FG_CO2_stoechio_mass = CO2_m3(FG_CO2_stoechio_vol);
+  let FG_H2O_stoechio_mass = H2O_m3(FG_H2O_stoechio_vol);
+  let FG_O2_stoechio_mass = O2_m3(FG_O2_stoechio_vol);
+  let FG_N2_stoechio_mass = N2_m3(FG_N2_stoechio_vol);
 
-  let FG_stoechio_sec_tot_kg_h = FG_CO2_stoechio_kg_h + FG_O2_stoechio_kg_h + FG_N2_stoechio_kg_h;
-  let FG_stoechio_humide_tot_kg_h = FG_stoechio_sec_tot_kg_h + FG_H2O_stoechio_kg_h;
+  let FG_stoechio_sec_tot = FG_CO2_stoechio_mass + FG_O2_stoechio_mass + FG_N2_stoechio_mass;
+  let FG_stoechio_humide_tot = FG_stoechio_sec_tot + FG_H2O_stoechio_mass;
 
-  let Air_comb_sec_tot_kg_h = Air_combustion_stoechio_sec_tot_kg_h;
+  let Air_comb_sec_tot_mass = Air_combustion_stoechio_sec_tot_mass;
   let H_system = 0;
   let T_four_calcule = 0;
-  let Air_adia_sec_tot_kg_h = 0;
+  let Air_adia_sec_tot_mass = 0;
 
   for (let i = 1; i <= 20; i++) {
-    H_system = H_in_systemA(masse_dechets, cvw_kJ_kg, Air_comb_sec_tot_kg_h, T_air, Air_combustion_stoechio_H2O_kg_h, T_steam_water, T_waste, Th_loss_pourcent, T_air_prechauffe, Air_preheat_pourcent);
-    T_four_calcule = TEMP_FUMEE_INC(H_system, FG_CO2_stoechio_kg_h, FG_H2O_stoechio_kg_h, FG_N2_stoechio_kg_h, FG_O2_stoechio_kg_h);
-    Air_adia_sec_tot_kg_h = Q_AIR_DILUTION(T_air, T_four_calcule, T_out, FG_CO2_stoechio_kg_h, FG_H2O_stoechio_kg_h, FG_N2_stoechio_kg_h, FG_O2_stoechio_kg_h, 0);
-    Air_comb_sec_tot_kg_h = Air_adia_sec_tot_kg_h + Air_combustion_stoechio_sec_tot_kg_h;
+    H_system = H_in_systemA(masse_dechets, cvw, Air_comb_sec_tot_mass, T_air, Air_combustion_stoechio_H2O_mass, T_steam_water, T_waste, Th_loss_pourcent, T_air_prechauffe, Air_preheat_pourcent);
+    T_four_calcule = TEMP_FUMEE_INC(H_system, FG_CO2_stoechio_mass, FG_H2O_stoechio_mass, FG_N2_stoechio_mass, FG_O2_stoechio_mass);
+    Air_adia_sec_tot_mass = Q_AIR_DILUTION(T_air, T_four_calcule, T_out, FG_CO2_stoechio_mass, FG_H2O_stoechio_mass, FG_N2_stoechio_mass, FG_O2_stoechio_mass, 0);
+    Air_comb_sec_tot_mass = Air_adia_sec_tot_mass + Air_combustion_stoechio_sec_tot_mass;
   }
 
-  const Air_adia_sec_tot_m3_h = Air_adia_sec_tot_kg_h / 1.293;
-  const Air_adia_H2O_kg_h = Air_adia_sec_tot_m3_h * Water_content_kg_Nm3;
-  const Air_adia_O2_kg_h = Air_adia_sec_tot_kg_h * 0.233;
-  const Air_adia_N2_kg_h = Air_adia_sec_tot_kg_h * (1 - 0.233);
-  const Air_adia_CO2_kg_h = 0;
-  const Air_adia_humide_tot_kg_h = Air_adia_sec_tot_kg_h + Air_adia_H2O_kg_h;
+  const Air_adia_sec_tot_vol = Air_adia_sec_tot_mass / 1.293;
+  const Air_adia_H2O_mass = Air_adia_sec_tot_vol * Water_content_kg_Nm3;
+  const Air_adia_O2_mass = Air_adia_sec_tot_mass * 0.233;
+  const Air_adia_N2_mass = Air_adia_sec_tot_mass * (1 - 0.233);
+  const Air_adia_CO2_mass = 0;
+  const Air_adia_humide_tot_mass = Air_adia_sec_tot_mass + Air_adia_H2O_mass;
 
-  const Air_adia_CO2_m3_h = CO2_m3_kg(Air_adia_CO2_kg_h);
-  const Air_adia_H2O_m3_h = H2O_m3_kg(Air_adia_H2O_kg_h);
-  const Air_adia_O2_m3_h = O2_m3_kg(Air_adia_O2_kg_h);
-  const Air_adia_N2_m3_h = N2_m3_kg(Air_adia_N2_kg_h);
-  const Air_adia_humide_tot_m3_h = Air_adia_sec_tot_m3_h + Air_adia_H2O_m3_h;
+  const Air_adia_CO2_vol = CO2_m3(Air_adia_CO2_mass);
+  const Air_adia_H2O_vol = H2O_m3(Air_adia_H2O_mass);
+  const Air_adia_O2_vol = O2_m3(Air_adia_O2_mass);
+  const Air_adia_N2_vol = N2_m3(Air_adia_N2_mass);
+  const Air_adia_humide_tot_vol = Air_adia_sec_tot_vol + Air_adia_H2O_vol;
 
-  const Air_comb_CO2_kg_h = Air_adia_CO2_kg_h + Air_combustion_stoechio_CO2_kg_h;
-  const Air_comb_H2O_kg_h = Air_adia_H2O_kg_h + Air_combustion_stoechio_H2O_kg_h;
-  const Air_comb_O2_kg_h = Air_adia_O2_kg_h + Air_combustion_stoechio_O2_kg_h;
-  const Air_comb_N2_kg_h = Air_adia_N2_kg_h + Air_combustion_stoechio_N2_kg_h;
-  Air_comb_sec_tot_kg_h = Air_adia_sec_tot_kg_h + Air_combustion_stoechio_sec_tot_kg_h;
+  const Air_comb_CO2_mass = Air_adia_CO2_mass + Air_combustion_stoechio_CO2_mass;
+  const Air_comb_H2O_mass = Air_adia_H2O_mass + Air_combustion_stoechio_H2O_mass;
+  const Air_comb_O2_mass = Air_adia_O2_mass + Air_combustion_stoechio_O2_mass;
+  const Air_comb_N2_mass = Air_adia_N2_mass + Air_combustion_stoechio_N2_mass;
+  Air_comb_sec_tot_mass = Air_adia_sec_tot_mass + Air_combustion_stoechio_sec_tot_mass;
 
-  const Air_comb_humide_tot_kg_h = Air_comb_sec_tot_kg_h + Air_comb_H2O_kg_h;
+  const Air_comb_humide_tot_mass = Air_comb_sec_tot_mass + Air_comb_H2O_mass;
 
-  const Air_comb_CO2_m3_h = CO2_kg_m3(Air_comb_CO2_kg_h);
-  const Air_comb_H2O_m3_h = H2O_kg_m3(Air_comb_H2O_kg_h);
-  const Air_comb_O2_m3_h = O2_kg_m3(Air_comb_O2_kg_h);
-  const Air_comb_N2_m3_h = N2_kg_m3(Air_comb_N2_kg_h);
+  const Air_comb_CO2_vol = CO2_kg_m3(Air_comb_CO2_mass);
+  const Air_comb_H2O_vol = H2O_kg_m3(Air_comb_H2O_mass);
+  const Air_comb_O2_vol = O2_kg_m3(Air_comb_O2_mass);
+  const Air_comb_N2_vol = N2_kg_m3(Air_comb_N2_mass);
 
-  const Air_comb_sec_tot_m3_h = Air_comb_CO2_m3_h + Air_comb_O2_m3_h + Air_comb_N2_m3_h;
-  const Air_comb_humide_tot_m3_h = Air_comb_sec_tot_m3_h + Air_comb_H2O_m3_h;
+  const Air_comb_sec_tot_vol = Air_comb_CO2_vol + Air_comb_O2_vol + Air_comb_N2_vol;
+  const Air_comb_humide_tot_vol = Air_comb_sec_tot_vol + Air_comb_H2O_vol;
 
-  const Air_factor_calculated = (Air_combustion_stoechio_sec_tot_Nm3_h + Air_adia_sec_tot_m3_h) / Air_combustion_stoechio_sec_tot_Nm3_h;
+  const Air_factor_calculated = (Air_combustion_stoechio_sec_tot_vol + Air_adia_sec_tot_vol) / Air_combustion_stoechio_sec_tot_vol;
 
-  const FG_CO2_Nm3_h = FG_CO2_stoechio_Nm3_h;
-  const FG_H2O_Nm3_h = FG_H2O_stoechio_Nm3_h + Air_adia_H2O_m3_h;
-  const FG_O2_Nm3_h = Air_adia_sec_tot_m3_h * 0.21;
-  const FG_N2_Nm3_h = Air_adia_sec_tot_m3_h * 0.79 + FG_N2_stoechio_Nm3_h;
+  const FG_CO2_vol = FG_CO2_stoechio_vol;
+  const FG_H2O_vol = FG_H2O_stoechio_vol + Air_adia_H2O_vol;
+  const FG_O2_vol = Air_adia_sec_tot_vol * 0.21;
+  const FG_N2_vol = Air_adia_sec_tot_vol * 0.79 + FG_N2_stoechio_vol;
 
-  const FG_CO2_kg_h = CO2_m3_kg(FG_CO2_Nm3_h);
-  const FG_H2O_kg_h = H2O_m3_kg(FG_H2O_Nm3_h);
-  const FG_O2_kg_h = O2_m3_kg(FG_O2_Nm3_h);
-  const FG_N2_kg_h = N2_m3_kg(FG_N2_Nm3_h);
+  const FG_CO2_mass = CO2_m3(FG_CO2_vol);
+  const FG_H2O_mass = H2O_m3(FG_H2O_vol);
+  const FG_O2_mass = O2_m3(FG_O2_vol);
+  const FG_N2_mass = N2_m3(FG_N2_vol);
 
-  const FG_CO2_extractor_kg_h = FG_CO2_kg_h;
-  const FG_H2O_extractor_kg_h = FG_H2O_kg_h + Water_vaporized_extractor;
-  const FG_O2_extractor_kg_h = FG_O2_kg_h;
-  const FG_N2_extractor_kg_h = FG_N2_kg_h;
+  const FG_CO2_extractor_mass = FG_CO2_mass;
+  const FG_H2O_extractor_mass = FG_H2O_mass + Water_vaporized_extractor;
+  const FG_O2_extractor_mass = FG_O2_mass;
+  const FG_N2_extractor_mass = FG_N2_mass;
 
-  const FG_CO2_extractor_Nm3_h = CO2_kg_m3(FG_CO2_extractor_kg_h);
-  const FG_H2O_extractor_Nm3_h = H2O_kg_m3(FG_H2O_extractor_kg_h);
-  const FG_O2_extractor_Nm3_h = O2_kg_m3(FG_O2_extractor_kg_h);
-  const FG_N2_extractor_Nm3_h = N2_kg_m3(FG_N2_extractor_kg_h);
-  const FG_dry_extractor_Nm3_h = FG_CO2_extractor_Nm3_h + FG_O2_extractor_Nm3_h + FG_N2_extractor_Nm3_h;
-  const FG_wet_extractor_Nm3_h = FG_dry_extractor_Nm3_h + FG_H2O_extractor_Nm3_h;
+  const FG_CO2_extractor_vol = CO2_kg_m3(FG_CO2_extractor_mass);
+  const FG_H2O_extractor_vol = H2O_kg_m3(FG_H2O_extractor_mass);
+  const FG_O2_extractor_vol = O2_kg_m3(FG_O2_extractor_mass);
+  const FG_N2_extractor_vol = N2_kg_m3(FG_N2_extractor_mass);
+  const FG_dry_extractor = FG_CO2_extractor_vol + FG_O2_extractor_vol + FG_N2_extractor_vol;
+  const FG_wet_extractor = FG_dry_extractor + FG_H2O_extractor_vol;
 
-  const O2_sec_pourcent = FG_O2_extractor_Nm3_h / FG_dry_extractor_Nm3_h * 100;
+  const O2_sec_pourcent = FG_O2_extractor_vol / FG_dry_extractor * 100;
 
   // Éléments génériques avec traductions
   const elementsGeneric = [
@@ -178,89 +178,89 @@ const FlueGasParameters = ({ innerData, currentLanguage = 'fr' }) => {
 
   const AirStData = {
     kg_h: {
-      CO2: Air_combustion_stoechio_CO2_kg_h,
-      H2O: Air_combustion_stoechio_H2O_kg_h,
-      O2: Air_combustion_stoechio_O2_kg_h,
-      N2: Air_combustion_stoechio_N2_kg_h,
-      Q_dry_tot: Air_combustion_stoechio_sec_tot_kg_h,
-      Q_wet_tot: Air_combustion_stoechio_humide_tot_kg_h
+      CO2: Air_combustion_stoechio_CO2_mass,
+      H2O: Air_combustion_stoechio_H2O_mass,
+      O2: Air_combustion_stoechio_O2_mass,
+      N2: Air_combustion_stoechio_N2_mass,
+      Q_dry_tot: Air_combustion_stoechio_sec_tot_mass,
+      Q_wet_tot: Air_combustion_stoechio_humide_tot_mass
     },
     Nm3_h: {
-      CO2: Air_combustion_stoechio_CO2_Nm3_h,
-      H2O: Air_combustion_stoechio_H2O_Nm3_h,
-      O2: Air_combustion_stoechio_O2_Nm3_h,
-      N2: Air_combustion_stoechio_N2_Nm3_h,
-      Q_dry_tot: Air_combustion_stoechio_sec_tot_Nm3_h,
-      Q_wet_tot: Air_combustion_stoechio_humide_tot_Nm3_h
+      CO2: Air_combustion_stoechio_CO2_vol,
+      H2O: Air_combustion_stoechio_H2O_vol,
+      O2: Air_combustion_stoechio_O2_vol,
+      N2: Air_combustion_stoechio_N2_vol,
+      Q_dry_tot: Air_combustion_stoechio_sec_tot_vol,
+      Q_wet_tot: Air_combustion_stoechio_humide_tot_vol
     }
   };
 
   const AirAdiaData = {
     kg_h: {
-      CO2: Air_adia_CO2_kg_h,
-      H2O: Air_adia_H2O_kg_h,
-      O2: Air_adia_O2_kg_h,
-      N2: Air_adia_N2_kg_h,
-      Q_dry_tot: Air_adia_sec_tot_kg_h,
-      Q_wet_tot: Air_adia_humide_tot_kg_h
+      CO2: Air_adia_CO2_mass,
+      H2O: Air_adia_H2O_mass,
+      O2: Air_adia_O2_mass,
+      N2: Air_adia_N2_mass,
+      Q_dry_tot: Air_adia_sec_tot_mass,
+      Q_wet_tot: Air_adia_humide_tot_mass
     },
     Nm3_h: {
-      CO2: Air_adia_CO2_m3_h,
-      H2O: Air_adia_H2O_m3_h,
-      O2: Air_adia_O2_m3_h,
-      N2: Air_adia_N2_m3_h,
-      Q_dry_tot: Air_adia_sec_tot_m3_h,
-      Q_wet_tot: Air_adia_humide_tot_m3_h
+      CO2: Air_adia_CO2_vol,
+      H2O: Air_adia_H2O_vol,
+      O2: Air_adia_O2_vol,
+      N2: Air_adia_N2_vol,
+      Q_dry_tot: Air_adia_sec_tot_vol,
+      Q_wet_tot: Air_adia_humide_tot_vol
     }
   };
 
   const AirCombData = {
     kg_h: {
-      CO2: Air_comb_CO2_kg_h,
-      H2O: Air_comb_H2O_kg_h,
-      O2: Air_comb_O2_kg_h,
-      N2: Air_comb_N2_kg_h,
-      Q_dry_tot: Air_comb_sec_tot_kg_h,
-      Q_wet_tot: Air_comb_humide_tot_kg_h
+      CO2: Air_comb_CO2_mass,
+      H2O: Air_comb_H2O_mass,
+      O2: Air_comb_O2_mass,
+      N2: Air_comb_N2_mass,
+      Q_dry_tot: Air_comb_sec_tot_mass,
+      Q_wet_tot: Air_comb_humide_tot_mass
     },
     Nm3_h: {
-      CO2: Air_comb_CO2_m3_h,
-      H2O: Air_comb_H2O_m3_h,
-      O2: Air_comb_O2_m3_h,
-      N2: Air_comb_N2_m3_h,
-      Q_dry_tot: Air_comb_sec_tot_m3_h,
-      Q_wet_tot: Air_comb_humide_tot_m3_h
+      CO2: Air_comb_CO2_vol,
+      H2O: Air_comb_H2O_vol,
+      O2: Air_comb_O2_vol,
+      N2: Air_comb_N2_vol,
+      Q_dry_tot: Air_comb_sec_tot_vol,
+      Q_wet_tot: Air_comb_humide_tot_vol
     }
   };
 
   const masses_FG_stoechio = {
-    CO2: FG_CO2_stoechio_kg_h,
-    O2: FG_O2_stoechio_kg_h,
-    H2O: FG_H2O_stoechio_kg_h,
-    N2: FG_N2_stoechio_kg_h
+    CO2: FG_CO2_stoechio_mass,
+    O2: FG_O2_stoechio_mass,
+    H2O: FG_H2O_stoechio_mass,
+    N2: FG_N2_stoechio_mass
   };
 
   const masses_FG_out_RK = {
-    CO2: FG_CO2_kg_h,
-    O2: FG_O2_kg_h,
-    H2O: FG_H2O_kg_h,
-    N2: FG_N2_kg_h
+    CO2: FG_CO2_mass,
+    O2: FG_O2_mass,
+    H2O: FG_H2O_mass,
+    N2: FG_N2_mass
   };
 
-  const masses_FG_out_extractor_RK_kg_h = {
-    CO2: FG_CO2_extractor_kg_h,
-    O2: FG_O2_extractor_kg_h,
-    H2O: FG_H2O_extractor_kg_h,
-    N2: FG_N2_extractor_kg_h
+  const masses_FG_out_extractor_RK = {
+    CO2: FG_CO2_extractor_mass,
+    O2: FG_O2_extractor_mass,
+    H2O: FG_H2O_extractor_mass,
+    N2: FG_N2_extractor_mass
   };
 
-  const volume_FG_out_extractor_RK_Nm3_h = {
-    CO2: FG_CO2_extractor_Nm3_h,
-    O2: FG_O2_extractor_Nm3_h,
-    H2O: FG_H2O_extractor_Nm3_h,
-    N2: FG_N2_extractor_Nm3_h,
-    dry: FG_dry_extractor_Nm3_h,
-    wet: FG_wet_extractor_Nm3_h
+  const volume_FG_out_extractor_RK = {
+    CO2: FG_CO2_extractor_vol,
+    O2: FG_O2_extractor_vol,
+    H2O: FG_H2O_extractor_vol,
+    N2: FG_N2_extractor_vol,
+    dry: FG_dry_extractor,
+    wet: FG_wet_extractor
   };
 
   const handleChange = (name, value) => {
@@ -280,8 +280,8 @@ const FlueGasParameters = ({ innerData, currentLanguage = 'fr' }) => {
   }, []);
 
   // Mise à jour des données innerData
-  innerData['FG_OUT_kg_h'] = masses_FG_out_extractor_RK_kg_h;
-  innerData['FG_RK_OUT_Nm3_h'] = volume_FG_out_extractor_RK_Nm3_h;
+  innerData['FG_OUT'] = masses_FG_out_extractor_RK;
+  innerData['FG_RK_OUT'] = volume_FG_out_extractor_RK;
   innerData['O2_calcule'] = O2_sec_pourcent;
   innerData['T_OUT'] = T_out;
 
@@ -319,7 +319,7 @@ const FlueGasParameters = ({ innerData, currentLanguage = 'fr' }) => {
       <MassCalculator masses={masses_FG_out_RK} TemperatureImposee={T_out} />
       
       <h4>{t('outputFlueGasWithWater')} ({T_out}°C)</h4>
-      <MassCalculator masses={masses_FG_out_extractor_RK_kg_h} TemperatureImposee={T_out} />
+      <MassCalculator masses={masses_FG_out_extractor_RK} TemperatureImposee={T_out} />
       
       <PrintButton onClick={window.print} text={t('export')} />
     </div>

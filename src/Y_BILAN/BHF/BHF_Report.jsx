@@ -126,9 +126,9 @@ const computeOpexCosts = (innerData) => {
     { label: d.labelElec7 || 'Poste 7', kW: d.consoElec7 || 0 },
     { label: d.labelElec8 || 'Poste 8', kW: d.consoElec8 || 0 },
   ].filter(r => r.kW > 0);
-  const totalElec_kW = elecRows.reduce((s, r) => s + r.kW, 0);
-  const coutElec = (totalElec_kW / 1000) * purchaseElectricityPrice;
-  const co2Elec = (ratioElec * totalElec_kW) / 1000;
+  const totalElec = elecRows.reduce((s, r) => s + r.kW, 0);
+  const coutElec = (totalElec / 1000) * purchaseElectricityPrice;
+  const co2Elec = (ratioElec * totalElec) / 1000;
 
   const conso_air = d.conso_air_co_N_m3 || 0;
   const coutAir = (conso_air / 1000) * airConsumptionPrice;
@@ -144,24 +144,24 @@ const computeOpexCosts = (innerData) => {
   const coutEau = eauRows.reduce((s, r) => s + r.m3h * r.prix, 0);
 
   const reactifRows = [
-    { label: 'CaCO₃', kgh: d.Conso_CaCO3_kg || 0, prix: reagentsTypes?.CaCO3?.cost || 0, co2T: reagentsTypes?.CaCO3?.co2PerTrip || 0 },
-    { label: 'CaO', kgh: d.Conso_CaO_kg || 0, prix: reagentsTypes?.CaO?.cost || 0, co2T: reagentsTypes?.CaO?.co2PerTrip || 0 },
-    { label: 'Ca(OH)₂ sec', kgh: d.Conso_CaOH2_dry_kg || 0, prix: reagentsTypes?.CaOH2?.cost || 0, co2T: reagentsTypes?.CaOH2?.co2PerTrip || 0 },
-    { label: 'Ca(OH)₂ humide', kgh: d.Conso_CaOH2_wet_kg || 0, prix: reagentsTypes?.CaOH2?.cost || 0, co2T: reagentsTypes?.CaOH2?.co2PerTrip || 0 },
-    { label: 'NaOH', kgh: d.Conso_NaOH_kg || 0, prix: reagentsTypes?.NaOH?.cost || 0, co2T: reagentsTypes?.NaOH?.co2PerTrip || 0 },
-    { label: 'NaHCO₃', kgh: d.Conso_NaOHCO3_kg || 0, prix: reagentsTypes?.NaOHCO3?.cost || 0, co2T: reagentsTypes?.NaOHCO3?.co2PerTrip || 0 },
-    { label: 'NH₃', kgh: d.Conso_Ammonia_kg || 0, prix: reagentsTypes?.NH3?.cost || 0, co2T: reagentsTypes?.NH3?.co2PerTrip || 0 },
-    { label: 'NaBr/CaBr₂', kgh: d.Conso_NaBrCaBr2_kg || 0, prix: reagentsTypes?.NaBr_CaBr2?.cost || 0, co2T: reagentsTypes?.NaBr_CaBr2?.co2PerTrip || 0 },
-    { label: 'CAP', kgh: d.Conso_CAP_kg || 0, prix: reagentsTypes?.CAP?.cost || 0, co2T: reagentsTypes?.CAP?.co2PerTrip || 0 },
+    { label: 'CaCO₃', kgh: d.Conso_CaCO3 || 0, prix: reagentsTypes?.CaCO3?.cost || 0, co2T: reagentsTypes?.CaCO3?.co2PerTrip || 0 },
+    { label: 'CaO', kgh: d.Conso_CaO || 0, prix: reagentsTypes?.CaO?.cost || 0, co2T: reagentsTypes?.CaO?.co2PerTrip || 0 },
+    { label: 'Ca(OH)₂ sec', kgh: d.Conso_CaOH2_dry || 0, prix: reagentsTypes?.CaOH2?.cost || 0, co2T: reagentsTypes?.CaOH2?.co2PerTrip || 0 },
+    { label: 'Ca(OH)₂ humide', kgh: d.Conso_CaOH2_wet || 0, prix: reagentsTypes?.CaOH2?.cost || 0, co2T: reagentsTypes?.CaOH2?.co2PerTrip || 0 },
+    { label: 'NaOH', kgh: d.Conso_NaOH || 0, prix: reagentsTypes?.NaOH?.cost || 0, co2T: reagentsTypes?.NaOH?.co2PerTrip || 0 },
+    { label: 'NaHCO₃', kgh: d.Conso_NaOHCO3 || 0, prix: reagentsTypes?.NaOHCO3?.cost || 0, co2T: reagentsTypes?.NaOHCO3?.co2PerTrip || 0 },
+    { label: 'NH₃', kgh: d.Conso_Ammonia || 0, prix: reagentsTypes?.NH3?.cost || 0, co2T: reagentsTypes?.NH3?.co2PerTrip || 0 },
+    { label: 'NaBr/CaBr₂', kgh: d.Conso_NaBrCaBr2 || 0, prix: reagentsTypes?.NaBr_CaBr2?.cost || 0, co2T: reagentsTypes?.NaBr_CaBr2?.co2PerTrip || 0 },
+    { label: 'CAP', kgh: d.Conso_CAP || 0, prix: reagentsTypes?.CAP?.cost || 0, co2T: reagentsTypes?.CAP?.co2PerTrip || 0 },
   ].filter(r => r.kgh > 0);
   const coutReactifs = reactifRows.reduce((s, r) => s + (r.kgh / 1000) * r.prix, 0);
   const co2TransportReactifs = reactifRows.reduce((s, r) => s + (r.kgh / 1000) * r.co2T, 0);
 
   const energieRows = [
-    { label: 'Gaz haute valeur', MW: d.conso_gaz_H_MW || 0, prix: gasTypes?.naturalGasH?.molecule || 0, co2e: gasTypes?.naturalGasH?.co2Emission || 0 },
-    { label: 'Gaz basse valeur', MW: d.conso_gaz_L_MW || 0, prix: gasTypes?.naturalGasL?.molecule || 0, co2e: gasTypes?.naturalGasL?.co2Emission || 0 },
-    { label: 'Gaz process', MW: d.conso_gaz_Process_MW || 0, prix: gasTypes?.processGas?.molecule || 0, co2e: gasTypes?.processGas?.co2Emission || 0 },
-    { label: 'Fuel', MW: d.conso_fuel_MW || 0, prix: fuelTypes?.FOD?.liquid || 0, co2e: fuelTypes?.FOD?.co2Emission || 0 },
+    { label: 'Gaz haute valeur', MW: d.conso_gaz_H || 0, prix: gasTypes?.naturalGasH?.molecule || 0, co2e: gasTypes?.naturalGasH?.co2Emission || 0 },
+    { label: 'Gaz basse valeur', MW: d.conso_gaz_L || 0, prix: gasTypes?.naturalGasL?.molecule || 0, co2e: gasTypes?.naturalGasL?.co2Emission || 0 },
+    { label: 'Gaz process', MW: d.conso_gaz_Process || 0, prix: gasTypes?.processGas?.molecule || 0, co2e: gasTypes?.processGas?.co2Emission || 0 },
+    { label: 'Fuel', MW: d.conso_fuel || 0, prix: fuelTypes?.FOD?.liquid || 0, co2e: fuelTypes?.FOD?.co2Emission || 0 },
   ].filter(r => r.MW > 0);
   const coutEnergie = energieRows.reduce((s, r) => s + r.MW * r.prix, 0);
   const co2Energie = energieRows.reduce((s, r) => s + r.MW * r.co2e, 0);
@@ -175,7 +175,7 @@ const computeOpexCosts = (innerData) => {
   const totalCO2_kgh = co2Elec + co2Air + co2Energie + co2TransportReactifs + co2TransportResidus;
 
   return {
-    elecRows, totalElec_kW, coutElec, co2Elec,
+    elecRows, totalElec, coutElec, co2Elec,
     conso_air, coutAir, co2Air,
     eauRows, coutEau,
     reactifRows, coutReactifs, co2TransportReactifs,
@@ -190,7 +190,7 @@ const computeOpexCosts = (innerData) => {
 
 const OpexCostSection = ({ opex, t }) => {
   const {
-    elecRows, totalElec_kW, coutElec, co2Elec,
+    elecRows, totalElec, coutElec, co2Elec,
     conso_air, coutAir, co2Air,
     eauRows, coutEau,
     reactifRows, coutReactifs, co2TransportReactifs,
@@ -200,7 +200,7 @@ const OpexCostSection = ({ opex, t }) => {
     currency, availability,
   } = opex;
 
-  if (totalElec_kW === 0 && coutEnergie === 0 && coutEau === 0) {
+  if (totalElec === 0 && coutEnergie === 0 && coutEau === 0) {
     return <p style={{ color: '#999', fontSize: 12, padding: '10px 14px' }}>{t('Coûts OPEX non disponibles')}</p>;
   }
 
@@ -251,7 +251,7 @@ const OpexCostSection = ({ opex, t }) => {
                   const { purchaseElectricityPrice = 0 } = getOpexData();
                   return <tr key={r.label}><td style={styles.tdLabel}>{r.label}</td><td style={styles.td}>{fmt(r.kW)}</td><td style={styles.td}>{fmt((r.kW / 1000) * purchaseElectricityPrice, 2)}</td></tr>;
                 })}
-                <tr style={{ fontWeight: 'bold', background: '#eaf0fb' }}><td style={styles.tdLabel}>{t('Total')}</td><td style={styles.td}>{fmt(totalElec_kW)}</td><td style={styles.td}>{fmt(coutElec, 2)}</td></tr>
+                <tr style={{ fontWeight: 'bold', background: '#eaf0fb' }}><td style={styles.tdLabel}>{t('Total')}</td><td style={styles.td}>{fmt(totalElec)}</td><td style={styles.td}>{fmt(coutElec, 2)}</td></tr>
               </tbody>
             </table>
           </div>
@@ -305,12 +305,12 @@ const BHF_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
 
   const T_OUT = innerData.T_OUT || 0;
   const O2_calcule = innerData.O2_calcule || 0;
-  const FG_OUT_kg_h = innerData.FG_OUT_kg_h || {};
-  const _nm3Computed = { CO2: CO2_kg_m3(FG_OUT_kg_h.CO2||0), H2O: H2O_kg_m3(FG_OUT_kg_h.H2O||0), O2: O2_kg_m3(FG_OUT_kg_h.O2||0), N2: N2_kg_m3(FG_OUT_kg_h.N2||0) };
+  const FG_OUT = innerData.FG_OUT || {};
+  const _nm3Computed = { CO2: CO2_kg_m3(FG_OUT.CO2||0), H2O: H2O_kg_m3(FG_OUT.H2O||0), O2: O2_kg_m3(FG_OUT.O2||0), N2: N2_kg_m3(FG_OUT.N2||0) };
   _nm3Computed.dry = _nm3Computed.CO2 + _nm3Computed.O2 + _nm3Computed.N2;
   _nm3Computed.wet = _nm3Computed.dry + _nm3Computed.H2O;
-  const FG_BHF_OUT_Nm3_h = innerData.FG_BHF_OUT_Nm3_h || innerData.FG_RK_OUT_Nm3_h || _nm3Computed;
-  const FG_wet_total = (FG_OUT_kg_h.CO2 || 0) + (FG_OUT_kg_h.H2O || 0) + (FG_OUT_kg_h.O2 || 0) + (FG_OUT_kg_h.N2 || 0);
+  const FG_BHF_OUT = innerData.FG_BHF_OUT || innerData.FG_RK_OUT || _nm3Computed;
+  const FG_wet_total = (FG_OUT.CO2 || 0) + (FG_OUT.H2O || 0) + (FG_OUT.O2 || 0) + (FG_OUT.N2 || 0);
 
   const PInput = innerData.PInput || {};
   const Poutput = innerData.Poutput || {};
@@ -336,15 +336,15 @@ const BHF_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
   ].filter(r => parseFloat(r.value) > 0);
 
   const reactifConsumption = [
-    { label: 'CaCO₃ [kg/h]', value: innerData.Conso_CaCO3_kg },
-    { label: 'CaO [kg/h]', value: innerData.Conso_CaO_kg },
-    { label: 'Ca(OH)₂ sec [kg/h]', value: innerData.Conso_CaOH2_dry_kg },
-    { label: 'Ca(OH)₂ humide [kg/h]', value: innerData.Conso_CaOH2_wet_kg },
-    { label: 'NaOH [kg/h]', value: innerData.Conso_NaOH_kg },
-    { label: 'NaHCO₃ [kg/h]', value: innerData.Conso_NaOHCO3_kg },
-    { label: 'NH₃ [kg/h]', value: innerData.Conso_Ammonia_kg },
-    { label: 'NaBr/CaBr₂ [kg/h]', value: innerData.Conso_NaBrCaBr2_kg },
-    { label: 'CAP [kg/h]', value: innerData.Conso_CAP_kg },
+    { label: 'CaCO₃ [kg/h]', value: innerData.Conso_CaCO3 },
+    { label: 'CaO [kg/h]', value: innerData.Conso_CaO },
+    { label: 'Ca(OH)₂ sec [kg/h]', value: innerData.Conso_CaOH2_dry },
+    { label: 'Ca(OH)₂ humide [kg/h]', value: innerData.Conso_CaOH2_wet },
+    { label: 'NaOH [kg/h]', value: innerData.Conso_NaOH },
+    { label: 'NaHCO₃ [kg/h]', value: innerData.Conso_NaOHCO3 },
+    { label: 'NH₃ [kg/h]', value: innerData.Conso_Ammonia },
+    { label: 'NaBr/CaBr₂ [kg/h]', value: innerData.Conso_NaBrCaBr2 },
+    { label: 'CAP [kg/h]', value: innerData.Conso_CAP },
   ].filter(r => parseFloat(r.value) > 0);
 
   const opex = computeOpexCosts(innerData);
@@ -359,13 +359,13 @@ const BHF_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
             <KV label={t('Température de sortie')} value={fmt(T_OUT, 0)} unit="°C" />
             <KV label={t('O₂ mesuré (sec)')} value={fmt(O2_calcule)} unit="%" />
             <KV label={t('Débit humide total [kg/h]')} value={fmt(FG_wet_total)} />
-            <KV label={t('Débit sec [Nm³/h]')} value={fmt(FG_BHF_OUT_Nm3_h.dry, 0)} />
-            <KV label={t('Débit humide [Nm³/h]')} value={fmt(FG_BHF_OUT_Nm3_h.wet, 0)} />
+            <KV label={t('Débit sec [Nm³/h]')} value={fmt(FG_BHF_OUT.dry, 0)} />
+            <KV label={t('Débit humide [Nm³/h]')} value={fmt(FG_BHF_OUT.wet, 0)} />
           </SubSection>
           <SubSection title={t('Composition gaz de sortie')}>
             <GasTable data={{
-              'kg/h': FG_OUT_kg_h,
-              'Nm³/h': { CO2: FG_BHF_OUT_Nm3_h.CO2, H2O: FG_BHF_OUT_Nm3_h.H2O, O2: FG_BHF_OUT_Nm3_h.O2, N2: FG_BHF_OUT_Nm3_h.N2 },
+              'kg/h': FG_OUT,
+              'Nm³/h': { CO2: FG_BHF_OUT.CO2, H2O: FG_BHF_OUT.H2O, O2: FG_BHF_OUT.O2, N2: FG_BHF_OUT.N2 },
             }} />
           </SubSection>
         </div>
@@ -380,9 +380,9 @@ const BHF_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
         </SubSection>
         <div style={styles.twoCol}>
           <SubSection title={t('Résidus calculés')}>
-            <KV label={t('Cendres lourdes sèches [kg/h]')} value={fmt(Residus.DryBottomAsh_kg_h)} />
-            <KV label={t('Cendres lourdes humides [kg/h]')} value={fmt(Residus.WetBottomAsh_kg_h)} />
-            <KV label={t('Cendres volantes [kg/h]')} value={fmt(Residus.FlyAsh_kg_h)} />
+            <KV label={t('Cendres lourdes sèches [kg/h]')} value={fmt(Residus.DryBottomAsh)} />
+            <KV label={t('Cendres lourdes humides [kg/h]')} value={fmt(Residus.WetBottomAsh)} />
+            <KV label={t('Cendres volantes [kg/h]')} value={fmt(Residus.FlyAsh)} />
           </SubSection>
           {reactifConsumption.length > 0 && (
             <SubSection title={t('Consommation réactifs')}>
@@ -407,8 +407,8 @@ const BHF_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
               </SubSection>
             )}
             <SubSection title={t('Énergie auxiliaire')}>
-              <KV label={t('Gaz haute valeur [MW]')} value={fmt(innerData.conso_gaz_H_MW)} />
-              <KV label={t('Fuel [MW]')} value={fmt(innerData.conso_fuel_MW)} />
+              <KV label={t('Gaz haute valeur [MW]')} value={fmt(innerData.conso_gaz_H)} />
+              <KV label={t('Fuel [MW]')} value={fmt(innerData.conso_fuel)} />
               <KV label={t('Air comprimé [Nm³/h]')} value={fmt(innerData.conso_air_co_N_m3)} />
             </SubSection>
           </div>

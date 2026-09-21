@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { cv_kj_kg, cv_waste } from '../../A_Transverse_fonction/bilan_fct_combustion';
+import { cv_kj, cv_waste } from '../../A_Transverse_fonction/bilan_fct_combustion';
 import { getLanguageCode } from '../../F_Gestion_Langues/Fonction_Traduction';
 import { translations } from './RK_traduction';
 
@@ -211,7 +211,7 @@ const CombustionParameters = ({ innerData, currentLanguage = 'fr' }) => {
   const updateRow = (rowData) => {
     rowData['SUM1'] = calculateRowSum(rowData);
     rowData['SUM2'] = calculateRowSum2(rowData);
-    rowData['Comb CV [kJ/kg]'] = cv_kj_kg(
+    rowData['Comb CV [kJ/kg]'] = cv_kj(
       rowData['C%'],
       rowData['H%'],
       rowData['O%'],
@@ -264,16 +264,16 @@ const CombustionParameters = ({ innerData, currentLanguage = 'fr' }) => {
   const [S_moles, setSmoles] = useState(rows2);
   const [Cl_moles, setClmoles] = useState(rows2);
 
-  const [C_kg_h, set_C_kg_h] = useState(rows2);
-  const [H_kg_h, set_H_kg_h] = useState(rows2);
-  const [O_kg_h, set_O_kg_h] = useState(rows2);
-  const [N_kg_h, set_N_kg_h] = useState(rows2);
-  const [S_kg_h, set_S_kg_h] = useState(rows2);
-  const [Cl_kg_h, set_Cl_kg_h] = useState(rows2);
+  const [C, set] = useState(rows2);
+  const [H, set_H] = useState(rows2);
+  const [O, set_O] = useState(rows2);
+  const [N, set_N] = useState(rows2);
+  const [S, set_S] = useState(rows2);
+  const [Cl, set_Cl] = useState(rows2);
 
-  const [Comb_kg_h, set_Comb_kg_h] = useState(rows2);
-  const [Water_kg_h, set_Water_kg_h] = useState(rows2);
-  const [Inert_kg_h, set_Inert_kg_h] = useState(rows2);
+  const [Comb, set_Comb] = useState(rows2);
+  const [Water, set_Water] = useState(rows2);
+  const [Inert, set_Inert] = useState(rows2);
 
   const [Masse_H2O_comb_input, setH2OmasseCombInput] = useState(rows2);
 
@@ -311,16 +311,16 @@ const CombustionParameters = ({ innerData, currentLanguage = 'fr' }) => {
         setSmoles (updatedRows2[3].data['S [kg/h]'])
         setClmoles (updatedRows2[3].data['Cl [kg/h]'])
 
-        set_C_kg_h (updatedRows2[0].data['C [kg/h]'])
-        set_H_kg_h (updatedRows2[0].data['H [kg/h]'])
-        set_O_kg_h (updatedRows2[0].data['O [kg/h]'])
-        set_N_kg_h (updatedRows2[0].data['N [kg/h]'])
-        set_S_kg_h (updatedRows2[0].data['S [kg/h]'])
-        set_Cl_kg_h (updatedRows2[0].data['Cl [kg/h]'])
+        set (updatedRows2[0].data['C [kg/h]'])
+        set_H (updatedRows2[0].data['H [kg/h]'])
+        set_O (updatedRows2[0].data['O [kg/h]'])
+        set_N (updatedRows2[0].data['N [kg/h]'])
+        set_S (updatedRows2[0].data['S [kg/h]'])
+        set_Cl (updatedRows2[0].data['Cl [kg/h]'])
 
-        set_Comb_kg_h (updatedRows2[0].data['Comb  [kg/h]'])
-        set_Water_kg_h (updatedRows2[0].data['Water  [kg/h]'])
-        set_Inert_kg_h (updatedRows2[0].data['Inert  [kg/h]'])
+        set_Comb (updatedRows2[0].data['Comb  [kg/h]'])
+        set_Water (updatedRows2[0].data['Water  [kg/h]'])
+        set_Inert (updatedRows2[0].data['Inert  [kg/h]'])
 
         const coeff_O2_stoechio = {C :1 , H : 0.5, O : -1, N :0,S : 1, Cl : -0.5}
         updatedRows2[4].data[col] = updatedRows2[3].data[col]  * coeff_O2_stoechio[element];
@@ -365,7 +365,7 @@ const CombustionParameters = ({ innerData, currentLanguage = 'fr' }) => {
     const totalWaterMass = updatedRows2[0].data['Water  [kg/h]'] || 0;
     setH2OmasseCombInput(totalWaterMass)
 
-    const cv_kJ_kg = cv_kj_kg(
+    const cv = cv_kj(
       updatedRows2[2].data['C [kg/h]'] || 0,
       updatedRows2[2].data['H [kg/h]'] || 0,
       updatedRows2[2].data['O [kg/h]'] || 0,
@@ -374,7 +374,7 @@ const CombustionParameters = ({ innerData, currentLanguage = 'fr' }) => {
       updatedRows2[2].data['Cl [kg/h]'] || 0
     );
 
-    updatedRows2[2].data['Comb CV tot [kJ/kg]'] = cv_kJ_kg;
+    updatedRows2[2].data['Comb CV tot [kJ/kg]'] = cv;
     updatedRows2[2].data['Waste CV tot [kJ/kg]'] = totalMass !== 0 ? cv_waste(
       updatedRows2[2].data['Comb CV tot [kJ/kg]'],
       (totalCombMass / totalMass) * 100,
@@ -400,9 +400,9 @@ const CombustionParameters = ({ innerData, currentLanguage = 'fr' }) => {
   const updateInnerData = () => {
     innerData['O2_stoechio_kmoles'] = parameters2[4].data['Masse totale [kg/h]'] || 0;
     innerData['H2O_stoechio_kmoles'] = parameters2[5].data['Masse totale [kg/h]'] || 0;
-    innerData['cv_kJ_kg'] = parameters2[2].data['Comb CV tot [kJ/kg]'] || 0;
-    innerData['cvw_kJ_kg'] = parameters2[2].data['Waste CV tot [kJ/kg]'] || 0;
-    innerData['cvw_kcal_kg'] = parameters2[2].data['Waste CV tot [kcal/kg]'] || 0;
+    innerData['cv'] = parameters2[2].data['Comb CV tot [kJ/kg]'] || 0;
+    innerData['cvw'] = parameters2[2].data['Waste CV tot [kJ/kg]'] || 0;
+    innerData['cvw'] = parameters2[2].data['Waste CV tot [kcal/kg]'] || 0;
     innerData['masse'] = totalMasse;
     innerData['masse_eau_input'] =Masse_H2O_comb_input;
 
@@ -413,16 +413,16 @@ const CombustionParameters = ({ innerData, currentLanguage = 'fr' }) => {
     innerData['Smoles'] = S_moles ;
     innerData['Clmoles'] = Cl_moles ;
 
-    innerData['Cmass'] = C_kg_h ;
-    innerData['Hmass'] = H_kg_h ;
-    innerData['Omass'] = O_kg_h ;
-    innerData['Nmass'] = N_kg_h ;
-    innerData['Smass'] = S_kg_h ;
-    innerData['Clmass'] = Cl_kg_h ;
+    innerData['Cmass'] = C ;
+    innerData['Hmass'] = H ;
+    innerData['Omass'] = O ;
+    innerData['Nmass'] = N ;
+    innerData['Smass'] = S ;
+    innerData['Clmass'] = Cl ;
 
-    innerData['Combmass'] = Comb_kg_h ;
-    innerData['Watermass'] = Water_kg_h ;
-    innerData['Inertmass'] = Inert_kg_h ;
+    innerData['Combmass'] = Comb ;
+    innerData['Watermass'] = Water ;
+    innerData['Inertmass'] = Inert ;
   };
   
   const updateCell = (rowIndex, column, value) => {

@@ -74,7 +74,7 @@ const OpexSummarySection = ({ nodes }) => {
     nodes.reduce((s, n) => s + (parseFloat(n.data?.result?.[field]) || 0), 0);
 
   // ── Aggregate consumptions ──
-  const consoElec_kW =
+  const consoElec =
     [1, 2, 3, 4, 5, 6, 7, 8].reduce((s, i) => s + sum(`consoElec${i}`), 0);
 
   const conso_air_Nm3h = sum('conso_air_co_N_m3');
@@ -87,24 +87,24 @@ const OpexSummarySection = ({ nodes }) => {
     sum('Conso_EauAdoucie_m3')        * (waterPrices?.soft          || 0);
 
   const cout_reactifs =
-    (sum('Conso_CaCO3_kg')     / 1000) * (reagentsTypes?.CaCO3?.cost      || 0) +
-    (sum('Conso_CaO_kg')       / 1000) * (reagentsTypes?.CaO?.cost        || 0) +
-    (sum('Conso_CaOH2_dry_kg') / 1000) * (reagentsTypes?.CaOH2?.cost      || 0) +
-    (sum('Conso_CaOH2_wet_kg') / 1000) * (reagentsTypes?.CaOH2?.cost      || 0) +
-    (sum('Conso_NaOH_kg')      / 1000) * (reagentsTypes?.NaOH?.cost       || 0) +
-    (sum('Conso_NaOHCO3_kg')   / 1000) * (reagentsTypes?.NaOHCO3?.cost    || 0) +
-    (sum('Conso_Ammonia_kg')   / 1000) * (reagentsTypes?.NH3?.cost        || 0) +
-    (sum('Conso_CAP_kg')       / 1000) * (reagentsTypes?.CAP?.cost        || 0) +
-    (sum('Conso_NaBrCaBr2_kg') / 1000) * (reagentsTypes?.NaBr_CaBr2?.cost || 0);
+    (sum('Conso_CaCO3')     / 1000) * (reagentsTypes?.CaCO3?.cost      || 0) +
+    (sum('Conso_CaO')       / 1000) * (reagentsTypes?.CaO?.cost        || 0) +
+    (sum('Conso_CaOH2_dry') / 1000) * (reagentsTypes?.CaOH2?.cost      || 0) +
+    (sum('Conso_CaOH2_wet') / 1000) * (reagentsTypes?.CaOH2?.cost      || 0) +
+    (sum('Conso_NaOH')      / 1000) * (reagentsTypes?.NaOH?.cost       || 0) +
+    (sum('Conso_NaOHCO3')   / 1000) * (reagentsTypes?.NaOHCO3?.cost    || 0) +
+    (sum('Conso_Ammonia')   / 1000) * (reagentsTypes?.NH3?.cost        || 0) +
+    (sum('Conso_CAP')       / 1000) * (reagentsTypes?.CAP?.cost        || 0) +
+    (sum('Conso_NaBrCaBr2') / 1000) * (reagentsTypes?.NaBr_CaBr2?.cost || 0);
 
   const cout_gaz =
-    sum('conso_gaz_H_MW')      * (gasTypes?.naturalGasH?.molecule || 0) +
-    sum('conso_gaz_L_MW')      * (gasTypes?.naturalGasL?.molecule || 0) +
-    sum('conso_gaz_Process_MW')* (gasTypes?.processGas?.molecule  || 0);
+    sum('conso_gaz_H')      * (gasTypes?.naturalGasH?.molecule || 0) +
+    sum('conso_gaz_L')      * (gasTypes?.naturalGasL?.molecule || 0) +
+    sum('conso_gaz_Process')* (gasTypes?.processGas?.molecule  || 0);
 
-  const cout_fuel = sum('conso_fuel_MW') * (fuelTypes?.FOD?.liquid || 0);
+  const cout_fuel = sum('conso_fuel') * (fuelTypes?.FOD?.liquid || 0);
 
-  const cout_elec  = (consoElec_kW / 1000) * (purchaseElectricityPrice || 0);
+  const cout_elec  = (consoElec / 1000) * (purchaseElectricityPrice || 0);
   const cout_air   = (conso_air_Nm3h / 1000) * (airConsumptionPrice || 0);
   const cout_transport =
     sum('cout_transport_reactifs') +

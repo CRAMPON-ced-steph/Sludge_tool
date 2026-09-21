@@ -40,35 +40,35 @@ const Recuperateur = ({ innerData = {}, combustionResults = {}, currentLanguage 
   });
 
   // ── Entrées fumées depuis CombustionTab ──
-  const T_entree_fumee_C = innerData?.Temp_fumee_voute_C ?? 870;
-  const Q_FG_wet_Nm3_h   = innerData?.FG_wet_Nm3_h ?? 5280;
+  const T_entree_fumee = innerData?.Temp_fumee_voute ?? 870;
+  const Q_FG_wet   = innerData?.FG_wet ?? 5280;
   const P_freeboard_mmCE  = innerData?.P_freeboard ?? 89;
-  const H_fumees_in_kW    = innerData?.Hf_voute_kW ?? 0;
+  const H_fumees_in    = innerData?.Hf_voute ?? 0;
   const rho_FG            = innerData?.Rho_FG_kg_Nm3 ?? 1.1;
 
   // ── Entrées air depuis CombustionTab ──
-  const T_air_entree_C               = innerData?.Temp_air_fluidisation_av_prechauffe_C ?? 0;
-  const Q_Air_dry_Nm3_h              = innerData?.Q_air_comb_tot_Nm3_h ?? 0;
-  const Masse_air_sec_combustion_kg_h = innerData?.Masse_air_sec_combustion_tot_kg_h ?? 0;
+  const T_air_entree               = innerData?.Temp_air_fluidisation_av_prechauffe ?? 0;
+  const Q_Air_dry_norm              = innerData?.Q_air_comb_tot ?? 0;
+  const Masse_air_sec_combustion = innerData?.Masse_air_sec_combustion_tot ?? 0;
 
   // ── Fumées après HX ──
-  const Tf_voute_ap_HX_C  = innerData?.Tf_voute_ap_HX_C  ?? 550;
-  const Hf_voute_ap_HX_kW = innerData?.Hf_voute_ap_HX_kW ?? 0;
+  const Tf_voute_ap_HX  = innerData?.Tf_voute_ap_HX  ?? 550;
+  const Hf_voute_ap_HX = innerData?.Hf_voute_ap_HX ?? 0;
 
   // ── Rendement HX ──
   const Rdt_HX = (innerData?.Rdt_HX ?? 85) / 100;
 
   // ── Air côté HX ──
-  const Temp_air_soufflante_C    = innerData?.Temp_air_soufflante_C   ?? 60;
-  const Tair_ap_prechauffe_C     = innerData?.Tair_ap_prechauffe_C    ?? 0;
+  const Temp_air_soufflante    = innerData?.Temp_air_soufflante   ?? 60;
+  const Tair_ap_prechauffe     = innerData?.Tair_ap_prechauffe    ?? 0;
   const P_voute_defaut_mmCE      = innerData?.PressionVouteDefaut_mmCe ?? 2000;
-  const Hair_ap_prechauffage_kW  = innerData?.Hair_ap_prechauffage_kW  ?? 0;
+  const Hair_ap_prechauffage  = innerData?.Hair_ap_prechauffage  ?? 0;
   const Meau_air_comburant       = innerData?.Meau_air_comburant       ?? 0;
 
   // Col. 9 bilan énergétique détaillé — calculé localement (indépendant du montage de CombustionTab)
-  const H_air_soufflante_kW =
-    cp_air(Temp_air_soufflante_C) * Masse_air_sec_combustion_kg_h
-    + cp_dt_h2o(Temp_air_soufflante_C) * Meau_air_comburant;
+  const H_air_soufflante =
+    cp_air(Temp_air_soufflante) * Masse_air_sec_combustion
+    + cp_dt_h2o(Temp_air_soufflante) * Meau_air_comburant;
 
   // ============================================================
   // CALCUL PRINCIPAL - DESIGN RÉCUPÉRATEUR
@@ -77,22 +77,22 @@ const Recuperateur = ({ innerData = {}, combustionResults = {}, currentLanguage 
   const designRecup = useMemo(() => {
     try {
       // ÉTAPE 1 : TEMPÉRATURE FUMÉES SORTIE HX — reprise du bilan CombustionTab (col. 11)
-      const T_fumee_sortie_HX_C = Tf_voute_ap_HX_C;
+      const T_fumee_sortie_HX = Tf_voute_ap_HX;
 
       // CHALEUR ÉCHANGÉE — déduite des enthalpies CombustionTab
-      const H_apporte_par_fumee_kW = H_fumees_in_kW - Hf_voute_ap_HX_kW;
+      const H_apporte_par_fumee = H_fumees_in - Hf_voute_ap_HX;
 
       // ÉTAPE 2 : TEMPÉRATURES AIR
-      const T_sortie_air_C    = T_air_entree_C + 100; // estimation initiale (non itérée)
-      const T_air_entree_HX_C = T_air_entree_C + 45;  // +45°C apport soufflante
+      const T_sortie_air    = T_air_entree + 100; // estimation initiale (non itérée)
+      const T_air_entree_HX = T_air_entree + 45;  // +45°C apport soufflante
 
       // ÉTAPE 3 : DTLM ET UA
-      const DTLM       = D_TLM(T_fumee_sortie_HX_C, T_entree_fumee_C, T_sortie_air_C, T_air_entree_HX_C);
-      const Facteur_UA = DTLM > 0 ? (H_apporte_par_fumee_kW / DTLM) * 1000 : 0; // W/K
+      const DTLM       = D_TLM(T_fumee_sortie_HX, T_entree_fumee, T_sortie_air, T_air_entree_HX);
+      const Facteur_UA = DTLM > 0 ? (H_apporte_par_fumee / DTLM) * 1000 : 0; // W/K
 
       // ÉTAPE 5 : COEFFICIENTS DE TRANSFERT THERMIQUE
       const Coeff_Hext              = Coef_Hext(freeParams.vitesse_des_fumees_m_s);
-      const Section_calandre_m2     = (Q_FG_wet_Nm3_h * rho_FG) / 3600 / freeParams.vitesse_des_fumees_m_s;
+      const Section_calandre_m2     = (Q_FG_wet * rho_FG) / 3600 / freeParams.vitesse_des_fumees_m_s;
       const coeff_Hint              = Coef_Hint(freeParams.vitesse_air_m_s);
       const coeff_U_propre_kcal_m2_h = Fact_U(Coeff_Hext, coeff_Hint);
       const FactUEncrasse           = Fact_U_Encrasse(coeff_U_propre_kcal_m2_h, freeParams.Encrassement_pourcent / 100);
@@ -100,13 +100,13 @@ const Recuperateur = ({ innerData = {}, combustionResults = {}, currentLanguage 
 
       // ÉTAPE 6 : DÉBIT RÉEL AIR ET PRESSION SORTIE HX
       const P_sortie_HX_mmCE = 2000 + freeParams.PDC_echangeur_air_mmCE;
-      const Q_Air_dry_m3_h   = calculDebitPT(Q_Air_dry_Nm3_h, P_sortie_HX_mmCE, T_sortie_air_C);
+      const Q_Air_dry_real   = calculDebitPT(Q_Air_dry_norm, P_sortie_HX_mmCE, T_sortie_air);
 
       return {
-        T_fumee_sortie_HX_C,
-        T_sortie_air_C,
+        T_fumee_sortie_HX,
+        T_sortie_air,
         P_sortie_HX_mmCE,
-        Q_Air_dry_m3_h,
+        Q_Air_dry_real,
         DTLM,
         Facteur_UA,
         Coeff_Hext,
@@ -120,8 +120,8 @@ const Recuperateur = ({ innerData = {}, combustionResults = {}, currentLanguage 
       return {};
     }
   }, [
-    T_entree_fumee_C, Q_FG_wet_Nm3_h, H_fumees_in_kW, Hf_voute_ap_HX_kW,
-    Tf_voute_ap_HX_C, rho_FG, T_air_entree_C, Q_Air_dry_Nm3_h, freeParams,
+    T_entree_fumee, Q_FG_wet, H_fumees_in, Hf_voute_ap_HX,
+    Tf_voute_ap_HX, rho_FG, T_air_entree, Q_Air_dry_norm, freeParams,
   ]);
 
   // ============================================================
@@ -133,35 +133,35 @@ const Recuperateur = ({ innerData = {}, combustionResults = {}, currentLanguage 
   // ============================================================
 
   // Côté fumées
-  const Q_FG_wet_entree_m3_h = calculDebitPT(Q_FG_wet_Nm3_h, P_freeboard_mmCE, T_entree_fumee_C);
+  const Q_FG_wet_entree = calculDebitPT(Q_FG_wet, P_freeboard_mmCE, T_entree_fumee);
   const P_sortie_HX_fg_mmCE  = P_freeboard_mmCE - freeParams.PDC_HX_FG_mmCE;
-  const Q_FG_wet_sortie_m3_h = calculDebitPT(Q_FG_wet_Nm3_h, P_sortie_HX_fg_mmCE, Tf_voute_ap_HX_C);
+  const Q_FG_wet_sortie = calculDebitPT(Q_FG_wet, P_sortie_HX_fg_mmCE, Tf_voute_ap_HX);
 
   // Côté air
   const P_cote_air_sortie_mmCE = P_voute_defaut_mmCE;
-  const Q_air_sortie_HX_m3_h   = calculDebitPT(Q_Air_dry_Nm3_h, P_cote_air_sortie_mmCE, Tair_ap_prechauffe_C);
+  const Q_air_sortie_HX   = calculDebitPT(Q_Air_dry_norm, P_cote_air_sortie_mmCE, Tair_ap_prechauffe);
 
-  const T_air_moyen_HX_C = (Tair_ap_prechauffe_C + Temp_air_soufflante_C) / 2;
+  const T_air_moyen_HX = (Tair_ap_prechauffe + Temp_air_soufflante) / 2;
   const PDC_HX_cote_air_mmCE = DP_RecupAir(
     P_voute_defaut_mmCE,
-    Q_air_sortie_HX_m3_h,
-    T_air_moyen_HX_C,
+    Q_air_sortie_HX,
+    T_air_moyen_HX,
     freeParams.vitesse_air_m_s,
     2,
     designRecup.S_echange_m2 ?? 0
   );
 
   const P_cote_air_entree_mmCE = P_cote_air_sortie_mmCE + PDC_HX_cote_air_mmCE;
-  const Q_air_entree_HX_m3_h   = calculDebitPT(Q_Air_dry_Nm3_h, P_cote_air_entree_mmCE, Temp_air_soufflante_C);
+  const Q_air_entree_HX   = calculDebitPT(Q_Air_dry_norm, P_cote_air_entree_mmCE, Temp_air_soufflante);
 
   // ── Ventilateur ──
-  const Q_air_pulser_Nm3_h     = innerData?.Volume_air_combustible_total_Nm3_h
-    || combustionResults?.Volume_air_combustible_total_Nm3_h
+  const Q_air_pulser     = innerData?.Volume_air_combustible_total
+    || combustionResults?.Volume_air_combustible_total
     || 0;
-  const Q_air_ventilateur_m3_h = calculDebitPT(Q_air_pulser_Nm3_h, P_cote_air_entree_mmCE, Temp_air_soufflante_C);
-  const Puissance_elec_ventilateur_kW =
+  const Q_air_ventilateur = calculDebitPT(Q_air_pulser, P_cote_air_entree_mmCE, Temp_air_soufflante);
+  const Puissance_elec_ventilateur =
     freeParams.Rendement_ventilateur > 0
-      ? ((Q_air_ventilateur_m3_h / 3600) * P_cote_air_entree_mmCE * 9.8 )/ freeParams.Rendement_ventilateur / 1000
+      ? ((Q_air_ventilateur / 3600) * P_cote_air_entree_mmCE * 9.8 )/ freeParams.Rendement_ventilateur / 1000
       : 0;
 
   // ============================================================
@@ -171,10 +171,10 @@ const Recuperateur = ({ innerData = {}, combustionResults = {}, currentLanguage 
   useEffect(() => {
     if (!innerData || Object.keys(designRecup).length === 0) return;
     // Résultats dimensionnement échangeur
-    innerData.T_fumee_sortie_HX_C    = designRecup.T_fumee_sortie_HX_C    ?? 0;
+    innerData.T_fumee_sortie_HX    = designRecup.T_fumee_sortie_HX    ?? 0;
     innerData.P_sortie_HX_mmCE       = designRecup.P_sortie_HX_mmCE       ?? 0;
-    innerData.Q_Air_dry_m3_h         = designRecup.Q_Air_dry_m3_h         ?? 0;
-    innerData.T_sortie_air_C         = designRecup.T_sortie_air_C         ?? 0;
+    innerData.Q_Air_dry_real         = designRecup.Q_Air_dry_real         ?? 0;
+    innerData.T_sortie_air         = designRecup.T_sortie_air         ?? 0;
     innerData.S_echange_m2           = designRecup.S_echange_m2           ?? 0;
     innerData.DTLM_HX                = designRecup.DTLM                   ?? 0;
     innerData.Facteur_UA             = designRecup.Facteur_UA              ?? 0;
@@ -187,26 +187,26 @@ const Recuperateur = ({ innerData = {}, combustionResults = {}, currentLanguage 
   useEffect(() => {
     if (!innerData) return;
     // HX côté fumées — débits et pressions
-    innerData.Q_FG_wet_entree_m3_h   = Q_FG_wet_entree_m3_h;
+    innerData.Q_FG_wet_entree   = Q_FG_wet_entree;
     innerData.P_sortie_HX_fg_mmCE    = P_sortie_HX_fg_mmCE;
-    innerData.Q_FG_wet_sortie_m3_h   = Q_FG_wet_sortie_m3_h;
+    innerData.Q_FG_wet_sortie   = Q_FG_wet_sortie;
     // HX côté air — débits et pressions
     innerData.PDC_HX_cote_air_mmCE   = PDC_HX_cote_air_mmCE;
     innerData.P_cote_air_entree_mmCE = P_cote_air_entree_mmCE;
-    innerData.Q_air_entree_HX_m3_h   = Q_air_entree_HX_m3_h;
-    innerData.Q_air_sortie_HX_m3_h   = Q_air_sortie_HX_m3_h;
-    innerData.H_air_soufflante_kW    = H_air_soufflante_kW;
+    innerData.Q_air_entree_HX   = Q_air_entree_HX;
+    innerData.Q_air_sortie_HX   = Q_air_sortie_HX;
+    innerData.H_air_soufflante    = H_air_soufflante;
     // Ventilateur
-    innerData.Q_air_pulser_Nm3_h          = Q_air_pulser_Nm3_h;
-    innerData.Q_air_ventilateur_m3_h      = Q_air_ventilateur_m3_h;
-    innerData.Puissance_elec_ventilateur_kW = Puissance_elec_ventilateur_kW;
+    innerData.Q_air_pulser          = Q_air_pulser;
+    innerData.Q_air_ventilateur      = Q_air_ventilateur;
+    innerData.Puissance_elec_ventilateur = Puissance_elec_ventilateur;
     innerData.Rendement_ventilateur_HX    = freeParams.Rendement_ventilateur;
     onInnerDataChange?.();
   }, [innerData,
-    Q_FG_wet_entree_m3_h, P_sortie_HX_fg_mmCE, Q_FG_wet_sortie_m3_h,
-    PDC_HX_cote_air_mmCE, P_cote_air_entree_mmCE, Q_air_entree_HX_m3_h,
-    Q_air_sortie_HX_m3_h, H_air_soufflante_kW, Q_air_pulser_Nm3_h,
-    Q_air_ventilateur_m3_h, Puissance_elec_ventilateur_kW,
+    Q_FG_wet_entree, P_sortie_HX_fg_mmCE, Q_FG_wet_sortie,
+    PDC_HX_cote_air_mmCE, P_cote_air_entree_mmCE, Q_air_entree_HX,
+    Q_air_sortie_HX, H_air_soufflante, Q_air_pulser,
+    Q_air_ventilateur, Puissance_elec_ventilateur,
     freeParams.Rendement_ventilateur, onInnerDataChange,
   ]);
 
@@ -272,12 +272,12 @@ const Recuperateur = ({ innerData = {}, combustionResults = {}, currentLanguage 
               {t('Entrée') || 'Entrée'}
             </div>
             {[
-              { label: t('Temp. fumée voûte / Freeboard [°C]') || 'Temp. fumée voûte / Freeboard [°C]', val: T_entree_fumee_C.toFixed(1), unit: '°C' },
-              { label: t('Débit humide des fumées [Nm3/h]') || 'Débit humide des fumées [Nm3/h]', val: Q_FG_wet_Nm3_h.toFixed(0), unit: 'Nm³/h' },
+              { label: t('Temp. fumée voûte / Freeboard [°C]') || 'Temp. fumée voûte / Freeboard [°C]', val: T_entree_fumee.toFixed(1), unit: '°C' },
+              { label: t('Débit humide des fumées [Nm3/h]') || 'Débit humide des fumées [Nm3/h]', val: Q_FG_wet.toFixed(0), unit: 'Nm³/h' },
               null,
               { label: t('Pression au freeboard [mmCE]') || 'Pression au freeboard [mmCE]', val: P_freeboard_mmCE.toFixed(0), unit: 'mmCE' },
-              { label: t('Débit fumées humides entrée [m3/h]') || 'Débit fumées humides entrée [m3/h]', val: Q_FG_wet_entree_m3_h.toFixed(0), unit: 'm³/h' },
-              { label: t('H fumées entrée [kW]') || 'H fumées entrée [kW]', val: H_fumees_in_kW.toFixed(0), unit: 'kW' },
+              { label: t('Débit fumées humides entrée [m3/h]') || 'Débit fumées humides entrée [m3/h]', val: Q_FG_wet_entree.toFixed(0), unit: 'm³/h' },
+              { label: t('H fumées entrée [kW]') || 'H fumées entrée [kW]', val: H_fumees_in.toFixed(0), unit: 'kW' },
             ].map((item, i) =>
               item === null ? (
                 <div key={`space-l-${i}`} style={{ height: '55px' }} />
@@ -296,7 +296,7 @@ const Recuperateur = ({ innerData = {}, combustionResults = {}, currentLanguage 
             </div>
             <div>
               <label style={labelStyle}>{t('Temp. fumées ap HX [°C]') || 'Temp. fumées ap HX [°C]'}</label>
-              <input type="text" value={`${Tf_voute_ap_HX_C.toFixed(1)} °C`} readOnly style={readOnlyStyle} />
+              <input type="text" value={`${Tf_voute_ap_HX.toFixed(1)} °C`} readOnly style={readOnlyStyle} />
             </div>
             <div style={{ height: '55px' }} />
             <div>
@@ -310,11 +310,11 @@ const Recuperateur = ({ innerData = {}, combustionResults = {}, currentLanguage 
             </div>
             <div>
               <label style={labelStyle}>{t('Débit fumées humides sortie') || 'Débit fumées humides sortie'}</label>
-              <input type="text" value={`${Q_FG_wet_sortie_m3_h.toFixed(0)} m³/h`} readOnly style={readOnlyStyle} />
+              <input type="text" value={`${Q_FG_wet_sortie.toFixed(0)} m³/h`} readOnly style={readOnlyStyle} />
             </div>
             <div>
               <label style={labelStyle}>{t('Hf fumées ap HX [kW]') || 'Hf fumées ap HX [kW]'}</label>
-              <input type="text" value={`${Hf_voute_ap_HX_kW.toFixed(0)} kW`} readOnly style={readOnlyStyle} />
+              <input type="text" value={`${Hf_voute_ap_HX.toFixed(0)} kW`} readOnly style={readOnlyStyle} />
             </div>
           </div>
 
@@ -333,11 +333,11 @@ const Recuperateur = ({ innerData = {}, combustionResults = {}, currentLanguage 
             </div>
             <div>
               <label style={labelStyle}>{t('Temp. air soufflante') || 'Temp. air soufflante'}</label>
-              <input type="text" value={`${Temp_air_soufflante_C.toFixed(1)} °C`} readOnly style={readOnlyStyle} />
+              <input type="text" value={`${Temp_air_soufflante.toFixed(1)} °C`} readOnly style={readOnlyStyle} />
             </div>
             <div>
               <label style={labelStyle}>{t("Débit d'air humide [Nm3/h]") || "Débit d'air humide [Nm3/h]"}</label>
-              <input type="text" value={`${Q_Air_dry_Nm3_h.toFixed(0)} Nm³/h`} readOnly style={readOnlyStyle} />
+              <input type="text" value={`${Q_Air_dry_norm.toFixed(0)} Nm³/h`} readOnly style={readOnlyStyle} />
             </div>
             <div style={{ height: '55px' }} />
             <div>
@@ -350,11 +350,11 @@ const Recuperateur = ({ innerData = {}, combustionResults = {}, currentLanguage 
             </div>
             <div>
               <label style={labelStyle}>{t("Débit d'air en entrée de l'échangeur [m3/h]") || "Débit d'air en entrée de l'échangeur [m3/h]"}</label>
-              <input type="text" value={`${Q_air_entree_HX_m3_h.toFixed(0)} m³/h`} readOnly style={readOnlyStyle} />
+              <input type="text" value={`${Q_air_entree_HX.toFixed(0)} m³/h`} readOnly style={readOnlyStyle} />
             </div>
             <div>
               <label style={labelStyle}>{t('H air in HX [kW]') || 'H air in HX [kW]'}</label>
-              <input type="text" value={`${H_air_soufflante_kW.toFixed(0)} kW`} readOnly style={readOnlyStyle} />
+              <input type="text" value={`${H_air_soufflante.toFixed(0)} kW`} readOnly style={readOnlyStyle} />
             </div>
           </div>
 
@@ -365,7 +365,7 @@ const Recuperateur = ({ innerData = {}, combustionResults = {}, currentLanguage 
             </div>
             <div>
               <label style={labelStyle}>{t('Temp. air flu. ap. préch.') || 'Temp. air flu. ap. préch.'}</label>
-              <input type="text" value={`${Tair_ap_prechauffe_C.toFixed(1)} °C`} readOnly style={readOnlyStyle} />
+              <input type="text" value={`${Tair_ap_prechauffe.toFixed(1)} °C`} readOnly style={readOnlyStyle} />
             </div>
             <div style={{ height: '55px' }} />
             <div>
@@ -376,11 +376,11 @@ const Recuperateur = ({ innerData = {}, combustionResults = {}, currentLanguage 
             <div style={{ height: '55px' }} />
             <div>
               <label style={labelStyle}>{t("Débit air en sortie de l'échangeur [m3/h]") || "Débit air en sortie de l'échangeur [m3/h]"}</label>
-              <input type="text" value={`${Q_air_sortie_HX_m3_h.toFixed(0)} m³/h`} readOnly style={readOnlyStyle} />
+              <input type="text" value={`${Q_air_sortie_HX.toFixed(0)} m³/h`} readOnly style={readOnlyStyle} />
             </div>
             <div>
               <label style={labelStyle}>{t('H air out HX [kW]') || 'H air out HX [kW]'}</label>
-              <input type="text" value={`${Hair_ap_prechauffage_kW.toFixed(0)} kW`} readOnly style={readOnlyStyle} />
+              <input type="text" value={`${Hair_ap_prechauffage.toFixed(0)} kW`} readOnly style={readOnlyStyle} />
             </div>
           </div>
 
@@ -394,7 +394,7 @@ const Recuperateur = ({ innerData = {}, combustionResults = {}, currentLanguage 
 
           <div>
             <label style={labelStyle}>{t("Débit d'air à pulser [Nm3/h]") || "Débit d'air à pulser [Nm3/h]"}</label>
-            <input type="text" value={`${Q_air_pulser_Nm3_h.toFixed(0)} Nm³/h`} readOnly style={readOnlyStyle} />
+            <input type="text" value={`${Q_air_pulser.toFixed(0)} Nm³/h`} readOnly style={readOnlyStyle} />
           </div>
 
           <div>
@@ -404,12 +404,12 @@ const Recuperateur = ({ innerData = {}, combustionResults = {}, currentLanguage 
 
           <div>
             <label style={labelStyle}>{t('Temp. air soufflante') || 'Temp. air soufflante'}</label>
-            <input type="text" value={`${Temp_air_soufflante_C.toFixed(1)} °C`} readOnly style={readOnlyStyle} />
+            <input type="text" value={`${Temp_air_soufflante.toFixed(1)} °C`} readOnly style={readOnlyStyle} />
           </div>
 
           <div>
             <label style={labelStyle}>{t('Débit air total sortie ventilateur [m3/h]') || 'Débit air total sortie ventilateur [m3/h]'}</label>
-            <div style={resultBox}>{Q_air_ventilateur_m3_h.toFixed(0)} m³/h</div>
+            <div style={resultBox}>{Q_air_ventilateur.toFixed(0)} m³/h</div>
           </div>
 
           <div>
@@ -422,7 +422,7 @@ const Recuperateur = ({ innerData = {}, combustionResults = {}, currentLanguage 
 
           <div>
             <label style={labelStyle}>{t('Puissance électrique consommée [kW]') || 'Puissance électrique consommée [kW]'}</label>
-            <div style={resultBox}>{Puissance_elec_ventilateur_kW.toFixed(1)} kW</div>
+            <div style={resultBox}>{Puissance_elec_ventilateur.toFixed(1)} kW</div>
           </div>
 
         </div>
@@ -449,7 +449,7 @@ const Recuperateur = ({ innerData = {}, combustionResults = {}, currentLanguage 
 
                 <div>
                   <label style={labelStyle}>{t('Q chaleur apportée par les fumées') || 'Q chaleur apportée par les fumées'} (kW)</label>
-                  <div style={resultBox}>{(H_fumees_in_kW - Hf_voute_ap_HX_kW).toFixed(1)} kW</div>
+                  <div style={resultBox}>{(H_fumees_in - Hf_voute_ap_HX).toFixed(1)} kW</div>
                 </div>
 
                 <div>
@@ -492,13 +492,13 @@ const Recuperateur = ({ innerData = {}, combustionResults = {}, currentLanguage 
 
                 <div>
                   <label style={labelStyle}>{t("Q chaleur reçue par l'air") || "Q chaleur reçue par l'air"} (kW)</label>
-                  <div style={resultBox}>{(Hair_ap_prechauffage_kW - H_air_soufflante_kW).toFixed(1)} kW</div>
+                  <div style={resultBox}>{(Hair_ap_prechauffage - H_air_soufflante).toFixed(1)} kW</div>
                 </div>
 
                 <div>
                   <label style={labelStyle}>{t('Pertes thermiques échangeur') || 'Pertes thermiques échangeur'} (kW)</label>
                   <div style={resultBox}>
-                    {((H_fumees_in_kW - Hf_voute_ap_HX_kW) - (Hair_ap_prechauffage_kW - H_air_soufflante_kW)).toFixed(1)} kW
+                    {((H_fumees_in - Hf_voute_ap_HX) - (Hair_ap_prechauffage - H_air_soufflante)).toFixed(1)} kW
                   </div>
                 </div>
 

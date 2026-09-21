@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const SCC_NOxAndMercuryCalculator = ({ masses, Debit_fumees_sec_Nm3_h,innerData }) => {
+const SCC_NOxAndMercuryCalculator = ({ masses, Debit_fumees_sec,innerData }) => {
   const parseStoredValue = (key, defaultValue) => {
     const storedValue = localStorage.getItem(key);
     return storedValue !== null ? JSON.parse(storedValue) : defaultValue;
@@ -17,7 +17,7 @@ const SCC_NOxAndMercuryCalculator = ({ masses, Debit_fumees_sec_Nm3_h,innerData 
 
   useEffect(() => {
     calculateConsumptions();
-  }, [sncr, noxTarget, coefStoechio, mercuryTreatment, brHgRatio, masses, Debit_fumees_sec_Nm3_h]);
+  }, [sncr, noxTarget, coefStoechio, mercuryTreatment, brHgRatio, masses, Debit_fumees_sec]);
 
   useEffect(() => {
     localStorage.setItem("sncr_SCC", JSON.stringify(sncr));
@@ -28,10 +28,10 @@ const SCC_NOxAndMercuryCalculator = ({ masses, Debit_fumees_sec_Nm3_h,innerData 
   }, [sncr, noxTarget, coefStoechio, mercuryTreatment, brHgRatio]);
 
   const calculateConsumptions = () => {
-    const noxInitial = parseFloat(masses.NOx) * 1e6 /Debit_fumees_sec_Nm3_h || 0;
+    const noxInitial = parseFloat(masses.NOx) * 1e6 /Debit_fumees_sec || 0;
 
     if (sncr === "oui") {
-      const noxReduction = (noxInitial - noxTarget) * Debit_fumees_sec_Nm3_h / 1e6;
+      const noxReduction = (noxInitial - noxTarget) * Debit_fumees_sec / 1e6;
       const ammoniaConsumptionValue = coefStoechio * Math.max(noxReduction, 0);
       setAmmoniaConsumption(ammoniaConsumptionValue);
     } else {

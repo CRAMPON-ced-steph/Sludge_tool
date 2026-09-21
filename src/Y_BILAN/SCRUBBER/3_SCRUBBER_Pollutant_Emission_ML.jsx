@@ -61,11 +61,11 @@ const FlueGasPollutantEmission = ({ innerData, setInnerData, currentLanguage = '
   const HF_stoechiométrie = emissionsSCRUBBER['HF stoechiométrie'];
 
   // Data from innerData
-  const Debit_fumees_sec_Nm3_h = innerData?.FG_sec_EAU_tot_Nm3_h || 10000;
-  const Debit_fumees_humide_Nm3_h = innerData?.FG_humide_EAU_tot_Nm3_h || 10000;
+  const Debit_fumees_sec = innerData?.FG_sec_EAU_tot || 10000;
+  const Debit_fumees_humide = innerData?.FG_humide_EAU_tot || 10000;
   const FG_O2_calcule = innerData?.O2calcul || 12;
   const masse_dechets = innerData?.masse || 10;
-  const Inert_kg_h = innerData?.Inertmass || 1;
+  const Inert = innerData?.Inertmass || 1;
   const masses_pollutant_input = innerData?.PollutantOutput || {};
 
   // ============ CALCULS MÉMORISÉS - COEFFICIENTS R ============
@@ -187,27 +187,27 @@ const FlueGasPollutantEmission = ({ innerData, setInnerData, currentLanguage = '
   // ============ CALCULS MÉMORISÉS - RÉSIDUS ============
   const residueCalculations = useMemo(() => {
     try {
-      let FlyAsh_kg_h = 0;
-      let DryBottomAsh_kg_h = 0;
+      let FlyAsh = 0;
+      let DryBottomAsh = 0;
 
-      if (Inert_kg_h !== 0) {
-        FlyAsh_kg_h = FlyAsh_g_Nm3 * Debit_fumees_sec_Nm3_h / 1000;
-        DryBottomAsh_kg_h = Inert_kg_h - FlyAsh_kg_h;
+      if (Inert !== 0) {
+        FlyAsh = FlyAsh_g_Nm3 * Debit_fumees_sec / 1000;
+        DryBottomAsh = Inert - FlyAsh;
       }
 
-      DryBottomAsh_kg_h = DryBottomAsh_kg_h + reductionCalculations.mass_residus_tot;
-      const WetBottomAsh_kg_h = DryBottomAsh_kg_h / (Bottom_Ash_Siccity / 100);
+      DryBottomAsh = DryBottomAsh + reductionCalculations.mass_residus_tot;
+      const WetBottomAsh = DryBottomAsh / (Bottom_Ash_Siccity / 100);
 
       return {
-        FlyAsh_kg_h,
-        DryBottomAsh_kg_h,
-        WetBottomAsh_kg_h,
+        FlyAsh,
+        DryBottomAsh,
+        WetBottomAsh,
       };
     } catch (error) {
       console.error('Erreur calculs résidus:', error);
-      return { FlyAsh_kg_h: 0, DryBottomAsh_kg_h: 0, WetBottomAsh_kg_h: 0 };
+      return { FlyAsh: 0, DryBottomAsh: 0, WetBottomAsh: 0 };
     }
-  }, [Inert_kg_h, FlyAsh_g_Nm3, Debit_fumees_sec_Nm3_h, Bottom_Ash_Siccity, reductionCalculations.mass_residus_tot]);
+  }, [Inert, FlyAsh_g_Nm3, Debit_fumees_sec, Bottom_Ash_Siccity, reductionCalculations.mass_residus_tot]);
 
   // ============ CALCULS MÉMORISÉS - RÉACTIFS ============
   const reagentCalculations = useMemo(() => {
@@ -265,9 +265,9 @@ const FlueGasPollutantEmission = ({ innerData, setInnerData, currentLanguage = '
   useEffect(() => {
     if (innerData && setInnerData) {
       innerData.Residus = {
-        DryBottomAsh_kg_h: residueCalculations.DryBottomAsh_kg_h,
-        WetBottomAsh_kg_h: residueCalculations.WetBottomAsh_kg_h,
-        FlyAsh_kg_h: residueCalculations.FlyAsh_kg_h,
+        DryBottomAsh: residueCalculations.DryBottomAsh,
+        WetBottomAsh: residueCalculations.WetBottomAsh,
+        FlyAsh: residueCalculations.FlyAsh,
       };
       innerData.PInput = masses_pollutant_input;
       innerData.Poutput = outputPollutants;
@@ -289,16 +289,16 @@ const FlueGasPollutantEmission = ({ innerData, setInnerData, currentLanguage = '
 
   const elementsGeneric = useMemo(() => [
     { text: t('Waste Flow [kg/h]'), value: masse_dechets },
-    { text: t('Flue gas Flow Wet [Nm3/h]'), value: Debit_fumees_humide_Nm3_h.toFixed(0) },
-    { text: t('Flue gas Flow Dry [Nm3/h]'), value: Debit_fumees_sec_Nm3_h.toFixed(0) },
+    { text: t('Flue gas Flow Wet [Nm3/h]'), value: Debit_fumees_humide.toFixed(0) },
+    { text: t('Flue gas Flow Dry [Nm3/h]'), value: Debit_fumees_sec.toFixed(0) },
     { text: t('O2 calculated [%]'), value: FG_O2_calcule.toFixed(2) },
-    { text: t('inert mass [kg/h]'), value: Inert_kg_h.toFixed(2) },
-  ], [masse_dechets, Debit_fumees_humide_Nm3_h, Debit_fumees_sec_Nm3_h, FG_O2_calcule, Inert_kg_h, t]);
+    { text: t('inert mass [kg/h]'), value: Inert.toFixed(2) },
+  ], [masse_dechets, Debit_fumees_humide, Debit_fumees_sec, FG_O2_calcule, Inert, t]);
 
   const residusCalculations = useMemo(() => [
-    { text: t('Bottom ash [kg/h]'), value: residueCalculations.DryBottomAsh_kg_h },
-    { text: t('Bottom ash wet [kg/h]'), value: residueCalculations.WetBottomAsh_kg_h },
-    { text: t('Fly ash [kg/h]'), value: residueCalculations.FlyAsh_kg_h },
+    { text: t('Bottom ash [kg/h]'), value: residueCalculations.DryBottomAsh },
+    { text: t('Bottom ash wet [kg/h]'), value: residueCalculations.WetBottomAsh },
+    { text: t('Fly ash [kg/h]'), value: residueCalculations.FlyAsh },
   ], [residueCalculations, t]);
 
   // ============ STYLES ============
@@ -401,7 +401,7 @@ const FlueGasPollutantEmission = ({ innerData, setInnerData, currentLanguage = '
         masses={masses_pollutant_input} 
         O2_mesure={FG_O2_calcule} 
         O2_ref={O2ref} 
-        Debit_fumees_sec_Nm3_h={Debit_fumees_sec_Nm3_h}
+        Debit_fumees_sec={Debit_fumees_sec}
       />
 
       <h4>{t('Pollutant Treatment Table')}</h4>
@@ -479,7 +479,7 @@ const FlueGasPollutantEmission = ({ innerData, setInnerData, currentLanguage = '
         masses={outputPollutants} 
         O2_mesure={FG_O2_calcule} 
         O2_ref={O2ref} 
-        Debit_fumees_sec_Nm3_h={Debit_fumees_sec_Nm3_h}
+        Debit_fumees_sec={Debit_fumees_sec}
       />
 
       <h3>{t('Bottom ashes calculated')}</h3>

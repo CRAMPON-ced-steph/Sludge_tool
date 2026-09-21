@@ -68,19 +68,19 @@ const IDFANFlueGasParameters = ({ innerData, upstreamT_IN, upstreamFG_IN, upstre
   const safety_factor = emissions_IDFAN['Safety factor [-]'];
 
   // Calculate mass flows
-  const FG_CO2_kg_h = FG_IN.CO2;
-  const FG_H2O_kg_h = FG_IN.H2O;
-  const FG_O2_kg_h = FG_IN.O2;
-  const FG_N2_kg_h = FG_IN.N2;
+  const FG_CO2_mass = FG_IN.CO2;
+  const FG_H2O_mass = FG_IN.H2O;
+  const FG_O2_mass = FG_IN.O2;
+  const FG_N2_mass = FG_IN.N2;
 
   // Convert to volumetric flows
-  const FG_CO2_Nm3_h = CO2_kg_m3(FG_CO2_kg_h);
-  const FG_H2O_Nm3_h = H2O_kg_m3(FG_H2O_kg_h);
-  const FG_O2_Nm3_h = O2_kg_m3(FG_O2_kg_h);
-  const FG_N2_Nm3_h = N2_kg_m3(FG_N2_kg_h);
+  const FG_CO2_vol = CO2_kg_m3(FG_CO2_mass);
+  const FG_H2O_vol = H2O_kg_m3(FG_H2O_mass);
+  const FG_O2_vol = O2_kg_m3(FG_O2_mass);
+  const FG_N2_vol = N2_kg_m3(FG_N2_mass);
 
-  const FG_humide_tot_Nm3_h = FG_CO2_Nm3_h + FG_H2O_Nm3_h + FG_O2_Nm3_h + FG_N2_Nm3_h;
-  const FG_humide_CONV = coeff_Nm3_to_m3(T_IN, 0) * FG_humide_tot_Nm3_h;
+  const FG_humide_tot = FG_CO2_vol + FG_H2O_vol + FG_O2_vol + FG_N2_vol;
+  const FG_humide_CONV = coeff_Nm3_to_m3(T_IN, 0) * FG_humide_tot;
 
   // Calcul avec les rendements sélectionnés
   const eta_ventilateur = fanConfigs[fanType].efficiency;
@@ -89,22 +89,22 @@ const IDFANFlueGasParameters = ({ innerData, upstreamT_IN, upstreamFG_IN, upstre
 
   // Calculs de puissance
   const delta_P_total_mmCE = P_outlet - P_inlet;
-  const delta_P_total_Pa = delta_P_total_mmCE * 9.81;
+  const delta_P_total = delta_P_total_mmCE * 9.81;
   
-  const P_aeraulique_kW = (FG_humide_CONV * delta_P_total_Pa) / (3600 * 1000);
-  const P_mecanique_kW = P_aeraulique_kW / eta_ventilateur;
-  const P_elec_brute_kW = P_mecanique_kW / (eta_moteur * eta_transmission);
-  const P_elec_kW = P_elec_brute_kW * safety_factor;
+  const P_aeraulique = (FG_humide_CONV * delta_P_total) / (3600 * 1000);
+  const P_mecanique = P_aeraulique / eta_ventilateur;
+  const P_elec_brute = P_mecanique / (eta_moteur * eta_transmission);
+  const P_elec = P_elec_brute * safety_factor;
 
   // Calcul des pertes thermiques
-  const debit_massique_kg_s = (FG_CO2_kg_h + FG_H2O_kg_h + FG_O2_kg_h + FG_N2_kg_h) / 3600;
+  const debit_massique_kg_s = (FG_CO2_mass + FG_H2O_mass + FG_O2_mass + FG_N2_mass) / 3600;
   
   // Fractions massiques pour Cp du mélange
-  const debit_total = FG_CO2_kg_h + FG_H2O_kg_h + FG_O2_kg_h + FG_N2_kg_h;
-  const x_CO2 = debit_total > 0 ? FG_CO2_kg_h / debit_total : 0;
-  const x_H2O = debit_total > 0 ? FG_H2O_kg_h / debit_total : 0;
-  const x_O2 = debit_total > 0 ? FG_O2_kg_h / debit_total : 0;
-  const x_N2 = debit_total > 0 ? FG_N2_kg_h / debit_total : 0;
+  const debit_total = FG_CO2_mass + FG_H2O_mass + FG_O2_mass + FG_N2_mass;
+  const x_CO2 = debit_total > 0 ? FG_CO2_mass / debit_total : 0;
+  const x_H2O = debit_total > 0 ? FG_H2O_mass / debit_total : 0;
+  const x_O2 = debit_total > 0 ? FG_O2_mass / debit_total : 0;
+  const x_N2 = debit_total > 0 ? FG_N2_mass / debit_total : 0;
 
   // Capacités calorifiques (kJ/kg/K)
   const Cp_CO2 = 1.15;
@@ -115,10 +115,10 @@ const IDFANFlueGasParameters = ({ innerData, upstreamT_IN, upstreamFG_IN, upstre
   const Cp_melange = x_CO2 * Cp_CO2 + x_H2O * Cp_H2O + x_O2 * Cp_O2 + x_N2 * Cp_N2;
 
   // Pertes transmises aux fumées (pertes internes du ventilateur)
-  const P_vers_fumees = P_mecanique_kW * (1 - eta_ventilateur);
+  const P_vers_fumees = P_mecanique * (1 - eta_ventilateur);
   
   // Pertes vers l'ambiance (moteur + transmission)
-  const P_vers_ambiance = P_elec_brute_kW * (1 - eta_moteur * eta_transmission);
+  const P_vers_ambiance = P_elec_brute * (1 - eta_moteur * eta_transmission);
 
   // Élévation de température
   const delta_T_fumees = debit_massique_kg_s > 0 && Cp_melange > 0 ? 
@@ -145,30 +145,30 @@ const IDFANFlueGasParameters = ({ innerData, upstreamT_IN, upstreamFG_IN, upstre
   if (innerData) {
     innerData.T_OUT = T_out;
     innerData.P_OUT = P_outlet;
-    innerData.FG_OUT_kg_h = {
-      CO2: FG_CO2_kg_h,
-      H2O: FG_H2O_kg_h,
-      O2: FG_O2_kg_h,
-      N2: FG_N2_kg_h
+    innerData.FG_OUT = {
+      CO2: FG_CO2_mass,
+      H2O: FG_H2O_mass,
+      O2: FG_O2_mass,
+      N2: FG_N2_mass
     };
-    innerData.consoElec1 = P_elec_kW;
+    innerData.consoElec1 = P_elec;
     innerData.labelElec1 = 'ID fan';
   }
 
   const masses_FG_in_IDFAN = {
-    CO2: FG_CO2_kg_h,
-    O2: FG_O2_kg_h,
-    H2O: FG_H2O_kg_h,
-    N2: FG_N2_kg_h
+    CO2: FG_CO2_mass,
+    O2: FG_O2_mass,
+    H2O: FG_H2O_mass,
+    N2: FG_N2_mass
   };
 
   const elementsGeneric = [
     { text: t('Flow rate [m³/h at conditions]'), value: FG_humide_CONV.toFixed(0) },
     { text: t('Total pressure drop [mmCE]'), value: delta_P_total_mmCE.toFixed(0) },
-    { text: t('Aeraulic power [kW]'), value: P_aeraulique_kW.toFixed(3) },
-    { text: t('Mechanical power [kW]'), value: P_mecanique_kW.toFixed(3) },
-    { text: t('Electrical power (before safety) [kWe]'), value: P_elec_brute_kW.toFixed(3) },
-    { text: t('Electrical power (with safety) [kWe]'), value: P_elec_kW.toFixed(2) },
+    { text: t('Aeraulic power [kW]'), value: P_aeraulique.toFixed(3) },
+    { text: t('Mechanical power [kW]'), value: P_mecanique.toFixed(3) },
+    { text: t('Electrical power (before safety) [kWe]'), value: P_elec_brute.toFixed(3) },
+    { text: t('Electrical power (with safety) [kWe]'), value: P_elec.toFixed(2) },
     { text: t('Fan efficiency [%]'), value: (eta_ventilateur * 100).toFixed(1) },
     { text: t('Motor efficiency [%]'), value: (eta_moteur * 100).toFixed(1) },
     { text: t('Transmission efficiency [%]'), value: (eta_transmission * 100).toFixed(1) },

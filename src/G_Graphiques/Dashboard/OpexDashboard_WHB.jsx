@@ -85,27 +85,27 @@ const OpexDashboard = ({
     const Conso_EauRiviere_m3 = toSignificantFigures(innerData?.Conso_EauRiviere_m3 || 0);
     const Conso_EauAdoucie_m3 = toSignificantFigures(innerData?.Conso_EauAdoucie_m3 || 0);
 
-    const Conso_CaCO3_kg = toSignificantFigures(innerData?.Conso_CaCO3_kg || 0);
-    const Conso_CaO_kg = toSignificantFigures(innerData?.Conso_CaO_kg || 0);
-    const Conso_CaOH2_dry_kg = toSignificantFigures(innerData?.Conso_CaOH2_dry_kg || 0);
-    const Conso_CaOH2_wet_kg = toSignificantFigures(innerData?.Conso_CaOH2_wet_kg || 0);
-    const Conso_NaOH_kg = toSignificantFigures(innerData?.Conso_NaOH_kg || 0);
-    const Conso_NaOHCO3_kg = toSignificantFigures(innerData?.Conso_NaOHCO3_kg || 0);
-    const Conso_Ammonia_kg = toSignificantFigures(innerData?.Conso_Ammonia_kg || 0);
-    const Conso_CAP_kg = toSignificantFigures(innerData?.Conso_CAP_kg || 0);
-    const Conso_NaBrCaBr2_kg = toSignificantFigures(innerData?.Conso_NaBrCaBr2_kg || 0);
+    const Conso_CaCO3 = toSignificantFigures(innerData?.Conso_CaCO3 || 0);
+    const Conso_CaO = toSignificantFigures(innerData?.Conso_CaO || 0);
+    const Conso_CaOH2_dry = toSignificantFigures(innerData?.Conso_CaOH2_dry || 0);
+    const Conso_CaOH2_wet = toSignificantFigures(innerData?.Conso_CaOH2_wet || 0);
+    const Conso_NaOH = toSignificantFigures(innerData?.Conso_NaOH || 0);
+    const Conso_NaOHCO3 = toSignificantFigures(innerData?.Conso_NaOHCO3 || 0);
+    const Conso_Ammonia = toSignificantFigures(innerData?.Conso_Ammonia || 0);
+    const Conso_CAP = toSignificantFigures(innerData?.Conso_CAP || 0);
+    const Conso_NaBrCaBr2 = toSignificantFigures(innerData?.Conso_NaBrCaBr2 || 0);
    
     // CORRECTION: Cohérence des unités - tout en MW
-    const conso_gaz_H_MW = toSignificantFigures(innerData?.conso_gaz_H_MW || 0);
-    const conso_gaz_L_MW = toSignificantFigures(innerData?.conso_gaz_L_MW || 0);
-    const conso_gaz_Process_MW = toSignificantFigures(innerData?.conso_gaz_Process_MW || 0);
+    const conso_gaz_H = toSignificantFigures(innerData?.conso_gaz_H || 0);
+    const conso_gaz_L = toSignificantFigures(innerData?.conso_gaz_L || 0);
+    const conso_gaz_Process = toSignificantFigures(innerData?.conso_gaz_Process || 0);
 
-    const conso_fuel_MW = toSignificantFigures(innerData?.conso_fuel_MW || 0);
+    const conso_fuel = toSignificantFigures(innerData?.conso_fuel || 0);
 
     // CORRECTION: Valeurs par défaut à 0 pour rester générique
-    const conso_incineration_ash_kg_h = toSignificantFigures(innerData?.conso_incineration_ash_kg_h || 0);
-    const conso_boiler_ash_kg_h = toSignificantFigures(innerData?.conso_boiler_ash_kg_h || 0);
-    const conso_fly_ash_kg_h = toSignificantFigures(innerData?.conso_fly_ash_kg_h || 0);
+    const conso_incineration_ash = toSignificantFigures(innerData?.conso_incineration_ash || 0);
+    const conso_boiler_ash = toSignificantFigures(innerData?.conso_boiler_ash || 0);
+    const conso_fly_ash = toSignificantFigures(innerData?.conso_fly_ash || 0);
 
     const CO2_transport_incineratino_ash = toSignificantFigures(innerData?.CO2_transport_incineratino_ash || 0);
     const CO2_transport_boiler_ash = toSignificantFigures(innerData?.CO2_transport_boiler_ash || 0);
@@ -119,7 +119,7 @@ const OpexDashboard = ({
     const cout_transport_reactifs = toSignificantFigures(innerData?.cout_transport_reactifs || 0);
 
     // NOUVELLES VARIABLES: Energie Produite
-    const production_electrique_kW = toSignificantFigures(innerData?.production_electrique_kW || 0);
+    const production_electrique = toSignificantFigures(innerData?.production_electrique || 0);
     const debit_vapeur_HP_th = toSignificantFigures(innerData?.debit_vapeur_HP_th || 0);
     const debit_vapeur_MP_th = toSignificantFigures(innerData?.debit_vapeur_MP_th || 0);
     const debit_vapeur_BP_th = toSignificantFigures(innerData?.debit_vapeur_BP_th || 0);
@@ -134,14 +134,14 @@ const OpexDashboard = ({
       consoElec1, consoElec2, consoElec3, consoElec4, consoElec5, consoElec6, consoElec7, consoElec8,
       labelElec1, labelElec2, labelElec3, labelElec4, labelElec5, labelElec6, labelElec7, labelElec8,
       conso_air_co_N_m3, Conso_EauPotable_m3, Conso_EauRefroidissement_m3, Conso_EauDemin_m3, 
-      Conso_EauRiviere_m3, Conso_EauAdoucie_m3, Conso_CaCO3_kg, Conso_CaO_kg, Conso_CaOH2_dry_kg,
-      Conso_CaOH2_wet_kg, Conso_NaOH_kg, Conso_NaOHCO3_kg, Conso_Ammonia_kg, Conso_NaBrCaBr2_kg, Conso_CAP_kg, 
-      conso_gaz_H_MW, conso_gaz_L_MW, conso_gaz_Process_MW, conso_fuel_MW,
-      conso_incineration_ash_kg_h, conso_boiler_ash_kg_h, conso_fly_ash_kg_h,
+      Conso_EauRiviere_m3, Conso_EauAdoucie_m3, Conso_CaCO3, Conso_CaO, Conso_CaOH2_dry,
+      Conso_CaOH2_wet, Conso_NaOH, Conso_NaOHCO3, Conso_Ammonia, Conso_NaBrCaBr2, Conso_CAP, 
+      conso_gaz_H, conso_gaz_L, conso_gaz_Process, conso_fuel,
+      conso_incineration_ash, conso_boiler_ash, conso_fly_ash,
       CO2_transport_incineratino_ash, CO2_transport_boiler_ash, CO2_transport_fly_ash, CO2_transport_reactifs,
       cout_transport_incineratino_ash, cout_transport_boiler_ash, cout_transport_fly_ash, cout_transport_reactifs,
       // Nouvelles variables
-      production_electrique_kW, debit_vapeur_HP_th, debit_vapeur_MP_th, debit_vapeur_BP_th,
+      production_electrique, debit_vapeur_HP_th, debit_vapeur_MP_th, debit_vapeur_BP_th,
       gain_production_electrique, gain_debit_vapeur_HP, gain_debit_vapeur_MP, gain_debit_vapeur_BP
     };
   };
@@ -150,7 +150,7 @@ const OpexDashboard = ({
   const calculateDerivedParameters = (params) => {
     // CORRECTION: Vérification des propriétés disponibles pour éviter les erreurs
     const cout_air_co = (params.conso_air_co_N_m3/1000) * (airConsumptionPrice || 0);
-    const CO2_air_co_kg = toSignificantFigures((params.conso_air_co_N_m3 * (powerRatio || 0) * (ratioElec || 0))/1000);
+    const CO2_air_co = toSignificantFigures((params.conso_air_co_N_m3 * (powerRatio || 0) * (ratioElec || 0))/1000);
 
     const cout_EauPotable = params.Conso_EauPotable_m3 * (waterPrices?.potable || 0);
     const cout_EauRefroidissement = params.Conso_EauRefroidissement_m3 * (waterPrices?.cooling || 0);
@@ -160,51 +160,51 @@ const OpexDashboard = ({
     const cout_Eau = cout_EauAdoucie + cout_EauDemin + cout_EauPotable + cout_EauRefroidissement + cout_EauRiviere;
 
     // CORRECTION: Calculs des coûts des réactifs avec vérifications
-    const cout_CaCO3 = (params.Conso_CaCO3_kg/1000) * (reagentsTypes?.CaCO3?.cost || 0);
-    const cout_CaO = (params.Conso_CaO_kg/1000) * (reagentsTypes?.CaO?.cost || 0);
-    const cout_CaOH2_dry = (params.Conso_CaOH2_dry_kg/1000) * (reagentsTypes?.CaOH2?.cost || 0);
-    const cout_CaOH2_wet = (params.Conso_CaOH2_wet_kg/1000) * (reagentsTypes?.CaOH2?.cost || 0);
-    const cout_NaOH = (params.Conso_NaOH_kg/1000) * (reagentsTypes?.NaOH?.cost || 0);
-    const cout_NaOHCO3 = (params.Conso_NaOHCO3_kg/1000) * (reagentsTypes?.NaOHCO3?.cost || 0);
-    const cout_Ammonia = (params.Conso_Ammonia_kg/1000) * (reagentsTypes?.NH3?.cost || 0);
-    const cout_NaBrCaBr2 = (params.Conso_NaBrCaBr2_kg/1000) * (reagentsTypes?.NaBr_CaBr2?.cost || 0);
+    const cout_CaCO3 = (params.Conso_CaCO3/1000) * (reagentsTypes?.CaCO3?.cost || 0);
+    const cout_CaO = (params.Conso_CaO/1000) * (reagentsTypes?.CaO?.cost || 0);
+    const cout_CaOH2_dry = (params.Conso_CaOH2_dry/1000) * (reagentsTypes?.CaOH2?.cost || 0);
+    const cout_CaOH2_wet = (params.Conso_CaOH2_wet/1000) * (reagentsTypes?.CaOH2?.cost || 0);
+    const cout_NaOH = (params.Conso_NaOH/1000) * (reagentsTypes?.NaOH?.cost || 0);
+    const cout_NaOHCO3 = (params.Conso_NaOHCO3/1000) * (reagentsTypes?.NaOHCO3?.cost || 0);
+    const cout_Ammonia = (params.Conso_Ammonia/1000) * (reagentsTypes?.NH3?.cost || 0);
+    const cout_NaBrCaBr2 = (params.Conso_NaBrCaBr2/1000) * (reagentsTypes?.NaBr_CaBr2?.cost || 0);
     const cout_reactifs = cout_CaCO3 + cout_CaO + cout_CaOH2_dry + cout_CaOH2_wet + cout_NaOH + cout_NaOHCO3 + cout_Ammonia + cout_NaBrCaBr2;
 
     // CORRECTION: Calculs CO2 des réactifs avec vérifications
-    const CO2_CaCO3 = (params.Conso_CaCO3_kg/1000) * (reagentsTypes?.CaCO3?.co2PerTrip || 0);
-    const CO2_CaO = (params.Conso_CaO_kg/1000) * (reagentsTypes?.CaO?.co2PerTrip || 0);
-    const CO2_CaOH2_dry = (params.Conso_CaOH2_dry_kg/1000) * (reagentsTypes?.CaOH2?.co2PerTrip || 0);
-    const CO2_CaOH2_wet = (params.Conso_CaOH2_wet_kg/1000) * (reagentsTypes?.CaOH2?.co2PerTrip || 0);
-    const CO2_NaOH = (params.Conso_NaOH_kg/1000) * (reagentsTypes?.NaOH?.co2PerTrip || 0);
-    const CO2_NaOHCO3 = (params.Conso_NaOHCO3_kg/1000) * (reagentsTypes?.NaOHCO3?.co2PerTrip || 0);
-    const CO2_Ammonia = (params.Conso_Ammonia_kg/1000) * (reagentsTypes?.NH3?.co2PerTrip || 0);
-    const CO2_NaBrCaBr2 = (params.Conso_NaBrCaBr2_kg/1000) * (reagentsTypes?.NaBr_CaBr2?.co2PerTrip || 0);
+    const CO2_CaCO3 = (params.Conso_CaCO3/1000) * (reagentsTypes?.CaCO3?.co2PerTrip || 0);
+    const CO2_CaO = (params.Conso_CaO/1000) * (reagentsTypes?.CaO?.co2PerTrip || 0);
+    const CO2_CaOH2_dry = (params.Conso_CaOH2_dry/1000) * (reagentsTypes?.CaOH2?.co2PerTrip || 0);
+    const CO2_CaOH2_wet = (params.Conso_CaOH2_wet/1000) * (reagentsTypes?.CaOH2?.co2PerTrip || 0);
+    const CO2_NaOH = (params.Conso_NaOH/1000) * (reagentsTypes?.NaOH?.co2PerTrip || 0);
+    const CO2_NaOHCO3 = (params.Conso_NaOHCO3/1000) * (reagentsTypes?.NaOHCO3?.co2PerTrip || 0);
+    const CO2_Ammonia = (params.Conso_Ammonia/1000) * (reagentsTypes?.NH3?.co2PerTrip || 0);
+    const CO2_NaBrCaBr2 = (params.Conso_NaBrCaBr2/1000) * (reagentsTypes?.NaBr_CaBr2?.co2PerTrip || 0);
     const CO2_transport_reactifs_calc = CO2_CaCO3 + CO2_CaO + CO2_CaOH2_dry + CO2_CaOH2_wet + CO2_NaOH + CO2_NaOHCO3 + CO2_Ammonia + CO2_NaBrCaBr2;
 
     // CORRECTION: Utilisation cohérente des unités MW et calculs corrects
-    const cout_gaz_H = params.conso_gaz_H_MW * (gasTypes?.naturalGasH?.molecule || 0);
-    const cout_gaz_L = params.conso_gaz_L_MW * (gasTypes?.naturalGasL?.molecule || 0);
-    const cout_gaz_Process = params.conso_gaz_Process_MW * (gasTypes?.processGas?.molecule || 0);
+    const cout_gaz_H = params.conso_gaz_H * (gasTypes?.naturalGasH?.molecule || 0);
+    const cout_gaz_L = params.conso_gaz_L * (gasTypes?.naturalGasL?.molecule || 0);
+    const cout_gaz_Process = params.conso_gaz_Process * (gasTypes?.processGas?.molecule || 0);
     const cout_gaz = cout_gaz_H + cout_gaz_L + cout_gaz_Process;
 
-    const CO2_conso_gaz_H = (gasTypes?.naturalGasH?.co2Emission || 0) * params.conso_gaz_H_MW;
-    const CO2_conso_gaz_L = (gasTypes?.naturalGasL?.co2Emission || 0) * params.conso_gaz_L_MW;
-    const CO2_conso_gaz_Process = (gasTypes?.processGas?.co2Emission || 0) * params.conso_gaz_Process_MW;
+    const CO2_conso_gaz_H = (gasTypes?.naturalGasH?.co2Emission || 0) * params.conso_gaz_H;
+    const CO2_conso_gaz_L = (gasTypes?.naturalGasL?.co2Emission || 0) * params.conso_gaz_L;
+    const CO2_conso_gaz_Process = (gasTypes?.processGas?.co2Emission || 0) * params.conso_gaz_Process;
     // CORRECTION: Garder en nombre, pas en string
     const CO2_conso_gaz = CO2_conso_gaz_H + CO2_conso_gaz_L + CO2_conso_gaz_Process;
 
-    const cout_fuel = params.conso_fuel_MW * (fuelTypes?.FOD?.liquid || 0);
-    const CO2_fuel = params.conso_fuel_MW * (fuelTypes?.FOD?.co2Emission || 0);
+    const cout_fuel = params.conso_fuel * (fuelTypes?.FOD?.liquid || 0);
+    const CO2_fuel = params.conso_fuel * (fuelTypes?.FOD?.co2Emission || 0);
 
-    const conso_elec_kW = params.consoElec1 + params.consoElec2 + params.consoElec3 + params.consoElec4 + params.consoElec5 + params.consoElec6 + params.consoElec7 + params.consoElec8;
+    const conso_elec = params.consoElec1 + params.consoElec2 + params.consoElec3 + params.consoElec4 + params.consoElec5 + params.consoElec6 + params.consoElec7 + params.consoElec8;
 
-    const CO2_conso_elec_kg = ((ratioElec || 0) * conso_elec_kW / 1000);
-    const cout_conso_elec = (conso_elec_kW/1000 * (purchaseElectricityPrice || 0));
+    const CO2_conso_elec = ((ratioElec || 0) * conso_elec / 1000);
+    const cout_conso_elec = (conso_elec/1000 * (purchaseElectricityPrice || 0));
 
 
     // CORRECTION: Calculs du transport des résidus
-    const conso_transport_refidis_kg_h = params.conso_incineration_ash_kg_h + params.conso_boiler_ash_kg_h + params.conso_fly_ash_kg_h;
-    const CO2_transport_refidis_kg = params.CO2_transport_incineratino_ash + params.CO2_transport_boiler_ash + params.CO2_transport_fly_ash;
+    const conso_transport_refidis = params.conso_incineration_ash + params.conso_boiler_ash + params.conso_fly_ash;
+    const CO2_transport_refidis = params.CO2_transport_incineratino_ash + params.CO2_transport_boiler_ash + params.CO2_transport_fly_ash;
     const cout_transport_refidis = params.cout_transport_incineratino_ash + params.cout_transport_boiler_ash + params.cout_transport_fly_ash;
 
     // NOUVEAUX CALCULS: Gain énergie valorisée (utilisation des prix de vente)
@@ -216,7 +216,7 @@ const OpexDashboard = ({
 
     return {
       cout_air_co, 
-      CO2_air_co_kg, 
+      CO2_air_co, 
       cout_Eau, 
       cout_reactifs, 
       CO2_transport_reactifs_calc,
@@ -224,10 +224,10 @@ const OpexDashboard = ({
       CO2_conso_gaz, 
       cout_fuel, 
       CO2_fuel, 
-      conso_elec_kW, 
-      CO2_conso_elec_kg,
+      conso_elec, 
+      CO2_conso_elec,
       cout_conso_elec, 
-      CO2_transport_refidis_kg, 
+      CO2_transport_refidis, 
       cout_transport_refidis, 
       cout_transport_reactifs: params.cout_transport_reactifs, // CORRECTION: Utiliser la valeur des paramètres
       // Nouveaux calculs
@@ -264,26 +264,26 @@ const OpexDashboard = ({
     ];
 
     const initialReactifsData = [
-      { key: 'row1', label: 'CaCO3', value: params.Conso_CaCO3_kg.toString() },
-      { key: 'row2', label: 'CaO', value: params.Conso_CaO_kg.toString() },
-      { key: 'row3', label: 'CaOH2_dry', value: params.Conso_CaOH2_dry_kg.toString() },
-      { key: 'row4', label: 'CaOH2_wet', value: params.Conso_CaOH2_wet_kg.toString() },
-      { key: 'row5', label: 'NaOH', value: params.Conso_NaOH_kg.toString() },
-      { key: 'row6', label: 'NaOHCO3', value: params.Conso_NaOHCO3_kg.toString() },
-      { key: 'row7', label: 'Ammonia', value: params.Conso_Ammonia_kg.toString() },
-      { key: 'row8', label: 'NaBr/CaBr2', value: params.Conso_NaBrCaBr2_kg.toString() },
+      { key: 'row1', label: 'CaCO3', value: params.Conso_CaCO3.toString() },
+      { key: 'row2', label: 'CaO', value: params.Conso_CaO.toString() },
+      { key: 'row3', label: 'CaOH2_dry', value: params.Conso_CaOH2_dry.toString() },
+      { key: 'row4', label: 'CaOH2_wet', value: params.Conso_CaOH2_wet.toString() },
+      { key: 'row5', label: 'NaOH', value: params.Conso_NaOH.toString() },
+      { key: 'row6', label: 'NaOHCO3', value: params.Conso_NaOHCO3.toString() },
+      { key: 'row7', label: 'Ammonia', value: params.Conso_Ammonia.toString() },
+      { key: 'row8', label: 'NaBr/CaBr2', value: params.Conso_NaBrCaBr2.toString() },
     ];
     
     const initialEnergieData = [
-      { key: 'row1', label: 'gaz H', value: params.conso_gaz_H_MW.toString() },
-      { key: 'row2', label: 'gaz L', value: params.conso_gaz_L_MW.toString() },
-      { key: 'row3', label: 'gaz process', value: params.conso_gaz_Process_MW.toString() },
-      { key: 'row4', label: 'fuel', value: params.conso_fuel_MW.toString() },
+      { key: 'row1', label: 'gaz H', value: params.conso_gaz_H.toString() },
+      { key: 'row2', label: 'gaz L', value: params.conso_gaz_L.toString() },
+      { key: 'row3', label: 'gaz process', value: params.conso_gaz_Process.toString() },
+      { key: 'row4', label: 'fuel', value: params.conso_fuel.toString() },
     ];
 
     // NOUVELLES DONNÉES: Energie Produite
     const initialEnergieProduiteData = [
-      { key: 'row1', label: 'Production électrique [kW]', value: params.production_electrique_kW.toString() },
+      { key: 'row1', label: 'Production électrique [kW]', value: params.production_electrique.toString() },
       { key: 'row2', label: 'Débit vapeur HP [T/h]', value: params.debit_vapeur_HP_th.toString() },
       { key: 'row3', label: 'Débit vapeur MP [T/h]', value: params.debit_vapeur_MP_th.toString() },
       { key: 'row4', label: 'Débit vapeur BP [T/h]', value: params.debit_vapeur_BP_th.toString() },
@@ -298,11 +298,11 @@ const OpexDashboard = ({
     ];
 
     const initialCo2Data = [
-      { key: 'row1', label: 'Conso élec', value: derived.CO2_conso_elec_kg.toString() },
+      { key: 'row1', label: 'Conso élec', value: derived.CO2_conso_elec.toString() },
       { key: 'row2', label: 'Conso gaz/fuel', value: (derived.CO2_conso_gaz + derived.CO2_fuel).toString() },
-      { key: 'row3', label: 'Conso air comprimé', value: derived.CO2_air_co_kg.toString() },
+      { key: 'row3', label: 'Conso air comprimé', value: derived.CO2_air_co.toString() },
       { key: 'row4', label: 'Transport réactifs', value: derived.CO2_transport_reactifs_calc.toString() },
-      { key: 'row5', label: 'Transport Refidis/cendres', value: derived.CO2_transport_refidis_kg.toString() },
+      { key: 'row5', label: 'Transport Refidis/cendres', value: derived.CO2_transport_refidis.toString() },
     ];
 
     // CORRECTION: Utilisation des bonnes variables calculées
@@ -389,18 +389,18 @@ const OpexDashboard = ({
     innerData?.conso_air_co_N_m3, 
     innerData?.Conso_EauPotable_m3, innerData?.Conso_EauRefroidissement_m3, innerData?.Conso_EauDemin_m3,
     innerData?.Conso_EauRiviere_m3, innerData?.Conso_EauAdoucie_m3,
-    innerData?.Conso_CaCO3_kg, innerData?.Conso_CaO_kg, innerData?.Conso_CaOH2_dry_kg,
-    innerData?.Conso_CaOH2_wet_kg, innerData?.Conso_NaOH_kg, innerData?.Conso_NaOHCO3_kg,
-    innerData?.Conso_Ammonia_kg, innerData?.Conso_NaBrCaBr2_kg,
-    innerData?.Conso_CAP_kg,
-    innerData?.conso_gaz_H_MW, innerData?.conso_gaz_L_MW, innerData?.conso_gaz_Process_MW,
-    innerData?.conso_fuel_MW, // CORRECTION: Variable corrigée
-    innerData?.conso_incineration_ash_kg_h, innerData?.conso_boiler_ash_kg_h, innerData?.conso_fly_ash_kg_h,
+    innerData?.Conso_CaCO3, innerData?.Conso_CaO, innerData?.Conso_CaOH2_dry,
+    innerData?.Conso_CaOH2_wet, innerData?.Conso_NaOH, innerData?.Conso_NaOHCO3,
+    innerData?.Conso_Ammonia, innerData?.Conso_NaBrCaBr2,
+    innerData?.Conso_CAP,
+    innerData?.conso_gaz_H, innerData?.conso_gaz_L, innerData?.conso_gaz_Process,
+    innerData?.conso_fuel, // CORRECTION: Variable corrigée
+    innerData?.conso_incineration_ash, innerData?.conso_boiler_ash, innerData?.conso_fly_ash,
     // CORRECTION: Suppression des virgules en trop
     innerData?.CO2_transport_incineratino_ash, innerData?.CO2_transport_boiler_ash, innerData?.CO2_transport_fly_ash, innerData?.CO2_transport_reactifs,
     innerData?.cout_transport_incineratino_ash, innerData?.cout_transport_boiler_ash, innerData?.cout_transport_fly_ash, innerData?.cout_transport_reactifs,
     // Nouvelles dépendances
-    innerData?.production_electrique_kW, innerData?.debit_vapeur_HP_th, innerData?.debit_vapeur_MP_th, innerData?.debit_vapeur_BP_th,
+    innerData?.production_electrique, innerData?.debit_vapeur_HP_th, innerData?.debit_vapeur_MP_th, innerData?.debit_vapeur_BP_th,
     innerData?.gain_production_electrique, innerData?.gain_debit_vapeur_HP, innerData?.gain_debit_vapeur_MP, innerData?.gain_debit_vapeur_BP
   ]);
 

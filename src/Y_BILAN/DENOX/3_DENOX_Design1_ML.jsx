@@ -64,8 +64,8 @@ const DENOXDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
   const sectionTransversale = (debitGaz * 1.2) / (vitesseSuperficielle * 3600);
   const concNOxSortie = concNOxEntree * (1 - tauxReduction / 100);
   const consoAmmoniaque = (concNOxEntree * tauxReduction / 100 * debitGaz * 17) / (30.01 * 1000000);
-  const Qv_m3_h = debitGaz * 1.2;
-  const surfaceManches = Math.abs(Qv_m3_h / Vitess_filtration);
+  const Qv = debitGaz * 1.2;
+  const surfaceManches = Math.abs(Qv / Vitess_filtration);
   const pressionSortie = 30 - PDC;
 
   // Calcul de la perte de charge selon la technologie
@@ -213,7 +213,7 @@ const DENOXDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
         consoElec2: consoElec2.toFixed(2),
         labelElec1: 'Ventilateur SCR',
         labelElec2: 'Pompe NH₃',
-        Conso_Ammonia_kg: consoAmmoniaque.toFixed(2),
+        Conso_Ammonia: consoAmmoniaque.toFixed(2),
         conso_air_co_N_m3: 0,
       }));
     }

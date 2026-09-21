@@ -55,19 +55,19 @@ const IACTFlueGasParameters = ({ innerData, upstreamT_IN, upstreamFG_IN, upstrea
   const PDC_mmCE  = emissions_IACT['PDC_mmCE [mmCE]'];
 
   // Débits massiques fumées (inchangés côté fumées — échangeur sans mélange)
-  const FG_CO2_kg_h = FG_IN.CO2;
-  const FG_H2O_kg_h = FG_IN.H2O;
-  const FG_O2_kg_h  = FG_IN.O2;
-  const FG_N2_kg_h  = FG_IN.N2;
+  const FG_CO2_mass = FG_IN.CO2;
+  const FG_H2O_mass = FG_IN.H2O;
+  const FG_O2_mass  = FG_IN.O2;
+  const FG_N2_mass  = FG_IN.N2;
 
   // Débits volumiques fumées entrée [Nm³/h]
-  const FG_CO2_m3_h = CO2_kg_m3(FG_CO2_kg_h);
-  const FG_H2O_m3_h = H2O_kg_m3(FG_H2O_kg_h);
-  const FG_O2_m3_h  = O2_kg_m3(FG_O2_kg_h);
-  const FG_N2_m3_h  = N2_kg_m3(FG_N2_kg_h);
+  const FG_CO2_vol = CO2_kg_m3(FG_CO2_mass);
+  const FG_H2O_vol = H2O_kg_m3(FG_H2O_mass);
+  const FG_O2_vol  = O2_kg_m3(FG_O2_mass);
+  const FG_N2_vol  = N2_kg_m3(FG_N2_mass);
 
-  const FG_humide_tot_m3_h = FG_CO2_m3_h + FG_H2O_m3_h + FG_O2_m3_h + FG_N2_m3_h;
-  const FG_sec_tot_m3_h    = FG_CO2_m3_h + FG_O2_m3_h + FG_N2_m3_h;
+  const FG_humide_tot = FG_CO2_vol + FG_H2O_vol + FG_O2_vol + FG_N2_vol;
+  const FG_sec_tot    = FG_CO2_vol + FG_O2_vol + FG_N2_vol;
 
   // Bilan enthalpique côté fumées
   const H_in_IACT   = h_fumee(T_IN,  FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
@@ -84,10 +84,10 @@ const IACTFlueGasParameters = ({ innerData, upstreamT_IN, upstreamFG_IN, upstrea
   // Débit d'air chauffé (cp_air moyen ≈ 1.005 kJ/kg·K)
   const cp_air = 1.005; // kJ/(kg·K)
   const Delta_T_air = T_air_out - T_air_in;
-  const Qm_air_kg_h = Delta_T_air > 0
+  const Qm_air = Delta_T_air > 0
     ? Delta_H_air / (cp_air * Delta_T_air)
     : 0;
-  const V_air_Nm3_h = Qm_air_kg_h / rho_air;
+  const V_air = Qm_air / rho_air;
 
 
 
@@ -104,43 +104,43 @@ const IACTFlueGasParameters = ({ innerData, upstreamT_IN, upstreamFG_IN, upstrea
 
 
   // Débits massiques air chauffé
-  const Qm_air_O2_kg_h = V_air_Nm3_h * m_O2_per_Nm3;
-  const Qm_air_N2_kg_h = V_air_Nm3_h * m_N2_per_Nm3;
+  const Qm_air_O2 = V_air * m_O2_per_Nm3;
+  const Qm_air_N2 = V_air * m_N2_per_Nm3;
 
   // Composition fumées : identique en entrée et sortie (pas de mélange)
   const masses_FG_in_IACT = {
-    CO2: FG_CO2_kg_h,
-    O2:  FG_O2_kg_h,
-    H2O: FG_H2O_kg_h,
-    N2:  FG_N2_kg_h,
+    CO2: FG_CO2_mass,
+    O2:  FG_O2_mass,
+    H2O: FG_H2O_mass,
+    N2:  FG_N2_mass,
   };
   const masses_FG_out_IACT = { ...masses_FG_in_IACT };
 
   // Composition air chauffé en sortie
   const masses_air_out = {
     CO2: 0,
-    O2:  Qm_air_O2_kg_h,
+    O2:  Qm_air_O2,
     H2O: 0,
-    N2:  Qm_air_N2_kg_h,
+    N2:  Qm_air_N2,
   };
 
   const P_out_mmCE = P_IN - PDC_mmCE;
 
   // Mise à jour innerData (mutations intentionnelles — pattern établi)
   if (innerData) {
-    innerData.FG_humide_tot        = FG_humide_tot_m3_h;
-    innerData.FG_sec_tot           = FG_sec_tot_m3_h;
+    innerData.FG_humide_tot        = FG_humide_tot;
+    innerData.FG_sec_tot           = FG_sec_tot;
     innerData.T_OUT            = T_out;
     innerData.Pin_mmCE             = P_IN;
     innerData.P_out_mmCE           = P_out_mmCE;
     innerData.P_OUT                = P_out_mmCE;
-    innerData.FG_OUT_kg_h          = masses_FG_out_IACT;
-    innerData.V_air_chauffe_Nm3_h  = V_air_Nm3_h;
+    innerData.FG_OUT          = masses_FG_out_IACT;
+    innerData.V_air_chauffe  = V_air;
     innerData.Delta_H_to_air       = Delta_H_air;
     innerData.H_FG_in              = H_in_IACT;
     innerData.H_FG_out             = H_out_IACT;
-    innerData.H_air_in             = h_air_in_unit  * V_air_Nm3_h;
-    innerData.H_air_out            = h_air_out_unit * V_air_Nm3_h;
+    innerData.H_air_in             = h_air_in_unit  * V_air;
+    innerData.H_air_out            = h_air_out_unit * V_air;
     innerData.T_air_in             = T_air_in;
     innerData.T_air_out            = T_air_out;
     innerData.Pth_echange          = Pth;
@@ -151,7 +151,7 @@ const IACTFlueGasParameters = ({ innerData, upstreamT_IN, upstreamFG_IN, upstrea
     { text: t('Temperature inlet IACT [°C]'),       value: T_IN.toFixed(1) },
     { text: t('Delta enthalpies fumées [kJ/h]'),    value: Delta_H_FG.toFixed(0) },
     { text: t('Chaleur transmise à l\'air [kJ/h]'), value: Delta_H_air.toFixed(0) },
-    { text: t('Débit air chauffé [Nm³/h]'),         value:  V_air_Nm3_h.toFixed(0) },
+    { text: t('Débit air chauffé [Nm³/h]'),         value:  V_air.toFixed(0) },
   ];
 
   const handleChange = (name, value) => {

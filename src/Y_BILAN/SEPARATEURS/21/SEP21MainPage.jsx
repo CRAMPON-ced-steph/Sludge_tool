@@ -16,7 +16,7 @@ const SEP21MainPage = ({ nodeData, title, onSendData, onClose, onGoBack, current
 
   // Valeurs amont capturées une fois au montage — stables à travers les changements d'onglet
   const T_IN_upstream  = useRef(nodeData?.result?.T_OUT ?? 200).current;
-  const FG_IN_upstream = useRef(nodeData?.result?.FG_OUT_kg_h || { CO2: 1, H2O: 1, O2: 1, N2: 1 }).current;
+  const FG_IN_upstream = useRef(nodeData?.result?.FG_OUT || { CO2: 1, H2O: 1, O2: 1, N2: 1 }).current;
 
   const [activeTab, setActiveTab] = useState('flueGasMixer');
 
@@ -69,7 +69,7 @@ const SEP21MainPage = ({ nodeData, title, onSendData, onClose, onGoBack, current
       const dataToSend = {
         result: {
           // Gaz de combustion en sortie
-          FG_OUT_kg_h: innerData['FG_OUT_kg_h'] || { CO2: 0, H2O: 0, O2: 0, N2: 0 },
+          FG_OUT: innerData['FG_OUT'] || { CO2: 0, H2O: 0, O2: 0, N2: 0 },
           T_OUT: innerData['T_OUT'] || 0,
           FG_humide_tot: innerData['FG_humide_tot'] || 0,
           FG_sec_tot: innerData['FG_sec_tot'] || 0,

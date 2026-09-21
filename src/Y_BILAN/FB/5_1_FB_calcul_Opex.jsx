@@ -14,7 +14,7 @@ const FBCalcOpex = ({ innerData, innerDataTick, setInnerData }) => {
 
     const conso_reactifs = innerData?.Conso_reactifs ?? {};
 
-    const consoElec1 = toSignificantFigures(innerData.Puissance_elec_ventilateur_kW);
+    const consoElec1 = toSignificantFigures(innerData.Puissance_elec_ventilateur);
     const consoElec2 = toSignificantFigures(0);
     const consoElec3 = toSignificantFigures(0);
     const consoElec4 = toSignificantFigures(0);
@@ -36,24 +36,24 @@ const FBCalcOpex = ({ innerData, innerDataTick, setInnerData }) => {
     const Conso_EauRiviere_m3         = toSignificantFigures(innerData.Conso_EauRiviere_m3         ?? 0);
     const Conso_EauAdoucie_m3         = toSignificantFigures(innerData.Conso_EauAdoucie_m3         ?? 0);
 
-    const Conso_CaCO3_kg = toSignificantFigures(conso_reactifs.CaCO3 ?? 0);
-    const Conso_CaO_kg = toSignificantFigures(conso_reactifs.CaO ?? 0);
-    const Conso_CaOH2_dry_kg = toSignificantFigures(conso_reactifs.CaOH2dry ?? 0);
-    const Conso_CaOH2_wet_kg = toSignificantFigures(conso_reactifs.CaOH2wet ?? 0);
-    const Conso_NaOH_kg = toSignificantFigures(conso_reactifs.NaOH ?? 0);
-    const Conso_NaOHCO3_kg = toSignificantFigures(conso_reactifs.NaOHCO3 ?? 0);
-    const Conso_Ammonia_kg = toSignificantFigures(conso_reactifs.Ammonia ?? 0);
-    const Conso_NaBrCaBr2_kg = toSignificantFigures(conso_reactifs.NaBrCaBr2 ?? 0);
-    const Conso_CAP_kg = toSignificantFigures(conso_reactifs.CAP ?? 0);
+    const Conso_CaCO3 = toSignificantFigures(conso_reactifs.CaCO3 ?? 0);
+    const Conso_CaO = toSignificantFigures(conso_reactifs.CaO ?? 0);
+    const Conso_CaOH2_dry = toSignificantFigures(conso_reactifs.CaOH2dry ?? 0);
+    const Conso_CaOH2_wet = toSignificantFigures(conso_reactifs.CaOH2wet ?? 0);
+    const Conso_NaOH = toSignificantFigures(conso_reactifs.NaOH ?? 0);
+    const Conso_NaOHCO3 = toSignificantFigures(conso_reactifs.NaOHCO3 ?? 0);
+    const Conso_Ammonia = toSignificantFigures(conso_reactifs.Ammonia ?? 0);
+    const Conso_NaBrCaBr2 = toSignificantFigures(conso_reactifs.NaBrCaBr2 ?? 0);
+    const Conso_CAP = toSignificantFigures(conso_reactifs.CAP ?? 0);
 
-    const conso_gaz_H_MW       = toSignificantFigures(innerData.conso_gaz_H_MW     ?? 0);
-    const conso_gaz_L_MW       = toSignificantFigures(innerData.conso_gaz_L_MW     ?? 0);
-    const conso_gaz_Process_MW = toSignificantFigures(innerData.conso_gaz_Process_MW ?? 0);
-    const conso_fuel_MW        = toSignificantFigures(innerData.conso_fuel_MW        ?? 0);
+    const conso_gaz_H       = toSignificantFigures(innerData.conso_gaz_H     ?? 0);
+    const conso_gaz_L       = toSignificantFigures(innerData.conso_gaz_L     ?? 0);
+    const conso_gaz_Process = toSignificantFigures(innerData.conso_gaz_Process ?? 0);
+    const conso_fuel        = toSignificantFigures(innerData.conso_fuel        ?? 0);
 
-    const conso_incineration_ash_kg_h = toSignificantFigures(1);
-    const conso_boiler_ash_kg_h = toSignificantFigures(0);
-    const conso_fly_ash_kg_h = toSignificantFigures(0);
+    const conso_incineration_ash = toSignificantFigures(1);
+    const conso_boiler_ash = toSignificantFigures(0);
+    const conso_fly_ash = toSignificantFigures(0);
 
     const CO2_transport_incineratino_ash = toSignificantFigures(1);
     const CO2_transport_boiler_ash = toSignificantFigures(0);
@@ -71,11 +71,11 @@ const FBCalcOpex = ({ innerData, innerDataTick, setInnerData }) => {
       conso_air_co_N_m3,
       Conso_EauPotable_m3, Conso_EauRefroidissement_m3, Conso_EauDemin_m3,
       Conso_EauRiviere_m3, Conso_EauAdoucie_m3,
-      Conso_CaCO3_kg, Conso_CaO_kg, Conso_CaOH2_dry_kg, Conso_CaOH2_wet_kg,
-      Conso_NaOH_kg, Conso_NaOHCO3_kg, Conso_Ammonia_kg, Conso_NaBrCaBr2_kg, Conso_CAP_kg,
+      Conso_CaCO3, Conso_CaO, Conso_CaOH2_dry, Conso_CaOH2_wet,
+      Conso_NaOH, Conso_NaOHCO3, Conso_Ammonia, Conso_NaBrCaBr2, Conso_CAP,
       cout_transport_total: 1,
-      conso_gaz_H_MW, conso_gaz_L_MW, conso_gaz_Process_MW, conso_fuel_MW,
-      conso_incineration_ash_kg_h, conso_boiler_ash_kg_h, conso_fly_ash_kg_h,
+      conso_gaz_H, conso_gaz_L, conso_gaz_Process, conso_fuel,
+      conso_incineration_ash, conso_boiler_ash, conso_fly_ash,
       CO2_transport_incineratino_ash, CO2_transport_boiler_ash, CO2_transport_fly_ash, CO2_transport_reactifs,
       cout_transport_incineratino_ash, cout_transport_boiler_ash, cout_transport_fly_ash, cout_transport_reactifs,
     };
@@ -90,7 +90,7 @@ const FBCalcOpex = ({ innerData, innerDataTick, setInnerData }) => {
   }, [
     innerDataTick,
     setInnerData,
-    innerData?.Puissance_elec_ventilateur_kW,
+    innerData?.Puissance_elec_ventilateur,
     innerData?.Conso_EauPotable_m3,
     innerData?.Conso_EauRefroidissement_m3,
     innerData?.Conso_EauDemin_m3,
@@ -107,10 +107,10 @@ const FBCalcOpex = ({ innerData, innerDataTick, setInnerData }) => {
     innerData?.Conso_reactifs?.CAP,
     innerData?.Conso_reactifs?.CO2_transport,
     innerData?.Conso_reactifs?.cout,
-    innerData?.conso_gaz_H_MW,
-    innerData?.conso_gaz_L_MW,
-    innerData?.conso_gaz_Process_MW,
-    innerData?.conso_fuel_MW,
+    innerData?.conso_gaz_H,
+    innerData?.conso_gaz_L,
+    innerData?.conso_gaz_Process,
+    innerData?.conso_fuel,
   ]);
 
   return null;

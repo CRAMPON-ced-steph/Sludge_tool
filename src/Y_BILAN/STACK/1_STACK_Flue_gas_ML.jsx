@@ -27,32 +27,32 @@ const STACKFlueGasParameters = ({ innerData, currentLanguage = 'fr', setInnerDat
   // Extract input data
   const T_IN = innerData?.T_OUT || 1;
   const T_in = T_IN;
-  const FG_IN = innerData?.FG_OUT_kg_h || { CO2: 1, H2O: 1, O2: 1, N2: 1 };
+  const FG_IN = innerData?.FG_OUT || { CO2: 1, H2O: 1, O2: 1, N2: 1 };
 
   // Calculate gas flows in kg/h
-  const FG_CO2_kg_h = FG_IN.CO2;
-  const FG_H2O_kg_h = FG_IN.H2O;
-  const FG_O2_kg_h = FG_IN.O2;
-  const FG_N2_kg_h = FG_IN.N2;
+  const FG_CO2_mass = FG_IN.CO2;
+  const FG_H2O_mass = FG_IN.H2O;
+  const FG_O2_mass = FG_IN.O2;
+  const FG_N2_mass = FG_IN.N2;
 
   // Convert to m3/h at normal conditions
-  const FG_CO2_m3_h = CO2_kg_m3(FG_CO2_kg_h);
-  const FG_H2O_m3_h = H2O_kg_m3(FG_H2O_kg_h);
-  const FG_O2_m3_h = O2_kg_m3(FG_O2_kg_h);
-  const FG_N2_m3_h = N2_kg_m3(FG_N2_kg_h);
+  const FG_CO2_vol = CO2_kg_m3(FG_CO2_mass);
+  const FG_H2O_vol = H2O_kg_m3(FG_H2O_mass);
+  const FG_O2_vol = O2_kg_m3(FG_O2_mass);
+  const FG_N2_vol = N2_kg_m3(FG_N2_mass);
 
   // Total wet volume at normal conditions
-  const FG_humide_tot_m3_h = FG_CO2_m3_h + FG_H2O_m3_h + FG_O2_m3_h + FG_N2_m3_h;
+  const FG_humide_tot = FG_CO2_vol + FG_H2O_vol + FG_O2_vol + FG_N2_vol;
 
   // Convert to actual volume at exit temperature
-  const FG_humide_CONV_ = coeff_Nm3_to_m3(T_in, 0) * FG_humide_tot_m3_h;
+  const FG_humide_CONV_ = coeff_Nm3_to_m3(T_in, 0) * FG_humide_tot;
 
   // Mass flows for display
   const masses_FG_in_STACK = {
-    CO2: FG_CO2_kg_h,
-    O2: FG_O2_kg_h,
-    H2O: FG_H2O_kg_h,
-    N2: FG_N2_kg_h
+    CO2: FG_CO2_mass,
+    O2: FG_O2_mass,
+    H2O: FG_H2O_mass,
+    N2: FG_N2_mass
   };
 
   // Write Nm³/h volumes to innerData whenever gas flows change
@@ -60,19 +60,19 @@ const STACKFlueGasParameters = ({ innerData, currentLanguage = 'fr', setInnerDat
     if (!setInnerData) return;
     setInnerData(prev => ({
       ...prev,
-      FG_STACK_OUT_Nm3_h: {
-        CO2: FG_CO2_m3_h,
-        H2O: FG_H2O_m3_h,
-        O2: FG_O2_m3_h,
-        N2: FG_N2_m3_h,
-        dry: FG_humide_tot_m3_h - FG_H2O_m3_h,
-        wet: FG_humide_tot_m3_h,
+      FG_STACK_OUT: {
+        CO2: FG_CO2_vol,
+        H2O: FG_H2O_vol,
+        O2: FG_O2_vol,
+        N2: FG_N2_vol,
+        dry: FG_humide_tot - FG_H2O_vol,
+        wet: FG_humide_tot,
       },
-      FG_humide_tot: FG_humide_tot_m3_h,
-      FG_sec_tot: FG_humide_tot_m3_h - FG_H2O_m3_h,
+      FG_humide_tot: FG_humide_tot,
+      FG_sec_tot: FG_humide_tot - FG_H2O_vol,
       T_STACK_in: T_in,
     }));
-  }, [FG_CO2_m3_h, FG_H2O_m3_h, FG_O2_m3_h, FG_N2_m3_h, FG_humide_tot_m3_h, T_in, setInnerData]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [FG_CO2_vol, FG_H2O_vol, FG_O2_vol, FG_N2_vol, FG_humide_tot, T_in, setInnerData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Handle input changes
   const handleChange = (name, value) => {

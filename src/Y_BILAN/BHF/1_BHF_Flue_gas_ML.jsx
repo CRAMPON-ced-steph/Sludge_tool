@@ -36,7 +36,7 @@ const BHFFlueGasParameters = ({ innerData, currentLanguage = 'fr' }) => {
   const T_IN = innerData?.T_OUT || 200;
 
   const P_IN = innerData?.P_OUT || 0;
-  const FG_IN = innerData?.FG_OUT_kg_h || { CO2: 1, H2O: 1, O2: 1, N2: 1 };
+  const FG_IN = innerData?.FG_OUT || { CO2: 1, H2O: 1, O2: 1, N2: 1 };
 
   // Extract parameters from state
   const T_out = emissions_BHF['Flue gas temperature outlet [°C]'];
@@ -46,26 +46,26 @@ const BHFFlueGasParameters = ({ innerData, currentLanguage = 'fr' }) => {
   const T_eau = emissions_BHF['Cooling water temperature [°C]'];
 
   // Calculate mass flows
-  const FG_CO2_kg_h = FG_IN.CO2;
-  const FG_H2O_kg_h = FG_IN.H2O;
-  const FG_O2_kg_h = FG_IN.O2;
-  const FG_N2_kg_h = FG_IN.N2;
+  const FG_CO2_mass = FG_IN.CO2;
+  const FG_H2O_mass = FG_IN.H2O;
+  const FG_O2_mass = FG_IN.O2;
+  const FG_N2_mass = FG_IN.N2;
 
   // Convert to volumetric flows
-  const FG_CO2_m3_h = CO2_kg_m3(FG_CO2_kg_h);
-  const FG_H2O_m3_h = H2O_kg_m3(FG_H2O_kg_h);
-  const FG_O2_m3_h = O2_kg_m3(FG_O2_kg_h);
-  const FG_N2_m3_h = N2_kg_m3(FG_N2_kg_h);
+  const FG_CO2_vol = CO2_kg_m3(FG_CO2_mass);
+  const FG_H2O_vol = H2O_kg_m3(FG_H2O_mass);
+  const FG_O2_vol = O2_kg_m3(FG_O2_mass);
+  const FG_N2_vol = N2_kg_m3(FG_N2_mass);
 
-  const FG_humide_tot_m3_h = FG_CO2_m3_h + FG_H2O_m3_h + FG_O2_m3_h + FG_N2_m3_h;
-  const FG_sec_tot_m3_h = FG_CO2_m3_h + FG_O2_m3_h + FG_N2_m3_h;
+  const FG_humide_tot = FG_CO2_vol + FG_H2O_vol + FG_O2_vol + FG_N2_vol;
+  const FG_sec_tot = FG_CO2_vol + FG_O2_vol + FG_N2_vol;
 
   // Air ingress composition
-  let FG_air_O2_kg_h = 0;
-  let FG_air_N2_kg_h = 0;
-  let FG_air_CO2_kg_h = 0;
-  let FG_air_H2O_kg_h = 0;
-  let Q_eau_kg_h = 0;
+  let FG_air_O2 = 0;
+  let FG_air_N2 = 0;
+  let FG_air_CO2 = 0;
+  let FG_air_H2O = 0;
+  let Q_eau = 0;
   let Delta_H = 0;
   let H_in_BHF = 0;
   let H_out_BHF = 0;
@@ -73,68 +73,68 @@ const BHFFlueGasParameters = ({ innerData, currentLanguage = 'fr' }) => {
 
   // Calculate with or without air ingress
   if (V_air_ingress !== 0) {
-    FG_air_O2_kg_h = 0.21 * V_air_ingress;
-    FG_air_N2_kg_h = 0.79 * V_air_ingress;
+    FG_air_O2 = 0.21 * V_air_ingress;
+    FG_air_N2 = 0.79 * V_air_ingress;
 
-    T_with_air_ingress_out = (T_out * FG_humide_tot_m3_h + V_air_ingress * T_air) / (FG_humide_tot_m3_h + V_air_ingress);
+    T_with_air_ingress_out = (T_out * FG_humide_tot + V_air_ingress * T_air) / (FG_humide_tot + V_air_ingress);
     H_in_BHF = h_fumee(T_IN, FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
     H_out_BHF = h_fumee(T_out + (T_out - T_with_air_ingress_out), FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
     Delta_H = H_in_BHF * (1 - Pth / 100) - H_out_BHF;
-    Q_eau_kg_h = Qeau_added_to_be_at_T(T_IN, T_eau, T_out + (T_out - T_with_air_ingress_out), Pth, FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
+    Q_eau = Qeau_added_to_be_at_T(T_IN, T_eau, T_out + (T_out - T_with_air_ingress_out), Pth, FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
   } else {
     T_with_air_ingress_out = T_out;
     H_in_BHF = h_fumee(T_IN, FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
     H_out_BHF = h_fumee(T_out, FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
     Delta_H = H_in_BHF * (1 - Pth / 100) - H_out_BHF;
-    Q_eau_kg_h = Qeau_added_to_be_at_T(T_IN, T_eau, T_out, Pth, FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
+    Q_eau = Qeau_added_to_be_at_T(T_IN, T_eau, T_out, Pth, FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
   }
 
   // Output composition
   const masses_FG_in_BHF = {
-    CO2: FG_CO2_kg_h,
-    O2: FG_O2_kg_h,
-    H2O: FG_H2O_kg_h,
-    N2: FG_N2_kg_h
+    CO2: FG_CO2_mass,
+    O2: FG_O2_mass,
+    H2O: FG_H2O_mass,
+    N2: FG_N2_mass
   };
 
   const masses_FG_out_BHF = {
-    CO2: FG_CO2_kg_h + FG_air_CO2_kg_h,
-    O2: FG_O2_kg_h + FG_air_O2_kg_h,
-    H2O: FG_H2O_kg_h + Q_eau_kg_h + FG_air_H2O_kg_h,
-    N2: FG_N2_kg_h + FG_air_N2_kg_h
+    CO2: FG_CO2_mass + FG_air_CO2,
+    O2: FG_O2_mass + FG_air_O2,
+    H2O: FG_H2O_mass + Q_eau + FG_air_H2O,
+    N2: FG_N2_mass + FG_air_N2
   };
 
   // Output volumetric flows
-  const FG_CO2_EAU_m3_h = CO2_kg_m3(masses_FG_out_BHF.CO2);
-  const FG_H2O_EAU_m3_h = H2O_kg_m3(masses_FG_out_BHF.H2O);
-  const FG_O2_EAU_m3_h = O2_kg_m3(masses_FG_out_BHF.O2);
-  const FG_N2_EAU_m3_h = N2_kg_m3(masses_FG_out_BHF.N2);
+  const FG_CO2_EAU = CO2_kg_m3(masses_FG_out_BHF.CO2);
+  const FG_H2O_EAU = H2O_kg_m3(masses_FG_out_BHF.H2O);
+  const FG_O2_EAU = O2_kg_m3(masses_FG_out_BHF.O2);
+  const FG_N2_EAU = N2_kg_m3(masses_FG_out_BHF.N2);
 
-  const FG_humide_EAU_tot_m3_h = FG_CO2_EAU_m3_h + FG_O2_EAU_m3_h + FG_N2_EAU_m3_h + FG_H2O_EAU_m3_h;
+  const FG_humide_EAU_tot = FG_CO2_EAU + FG_O2_EAU + FG_N2_EAU + FG_H2O_EAU;
 
   // Update innerData with calculated values
   if (innerData) {
-    innerData.FG_humide_tot = FG_humide_tot_m3_h;
-    innerData.FG_sec_tot = FG_sec_tot_m3_h;
+    innerData.FG_humide_tot = FG_humide_tot;
+    innerData.FG_sec_tot = FG_sec_tot;
     innerData.T_sortie = T_out;
     innerData.Pin_mmCE = P_IN;
-    innerData.FG_humide_EAU_tot = FG_humide_EAU_tot_m3_h;
-    innerData.Q_eau_kg_h = Q_eau_kg_h;
+    innerData.FG_humide_EAU_tot = FG_humide_EAU_tot;
+    innerData.Q_eau = Q_eau;
   }
 
   // Air ingress composition
   const masses_Air_ingress = {
-    CO2: FG_air_CO2_kg_h,
-    O2: FG_air_O2_kg_h,
-    H2O: FG_air_H2O_kg_h,
-    N2: FG_air_N2_kg_h,
+    CO2: FG_air_CO2,
+    O2: FG_air_O2,
+    H2O: FG_air_H2O,
+    N2: FG_air_N2,
   };
 
   const elementsGeneric = [
     { text: t('Temperature inlet BHF [°C]'), value: T_IN.toFixed(1) },
     { text: t('Delta enthalpies [kJ/kg]'), value: Delta_H.toFixed(0) },
-    { text: t('Sprayed/cooling water [kg/h]'), value: Q_eau_kg_h.toFixed(0) },
-    { text: t('Outlet flue gas volume [Nm3/h]'), value: FG_humide_EAU_tot_m3_h.toFixed(2) },
+    { text: t('Sprayed/cooling water [kg/h]'), value: Q_eau.toFixed(0) },
+    { text: t('Outlet flue gas volume [Nm3/h]'), value: FG_humide_EAU_tot.toFixed(2) },
   ];
 
   const handleChange = (name, value) => {

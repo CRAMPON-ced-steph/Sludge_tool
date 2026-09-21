@@ -21,7 +21,7 @@ const SEP12FluegasSep = ({ innerData, currentLanguage = 'fr' }) => {
 
   // Données amont — capturées au montage pour rester fixes malgré les mutations de innerData
   const T_IN_ref  = useRef(innerData?.T_OUT ?? 200);
-  const FG_IN_ref = useRef(innerData?.FG_OUT_kg_h || { CO2: 0, H2O: 0, O2: 0, N2: 0 });
+  const FG_IN_ref = useRef(innerData?.FG_OUT || { CO2: 0, H2O: 0, O2: 0, N2: 0 });
   const T_IN  = T_IN_ref.current;
   const FG_IN = FG_IN_ref.current;
 
@@ -50,7 +50,7 @@ const SEP12FluegasSep = ({ innerData, currentLanguage = 'fr' }) => {
 
   // Mutations innerData (pattern établi — flux 1 transmis au nœud suivant)
   if (innerData) {
-    innerData.FG_OUT_kg_h     = FG_flux1;
+    innerData.FG_OUT     = FG_flux1;
     innerData.T_OUT           = T_IN;
     innerData.FG_flux2        = FG_flux2;
     innerData.pct_flux1_SEP12 = pct_flux1;

@@ -48,7 +48,7 @@ const WHB_Parameters = ({ innerData, setInnerData, currentLanguage = 'fr' }) => 
     setWHBParameters(prev => ({ ...prev, [key]: value }));
   };
 
-  const FG_IN = innerData?.FG_OUT_kg_h || { CO2: 1, H2O: 1, O2: 1, N2: 1 };
+  const FG_IN = innerData?.FG_OUT || { CO2: 1, H2O: 1, O2: 1, N2: 1 };
   const T_IN = innerData?.T_OUT || 900;
 
   const {
@@ -70,11 +70,11 @@ const WHB_Parameters = ({ innerData, setInnerData, currentLanguage = 'fr' }) => 
   const H_steam = steamType === "saturated" 
     ? hV_p(boilerPressure + 1) 
     : h_pT(boilerPressure + 1, superheatedSteamTemp);
-  const Q_steam_kg_h = H_diff / (H_steam - H_feedwater);
-  const Q_purge_kg_h = Q_steam_kg_h * (blowdownRate / 100);
-  const Q_feedwater_kg_h = Q_steam_kg_h * (1 + (blowdownRate / 100));
-  const Q_flash_drum_event_kg_h = Q_purge_kg_h * (hL_p(boilerPressure + 1) - hL_p(1)) / (hV_p(1) - hL_p(1));
-  const Q_rejet_liquide_kg_h = Q_purge_kg_h - Q_flash_drum_event_kg_h;
+  const Q_steam = H_diff / (H_steam - H_feedwater);
+  const Q_purge = Q_steam * (blowdownRate / 100);
+  const Q_feedwater = Q_steam * (1 + (blowdownRate / 100));
+  const Q_flash_drum_event = Q_purge * (hL_p(boilerPressure + 1) - hL_p(1)) / (hV_p(1) - hL_p(1));
+  const Q_rejet_liquide = Q_purge - Q_flash_drum_event;
   const saturationSteamTemp = Tsat_p(boilerPressure + 1);
 
   const flue_gas_calculation = [
@@ -85,9 +85,9 @@ const WHB_Parameters = ({ innerData, setInnerData, currentLanguage = 'fr' }) => 
   ];
 
   const feed_water_calculation = [
-    { text: t('feedwaterFlow'), value: Q_feedwater_kg_h.toFixed(0) },
+    { text: t('feedwaterFlow'), value: Q_feedwater.toFixed(0) },
     { text: t('feedwaterPressure'), value: P_feedwater.toFixed(2) },
-    { text: t('blowdownMassFlow'), value: Q_purge_kg_h.toFixed(0) },
+    { text: t('blowdownMassFlow'), value: Q_purge.toFixed(0) },
     { text: t('enthalpyFeedwater'), value: H_feedwater.toFixed(0) },
   ];
 
@@ -95,13 +95,13 @@ const WHB_Parameters = ({ innerData, setInnerData, currentLanguage = 'fr' }) => 
     { text: t('saturatedSteamTemperature'), value: saturationSteamTemp.toFixed(0) },
     { text: t('deltaEnthalpies'), value: H_diff.toFixed(0) },
     { text: t('steamEnthalpy'), value: H_steam.toFixed(0) },
-    { text: t('steamFlow'), value: Q_steam_kg_h.toFixed(0) },
+    { text: t('steamFlow'), value: Q_steam.toFixed(0) },
   ];
 
   const drum_calculation = [
-    { text: t('ventFlashSteamDrum'), value: Q_flash_drum_event_kg_h.toFixed(0) },
-    { text: t('liquidRejected'), value: Q_rejet_liquide_kg_h.toFixed(0) },
-    { text: t('steamFlow'), value: Q_steam_kg_h.toFixed(0) },
+    { text: t('ventFlashSteamDrum'), value: Q_flash_drum_event.toFixed(0) },
+    { text: t('liquidRejected'), value: Q_rejet_liquide.toFixed(0) },
+    { text: t('steamFlow'), value: Q_steam.toFixed(0) },
   ];
 
   const clearMemory = useCallback(() => {
@@ -112,15 +112,15 @@ const WHB_Parameters = ({ innerData, setInnerData, currentLanguage = 'fr' }) => 
   if (innerData && setInnerData) {
     innerData['T_WHB_out'] = T_WHB_out;
     innerData['T_inlet_WHB'] = T_IN;
-    innerData['Eau_purge_kg_h'] = Q_purge_kg_h;
-    innerData['Débit_vapeur_kg_h'] = Q_steam_kg_h;
-    innerData['Pression_vapeur_bar'] = boilerPressure;
-    innerData['Temperature_vapeur_C'] = steamType === 'saturated' ? saturationSteamTemp : superheatedSteamTemp;
-    innerData['Debit_eau_m3_h'] = Q_feedwater_kg_h / 1000;
-    innerData['Q_steam_kg_h'] = Q_steam_kg_h;
-    innerData['Q_feedwater_kg_h'] = Q_feedwater_kg_h;
-    innerData['Q_purge_kg_h'] = Q_purge_kg_h;
-    innerData['Q_flash_drum_event_kg_h'] = Q_flash_drum_event_kg_h;
+    innerData['Eau_purge'] = Q_purge;
+    innerData['Débit_vapeur'] = Q_steam;
+    innerData['Pression_vapeur'] = boilerPressure;
+    innerData['Temperature_vapeur'] = steamType === 'saturated' ? saturationSteamTemp : superheatedSteamTemp;
+    innerData['Debit_eau'] = Q_feedwater / 1000;
+    innerData['Q_steam'] = Q_steam;
+    innerData['Q_feedwater'] = Q_feedwater;
+    innerData['Q_purge'] = Q_purge;
+    innerData['Q_flash_drum_event'] = Q_flash_drum_event;
   }
 
   return (

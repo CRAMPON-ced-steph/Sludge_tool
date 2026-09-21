@@ -45,7 +45,7 @@ const SCRUBBERFlueGasParameters = ({ innerData, currentLanguage = 'fr', onDataUp
   }, [innerData, onDataUpdate]);
 
   const T_IN = innerData?.T_OUT || 1;
-  const FG_IN = innerData?.FG_OUT_kg_h || { CO2: 1, H2O: 1, O2: 1, N2: 1 };
+  const FG_IN = innerData?.FG_OUT || { CO2: 1, H2O: 1, O2: 1, N2: 1 };
 
   const T_in = T_IN;
   const T_out = emissions_SCRUBBER['Flue gas temperature outlet [°C]'];
@@ -55,35 +55,35 @@ const SCRUBBERFlueGasParameters = ({ innerData, currentLanguage = 'fr', onDataUp
   const T_eau = emissions_SCRUBBER['Cooling water temperature [°C]'];
 
   // Conversion to m3/h
-  const FG_CO2_m3_h = CO2_kg_m3(FG_IN.CO2);
-  const FG_H2O_m3_h = H2O_kg_m3(FG_IN.H2O);
-  const FG_O2_m3_h = O2_kg_m3(FG_IN.O2);
-  const FG_N2_m3_h = N2_kg_m3(FG_IN.N2);
+  const FG_CO2 = CO2_kg_m3(FG_IN.CO2);
+  const FG_H2O = H2O_kg_m3(FG_IN.H2O);
+  const FG_O2 = O2_kg_m3(FG_IN.O2);
+  const FG_N2 = N2_kg_m3(FG_IN.N2);
 
-  const FG_humide_tot_m3_h = FG_CO2_m3_h + FG_H2O_m3_h + FG_O2_m3_h + FG_N2_m3_h;
-  const FG_sec_tot_m3_h = FG_CO2_m3_h + FG_O2_m3_h + FG_N2_m3_h;
+  const FG_humide_tot = FG_CO2 + FG_H2O + FG_O2 + FG_N2;
+  const FG_sec_tot = FG_CO2 + FG_O2 + FG_N2;
 
   // Air ingress calculations
-  let FG_air_O2_kg_h = 0;
-  let FG_air_N2_kg_h = 0;
-  let FG_air_CO2_kg_h = 0;
-  let FG_air_H2O_kg_h = 0;
-  let Q_eau_kg_h = 0;
+  let FG_air_O2 = 0;
+  let FG_air_N2 = 0;
+  let FG_air_CO2 = 0;
+  let FG_air_H2O = 0;
+  let Q_eau = 0;
   let Delta_H = 0;
   let H_in_SCRUBBER = 0;
   let H_out_SCRUBBER = 0;
   let T_with_air_ingress_out = T_out;
 
   if (V_air_ingress !== 0) {
-    FG_air_O2_kg_h = 0.21 * V_air_ingress;
-    FG_air_N2_kg_h = 0.79 * V_air_ingress;
+    FG_air_O2 = 0.21 * V_air_ingress;
+    FG_air_N2 = 0.79 * V_air_ingress;
 
-    T_with_air_ingress_out = (T_out * FG_humide_tot_m3_h + V_air_ingress * T_air) / (FG_humide_tot_m3_h + V_air_ingress);
+    T_with_air_ingress_out = (T_out * FG_humide_tot + V_air_ingress * T_air) / (FG_humide_tot + V_air_ingress);
     H_in_SCRUBBER = h_fumee(T_in, FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
     H_out_SCRUBBER = h_fumee(T_out + (T_out - T_with_air_ingress_out), FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
     Delta_H = H_in_SCRUBBER * (1 - Pth / 100) - H_out_SCRUBBER;
 
-    Q_eau_kg_h = Qeau_added_to_be_at_T(
+    Q_eau = Qeau_added_to_be_at_T(
       T_in,
       T_eau,
       T_out + (T_out - T_with_air_ingress_out),
@@ -98,7 +98,7 @@ const SCRUBBERFlueGasParameters = ({ innerData, currentLanguage = 'fr', onDataUp
     H_in_SCRUBBER = h_fumee(T_in, FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
     H_out_SCRUBBER = h_fumee(T_out, FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
     Delta_H = H_in_SCRUBBER * (1 - Pth / 100) - H_out_SCRUBBER;
-    Q_eau_kg_h = Qeau_added_to_be_at_T(T_in, T_eau, T_out, Pth, FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
+    Q_eau = Qeau_added_to_be_at_T(T_in, T_eau, T_out, Pth, FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
   }
 
   // Output masses
@@ -110,58 +110,58 @@ const SCRUBBERFlueGasParameters = ({ innerData, currentLanguage = 'fr', onDataUp
   };
 
   const masses_FG_out_SCRUBBER = {
-    CO2: FG_IN.CO2 + FG_air_CO2_kg_h,
-    O2: FG_IN.O2 + FG_air_O2_kg_h,
-    H2O: FG_IN.H2O + Q_eau_kg_h + FG_air_H2O_kg_h,
-    N2: FG_IN.N2 + FG_air_N2_kg_h,
+    CO2: FG_IN.CO2 + FG_air_CO2,
+    O2: FG_IN.O2 + FG_air_O2,
+    H2O: FG_IN.H2O + Q_eau + FG_air_H2O,
+    N2: FG_IN.N2 + FG_air_N2,
   };
 
-  const FG_CO2_EAU_m3_h = CO2_kg_m3(masses_FG_out_SCRUBBER.CO2);
-  const FG_H2O_EAU_m3_h = H2O_kg_m3(masses_FG_out_SCRUBBER.H2O);
-  const FG_O2_EAU_m3_h = O2_kg_m3(masses_FG_out_SCRUBBER.O2);
-  const FG_N2_EAU_m3_h = N2_kg_m3(masses_FG_out_SCRUBBER.N2);
+  const FG_CO2_EAU = CO2_kg_m3(masses_FG_out_SCRUBBER.CO2);
+  const FG_H2O_EAU = H2O_kg_m3(masses_FG_out_SCRUBBER.H2O);
+  const FG_O2_EAU = O2_kg_m3(masses_FG_out_SCRUBBER.O2);
+  const FG_N2_EAU = N2_kg_m3(masses_FG_out_SCRUBBER.N2);
 
-  const FG_humide_EAU_tot_m3_h = FG_CO2_EAU_m3_h + FG_O2_EAU_m3_h + FG_N2_EAU_m3_h + FG_H2O_EAU_m3_h;
-  const FG_sec_EAU_tot_m3_h = FG_CO2_EAU_m3_h + FG_O2_EAU_m3_h + FG_N2_EAU_m3_h;
+  const FG_humide_EAU_tot_real = FG_CO2_EAU + FG_O2_EAU + FG_N2_EAU + FG_H2O_EAU;
+  const FG_sec_EAU_tot_real = FG_CO2_EAU + FG_O2_EAU + FG_N2_EAU;
 
-  const O2pourcent = (FG_O2_EAU_m3_h / FG_humide_EAU_tot_m3_h) * 100;
+  const O2pourcent = (FG_O2_EAU / FG_humide_EAU_tot_real) * 100;
 
   // Update parent component data
   useEffect(() => {
     updateInnerData({
-      'FG_humide_tot': FG_humide_tot_m3_h,
-      'FG_out_kg_h': masses_FG_out_SCRUBBER,
-      'FG_sec_tot': FG_sec_tot_m3_h,
+      'FG_humide_tot': FG_humide_tot,
+      'FG_out': masses_FG_out_SCRUBBER,
+      'FG_sec_tot': FG_sec_tot,
       'T_sortie': T_out,
-      'FG_humide_EAU_tot_Nm3_h': FG_humide_EAU_tot_m3_h,
-      'FG_sec_EAU_tot_Nm3_h': FG_sec_EAU_tot_m3_h,
-      'Q_eau_kg_h': Q_eau_kg_h,
+      'FG_humide_EAU_tot_norm': FG_humide_EAU_tot_real,
+      'FG_sec_EAU_tot_norm': FG_sec_EAU_tot_real,
+      'Q_eau': Q_eau,
       'O2pourcent': O2pourcent,
     });
   }, [
-    FG_humide_tot_m3_h,
+    FG_humide_tot,
     masses_FG_out_SCRUBBER,
-    FG_sec_tot_m3_h,
+    FG_sec_tot,
     T_out,
-    FG_humide_EAU_tot_m3_h,
-    FG_sec_EAU_tot_m3_h,
-    Q_eau_kg_h,
+    FG_humide_EAU_tot_real,
+    FG_sec_EAU_tot_real,
+    Q_eau,
     O2pourcent,
     updateInnerData,
   ]);
 
   const masses_Air_ingress = {
-    CO2: FG_air_CO2_kg_h,
-    O2: FG_air_O2_kg_h,
-    H2O: FG_air_H2O_kg_h,
-    N2: FG_air_N2_kg_h,
+    CO2: FG_air_CO2,
+    O2: FG_air_O2,
+    H2O: FG_air_H2O,
+    N2: FG_air_N2,
   };
 
   const elementsGeneric = [
     { text: t('Temperature inlet SCRUBBER [°C]'), value: T_in.toFixed(0) },
     { text: t('Delta enthalpies [kJ/h]'), value: Delta_H.toFixed(0) },
-    { text: t('Sprayed/cooling water [kg/h]'), value: Q_eau_kg_h.toFixed(0) },
-    { text: t('Flue gas volume outlet [Nm3/h]'), value: FG_humide_EAU_tot_m3_h.toFixed(0) },
+    { text: t('Sprayed/cooling water [kg/h]'), value: Q_eau.toFixed(0) },
+    { text: t('Flue gas volume outlet [Nm3/h]'), value: FG_humide_EAU_tot_real.toFixed(0) },
   ];
 
   const handleChange = (name, value) => {

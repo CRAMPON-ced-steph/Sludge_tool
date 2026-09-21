@@ -93,15 +93,15 @@ const STACKdesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
   const getParameterValue = (obj, key) => obj[key] || 0;
 
   // Primary stack calculations
-  const Qm_FG_kg_h = getParameterValue(parametres, PARAM_KEYS.wetFlueGasFlow);
-  const Qm_pollutant_kg_h = getParameterValue(parametres, PARAM_KEYS.pollutantFlow);
+  const Qm_FG = getParameterValue(parametres, PARAM_KEYS.wetFlueGasFlow);
+  const Qm_pollutant = getParameterValue(parametres, PARAM_KEYS.pollutantFlow);
   const temperatureSortie = getParameterValue(parametres, PARAM_KEYS.outletTemperature);
   const Delta_T = getParameterValue(parametres, PARAM_KEYS.temperatureDifference);
 
   // Calculate concentration
-  const concentration = (Qm_pollutant_kg_h * 1000) / Qm_FG_kg_h;
-  const Qv_FG_Nm3_h = Qm_FG_kg_h / 1.29;
-  const Qv_FG_m3_h = Qv_FG_Nm3_h * (temperatureSortie + T_ref) / T_ref;
+  const concentration = (Qm_pollutant * 1000) / Qm_FG;
+  const Qv_FG_norm = Qm_FG / 1.29;
+  const Qv_FG_real = Qv_FG_norm * (temperatureSortie + T_ref) / T_ref;
 
   // Determine k based on pollutant type
   const k = isGaz ? 340 : 680;
@@ -127,8 +127,8 @@ const STACKdesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
   }
 
   const cm = cr - co;
-  const s = k * Qm_pollutant_kg_h / cm;
-  let R = Qv_FG_m3_h;
+  const s = k * Qm_pollutant / cm;
+  let R = Qv_FG_real;
   let hp = Math.pow(s, 0.5) * Math.pow(R * Delta_T, -1/6);
 
   // Results for primary stack
@@ -141,10 +141,10 @@ const STACKdesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
   const Distance_axe_hi_hj = getParameterValue(multiStackParams, MULTISTACK_KEYS.distanceBetweenStacks);
   const hi = hp;
   const hj = getParameterValue(multiStackParams, MULTISTACK_KEYS.secondaryStackHeight);
-  const Qv_FG2_Nm3_h = getParameterValue(multiStackParams, MULTISTACK_KEYS.secondaryStackFlow);
+  const Qv_FG2 = getParameterValue(multiStackParams, MULTISTACK_KEYS.secondaryStackFlow);
   const Tf2 = getParameterValue(multiStackParams, MULTISTACK_KEYS.secondaryStackTemperature);
 
-  const R2 = Qv_FG2_Nm3_h * (Tf2 + T_ref) / T_ref;
+  const R2 = Qv_FG2 * (Tf2 + T_ref) / T_ref;
   let hp2 = hp;
   if (Distance_axe_hi_hj < (hi + hj + 10)) {
     if (hi > hj/2 || hj > hi/2) {
@@ -210,12 +210,12 @@ const STACKdesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
       stack_pollutant_type: polluantType,
       stack_is_gaz: isGaz,
       stack_zone: zone,
-      stack_Qv_Nm3_h: Qv_FG_Nm3_h,
-      stack_Qv_m3_h: Qv_FG_m3_h,
-      stack_Qm_kg_h: Qm_FG_kg_h,
+      stack_Qv_norm: Qv_FG_norm,
+      stack_Qv_real: Qv_FG_real,
+      stack_Qm: Qm_FG,
     }));
   }, [hp, hp2, hp3, concentration, valeurLimite, pourcentageVLE, polluantType, isGaz, zone,
-      Qv_FG_Nm3_h, Qv_FG_m3_h, Qm_FG_kg_h, setInnerData]); // eslint-disable-line react-hooks/exhaustive-deps
+      Qv_FG_norm, Qv_FG_real, Qm_FG, setInnerData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Helper function to check for negative values
   const isNegative = (value) => {
@@ -261,22 +261,22 @@ const STACKdesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
         Conso_EauDemin_m3: 0,
         Conso_EauRiviere_m3: 0,
         Conso_EauAdoucie_m3: 0,
-        Conso_CaCO3_kg: 0,
-        Conso_CaO_kg: 0,
-        Conso_CaOH2_dry_kg: 0,
-        Conso_CaOH2_wet_kg: 0,
-        Conso_NaOH_kg: 0,
-        Conso_NaOHCO3_kg: 0,
-        Conso_Ammonia_kg: 0,
-        Conso_NaBrCaBr2_kg: 0,
+        Conso_CaCO3: 0,
+        Conso_CaO: 0,
+        Conso_CaOH2_dry: 0,
+        Conso_CaOH2_wet: 0,
+        Conso_NaOH: 0,
+        Conso_NaOHCO3: 0,
+        Conso_Ammonia: 0,
+        Conso_NaBrCaBr2: 0,
         truck15TPrice,
-        conso_gaz_H_MW: 0,
-        conso_gaz_L_MW: 0,
-        conso_gaz_Process_MW: 0,
+        conso_gaz_H: 0,
+        conso_gaz_L: 0,
+        conso_gaz_Process: 0,
         conso_fuel: 0,
-        conso_incineration_ash_kg_h: 0,
-        conso_boiler_ash_kg_h: 0,
-        conso_fly_ash_kg_h: 0,
+        conso_incineration_ash: 0,
+        conso_boiler_ash: 0,
+        conso_fly_ash: 0,
         CO2_transport_incineratino_ash: 0,
         CO2_transport_boiler_ash: 0,
         CO2_transport_fly_ash: 0,

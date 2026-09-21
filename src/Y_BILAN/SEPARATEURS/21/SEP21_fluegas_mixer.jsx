@@ -44,47 +44,47 @@ const SEP21FlueGasMixer = ({ innerData, setInnerData, upstreamT_IN, upstreamFG_I
   // ✅ CALCULS LOCAUX - PAS DE MISE À JOUR DE innerData ICI
   const calculatedData = useMemo(() => {
     // Mélange des deux flux
-    const FG_OUT_CO2_kg_h = FG_IN_1.CO2 + CO2_manual;
-    const FG_OUT_H2O_kg_h = FG_IN_1.H2O + H2O_manual;
-    const FG_OUT_O2_kg_h = FG_IN_1.O2 + O2_manual;
-    const FG_OUT_N2_kg_h = FG_IN_1.N2 + N2_manual;
+    const FG_OUT_CO2 = FG_IN_1.CO2 + CO2_manual;
+    const FG_OUT_H2O = FG_IN_1.H2O + H2O_manual;
+    const FG_OUT_O2 = FG_IN_1.O2 + O2_manual;
+    const FG_OUT_N2 = FG_IN_1.N2 + N2_manual;
 
     // Débit massique total
-    const FG_total_kg_h = FG_OUT_CO2_kg_h + FG_OUT_H2O_kg_h + FG_OUT_O2_kg_h + FG_OUT_N2_kg_h;
+    const FG_total = FG_OUT_CO2 + FG_OUT_H2O + FG_OUT_O2 + FG_OUT_N2;
 
     // Fractions massiques
-    const x_CO2 = FG_total_kg_h > 0 ? FG_OUT_CO2_kg_h / FG_total_kg_h : 0;
-    const x_H2O = FG_total_kg_h > 0 ? FG_OUT_H2O_kg_h / FG_total_kg_h : 0;
-    const x_O2 = FG_total_kg_h > 0 ? FG_OUT_O2_kg_h / FG_total_kg_h : 0;
-    const x_N2 = FG_total_kg_h > 0 ? FG_OUT_N2_kg_h / FG_total_kg_h : 0;
+    const x_CO2 = FG_total > 0 ? FG_OUT_CO2 / FG_total : 0;
+    const x_H2O = FG_total > 0 ? FG_OUT_H2O / FG_total : 0;
+    const x_O2 = FG_total > 0 ? FG_OUT_O2 / FG_total : 0;
+    const x_N2 = FG_total > 0 ? FG_OUT_N2 / FG_total : 0;
 
     // Température moyenne pondérée
     const FG_1_total = FG_IN_1.CO2 + FG_IN_1.H2O + FG_IN_1.O2 + FG_IN_1.N2;
     const FG_2_total = CO2_manual + H2O_manual + O2_manual + N2_manual;
-    const T_OUT_mixed = FG_total_kg_h > 0 ? (T_IN_1 * FG_1_total + T_IN_2 * FG_2_total) / FG_total_kg_h : T_IN_1;
+    const T_OUT_mixed = FG_total > 0 ? (T_IN_1 * FG_1_total + T_IN_2 * FG_2_total) / FG_total : T_IN_1;
 
     // Conversion en débits volumétriques
-    const FG_CO2_m3_h = CO2_kg_m3(FG_OUT_CO2_kg_h);
-    const FG_H2O_m3_h = H2O_kg_m3(FG_OUT_H2O_kg_h);
-    const FG_O2_m3_h = O2_kg_m3(FG_OUT_O2_kg_h);
-    const FG_N2_m3_h = N2_kg_m3(FG_OUT_N2_kg_h);
+    const FG_CO2_real = CO2_kg_m3(FG_OUT_CO2);
+    const FG_H2O_real = H2O_kg_m3(FG_OUT_H2O);
+    const FG_O2_real = O2_kg_m3(FG_OUT_O2);
+    const FG_N2_real = N2_kg_m3(FG_OUT_N2);
 
-    const FG_humide_tot_m3_h = FG_CO2_m3_h + FG_H2O_m3_h + FG_O2_m3_h + FG_N2_m3_h;
-    const FG_sec_tot_m3_h = FG_CO2_m3_h + FG_O2_m3_h + FG_N2_m3_h;
+    const FG_humide_tot = FG_CO2_real + FG_H2O_real + FG_O2_real + FG_N2_real;
+    const FG_sec_tot = FG_CO2_real + FG_O2_real + FG_N2_real;
 
     return {
-      FG_OUT_CO2_kg_h,
-      FG_OUT_H2O_kg_h,
-      FG_OUT_O2_kg_h,
-      FG_OUT_N2_kg_h,
-      FG_total_kg_h,
+      FG_OUT_CO2,
+      FG_OUT_H2O,
+      FG_OUT_O2,
+      FG_OUT_N2,
+      FG_total,
       x_CO2,
       x_H2O,
       x_O2,
       x_N2,
       T_OUT_mixed,
-      FG_humide_tot_m3_h,
-      FG_sec_tot_m3_h,
+      FG_humide_tot,
+      FG_sec_tot,
     };
   }, [FG_IN_1.CO2, FG_IN_1.H2O, FG_IN_1.O2, FG_IN_1.N2, CO2_manual, H2O_manual, O2_manual, N2_manual, T_IN_1, T_IN_2]);
 
@@ -109,36 +109,36 @@ const SEP21FlueGasMixer = ({ innerData, setInnerData, upstreamT_IN, upstreamFG_I
 
   // Composition du mélange de sortie
   const masses_FG_out = {
-    CO2: calculatedData.FG_OUT_CO2_kg_h,
-    O2: calculatedData.FG_OUT_O2_kg_h,
-    H2O: calculatedData.FG_OUT_H2O_kg_h,
-    N2: calculatedData.FG_OUT_N2_kg_h,
+    CO2: calculatedData.FG_OUT_CO2,
+    O2: calculatedData.FG_OUT_O2,
+    H2O: calculatedData.FG_OUT_H2O,
+    N2: calculatedData.FG_OUT_N2,
   };
 
 
-  const FG_CO2_Nm3_h = CO2_kg_m3(masses_FG_out.CO2)
-  const FG_H2O_Nm3_h = H2O_kg_m3(masses_FG_out.H2O)
-  const FG_O2_Nm3_h = O2_kg_m3(masses_FG_out.O2)
-  const FG_N2_Nm3_h = N2_kg_m3(masses_FG_out.N2)
-const FG_dry_Nm3_h = FG_CO2_Nm3_h+FG_O2_Nm3_h+FG_N2_Nm3_h;
-const FG_wet_Nm3_h = FG_dry_Nm3_h+FG_H2O_Nm3_h;
+  const FG_CO2_norm = CO2_kg_m3(masses_FG_out.CO2)
+  const FG_H2O_norm = H2O_kg_m3(masses_FG_out.H2O)
+  const FG_O2_norm = O2_kg_m3(masses_FG_out.O2)
+  const FG_N2_norm = N2_kg_m3(masses_FG_out.N2)
+const FG_dry = FG_CO2_norm+FG_O2_norm+FG_N2_norm;
+const FG_wet = FG_dry+FG_H2O_norm;
 
   const volume_FG_out = {
-    CO2: FG_CO2_Nm3_h,
-    O2: FG_O2_Nm3_h,
-    H2O: FG_H2O_Nm3_h,
-    N2: FG_N2_Nm3_h,
-    dry: FG_dry_Nm3_h,
-    wet: FG_wet_Nm3_h
+    CO2: FG_CO2_norm,
+    O2: FG_O2_norm,
+    H2O: FG_H2O_norm,
+    N2: FG_N2_norm,
+    dry: FG_dry,
+    wet: FG_wet
   };
 
   const elementsGeneric = [
     { text: t('Inlet stream 1 temperature [°C]'), value: T_IN_1.toFixed(1) },
     { text: t('Inlet stream 2 temperature [°C]'), value: T_IN_2.toFixed(1) },
     { text: t('Mixed outlet temperature [°C]'), value: calculatedData.T_OUT_mixed.toFixed(1) },
-    { text: t('Total mass flow [kg/h]'), value: calculatedData.FG_total_kg_h.toFixed(0) },
-    { text: t('Outlet volumetric flow (wet) [Nm3/h]'), value: calculatedData.FG_humide_tot_m3_h.toFixed(2) },
-    { text: t('Outlet volumetric flow (dry) [Nm3/h]'), value: calculatedData.FG_sec_tot_m3_h.toFixed(2) },
+    { text: t('Total mass flow [kg/h]'), value: calculatedData.FG_total.toFixed(0) },
+    { text: t('Outlet volumetric flow (wet) [Nm3/h]'), value: calculatedData.FG_humide_tot.toFixed(2) },
+    { text: t('Outlet volumetric flow (dry) [Nm3/h]'), value: calculatedData.FG_sec_tot.toFixed(2) },
     { text: t('CO2 mass fraction [%]'), value: (calculatedData.x_CO2 * 100).toFixed(2) },
     { text: t('H2O mass fraction [%]'), value: (calculatedData.x_H2O * 100).toFixed(2) },
     { text: t('O2 mass fraction [%]'), value: (calculatedData.x_O2 * 100).toFixed(2) },
@@ -147,8 +147,8 @@ const FG_wet_Nm3_h = FG_dry_Nm3_h+FG_H2O_Nm3_h;
 
 
   // Mise à jour des données innerData
-  innerData['FG_OUT_kg_h'] = masses_FG_out;
-  innerData['FG_RK_OUT_Nm3_h'] = volume_FG_out;
+  innerData['FG_OUT'] = masses_FG_out;
+  innerData['FG_RK_OUT'] = volume_FG_out;
   //innerData['O2_calcule'] = O2_sec_pourcent;
   innerData['T_OUT'] = calculatedData.T_OUT_mixed;
 

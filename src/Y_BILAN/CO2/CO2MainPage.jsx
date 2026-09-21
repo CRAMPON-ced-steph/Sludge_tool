@@ -36,7 +36,7 @@ const CO2MainPage = ({ nodeData, title, onSendData, onClose, onGoBack }) => {
   const sendAllData = () => {
       onSendData({
         result: {
-          FG_OUT_kg_h : innerData['FG_OUT_kg_h'],
+          FG_OUT : innerData['FG_OUT'],
           PollutantInput : innerData['PInput'],
          T_OUT : innerData['T_OUT'],
         }

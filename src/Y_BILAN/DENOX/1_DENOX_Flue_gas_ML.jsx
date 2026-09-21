@@ -79,7 +79,7 @@ const DENOXFlueGasParameters = ({ innerData, setInnerData, currentLanguage = 'fr
 
   // ============ EXTRACTION DES PARAMÈTRES ============
   const T_IN = innerData?.T_OUT || 1;
-  const FG_IN = innerData?.FG_OUT_kg_h || { CO2: 1, H2O: 1, O2: 1, N2: 1 };
+  const FG_IN = innerData?.FG_OUT || { CO2: 1, H2O: 1, O2: 1, N2: 1 };
 
   const T_out = emissions_DENOX['Flue gas temperature before reheating [°C]'];
   const T_reheat = emissions_DENOX['Flue gas temperature after reheating [°C]'];
@@ -111,31 +111,31 @@ const DENOXFlueGasParameters = ({ innerData, setInnerData, currentLanguage = 'fr
   // Calculs des flux de gaz avant réchauffage
   const flueGasCalculations = useMemo(() => {
     try {
-      const FG_CO2_m3_h = CO2_kg_m3(FG_IN.CO2);
-      const FG_H2O_m3_h = H2O_kg_m3(FG_IN.H2O);
-      const FG_O2_m3_h = O2_kg_m3(FG_IN.O2);
-      const FG_N2_m3_h = N2_kg_m3(FG_IN.N2);
+      const FG_CO2 = CO2_kg_m3(FG_IN.CO2);
+      const FG_H2O = H2O_kg_m3(FG_IN.H2O);
+      const FG_O2 = O2_kg_m3(FG_IN.O2);
+      const FG_N2 = N2_kg_m3(FG_IN.N2);
 
-      const FG_humide_tot_m3_h = FG_CO2_m3_h + FG_H2O_m3_h + FG_O2_m3_h + FG_N2_m3_h;
-      const FG_sec_tot_m3_h = FG_CO2_m3_h + FG_O2_m3_h + FG_N2_m3_h;
+      const FG_humide_tot = FG_CO2 + FG_H2O + FG_O2 + FG_N2;
+      const FG_sec_tot = FG_CO2 + FG_O2 + FG_N2;
 
-      let FG_air_O2_kg_h = 0;
-      let FG_air_N2_kg_h = 0;
-      let Q_eau_kg_h = 0;
+      let FG_air_O2 = 0;
+      let FG_air_N2 = 0;
+      let Q_eau = 0;
       let Delta_H = 0;
       let T_with_air_ingress_out = T_out;
 
       if (V_air_ingress !== 0) {
-        FG_air_O2_kg_h = 0.21 * V_air_ingress;
-        FG_air_N2_kg_h = 0.79 * V_air_ingress;
-        T_with_air_ingress_out = (T_out * FG_humide_tot_m3_h + V_air_ingress * T_air) / (FG_humide_tot_m3_h + V_air_ingress);
+        FG_air_O2 = 0.21 * V_air_ingress;
+        FG_air_N2 = 0.79 * V_air_ingress;
+        T_with_air_ingress_out = (T_out * FG_humide_tot + V_air_ingress * T_air) / (FG_humide_tot + V_air_ingress);
         
         const H_in = h_fumee(T_IN, FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
         const H_out = h_fumee(T_out + (T_out - T_with_air_ingress_out), FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
         Delta_H = H_in * (1 - Pth / 100) - H_out;
 
         if (waterInjection) {
-          Q_eau_kg_h = Qeau_added_to_be_at_T(T_IN, T_eau, T_out + (T_out - T_with_air_ingress_out), Pth, FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
+          Q_eau = Qeau_added_to_be_at_T(T_IN, T_eau, T_out + (T_out - T_with_air_ingress_out), Pth, FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
         }
       } else {
         const H_in = h_fumee(T_IN, FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
@@ -143,37 +143,37 @@ const DENOXFlueGasParameters = ({ innerData, setInnerData, currentLanguage = 'fr
         Delta_H = H_in * (1 - Pth / 100) - H_out;
 
         if (waterInjection) {
-          Q_eau_kg_h = Qeau_added_to_be_at_T(T_IN, T_eau, T_out, Pth, FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
+          Q_eau = Qeau_added_to_be_at_T(T_IN, T_eau, T_out, Pth, FG_IN.CO2, FG_IN.H2O, FG_IN.N2, FG_IN.O2);
         }
       }
 
       const masses_FG_in = { CO2: FG_IN.CO2, O2: FG_IN.O2, H2O: FG_IN.H2O, N2: FG_IN.N2 };
       const masses_FG_out = {
         CO2: FG_IN.CO2,
-        O2: FG_IN.O2 + FG_air_O2_kg_h,
-        H2O: FG_IN.H2O + Q_eau_kg_h,
-        N2: FG_IN.N2 + FG_air_N2_kg_h
+        O2: FG_IN.O2 + FG_air_O2,
+        H2O: FG_IN.H2O + Q_eau,
+        N2: FG_IN.N2 + FG_air_N2
       };
 
-      const FG_CO2_EAU_m3_h = CO2_kg_m3(masses_FG_out.CO2);
-      const FG_H2O_EAU_m3_h = H2O_kg_m3(masses_FG_out.H2O);
-      const FG_O2_EAU_m3_h = O2_kg_m3(masses_FG_out.O2);
-      const FG_N2_EAU_m3_h = N2_kg_m3(masses_FG_out.N2);
-      const FG_humide_EAU_tot_m3_h = FG_CO2_EAU_m3_h + FG_O2_EAU_m3_h + FG_N2_EAU_m3_h + FG_H2O_EAU_m3_h;
+      const FG_CO2_EAU = CO2_kg_m3(masses_FG_out.CO2);
+      const FG_H2O_EAU = H2O_kg_m3(masses_FG_out.H2O);
+      const FG_O2_EAU = O2_kg_m3(masses_FG_out.O2);
+      const FG_N2_EAU = N2_kg_m3(masses_FG_out.N2);
+      const FG_humide_EAU_tot = FG_CO2_EAU + FG_O2_EAU + FG_N2_EAU + FG_H2O_EAU;
 
       const masses_Air_ingress = {
         CO2: 0,
-        O2: FG_air_O2_kg_h,
+        O2: FG_air_O2,
         H2O: 0,
-        N2: FG_air_N2_kg_h,
+        N2: FG_air_N2,
       };
 
       return {
-        FG_humide_tot_m3_h,
-        FG_sec_tot_m3_h,
+        FG_humide_tot,
+        FG_sec_tot,
         Delta_H,
-        Q_eau_kg_h,
-        FG_humide_EAU_tot_m3_h,
+        Q_eau,
+        FG_humide_EAU_tot,
         masses_FG_in,
         masses_FG_out,
         masses_Air_ingress,
@@ -182,8 +182,8 @@ const DENOXFlueGasParameters = ({ innerData, setInnerData, currentLanguage = 'fr
     } catch (error) {
       console.error("Erreur calculs flux:", error.message);
       return {
-        FG_humide_tot_m3_h: 0, FG_sec_tot_m3_h: 0, Delta_H: 0, Q_eau_kg_h: 0,
-        FG_humide_EAU_tot_m3_h: 0,
+        FG_humide_tot: 0, FG_sec_tot: 0, Delta_H: 0, Q_eau: 0,
+        FG_humide_EAU_tot: 0,
         masses_FG_in: { CO2: 0, O2: 0, H2O: 0, N2: 0 },
         masses_FG_out: { CO2: 0, O2: 0, H2O: 0, N2: 0 },
         masses_Air_ingress: { CO2: 0, O2: 0, H2O: 0, N2: 0 },
@@ -195,7 +195,7 @@ const DENOXFlueGasParameters = ({ innerData, setInnerData, currentLanguage = 'fr
   // Réchauffage
   const reheatingCalculations = useMemo(() => {
     let debit_gaz_rechauffage = 0;
-    let T_melange_calcule_C = T_out;
+    let T_melange_calcule = T_out;
     let iterations = 0;
     let currentCombustionResults = {
       temperature_flamme: 0, volume_air: 0, volume_fumees: 0,
@@ -206,9 +206,9 @@ const DENOXFlueGasParameters = ({ innerData, setInnerData, currentLanguage = 'fr
     if (T_out < T_reheat) {
       debit_gaz_rechauffage = combustionParams.debit_gaz;
       const maxIterations = 100;
-      const FG_humide_ref = flueGasCalculations.FG_humide_EAU_tot_m3_h;
+      const FG_humide_ref = flueGasCalculations.FG_humide_EAU_tot;
 
-      while (T_melange_calcule_C < T_reheat && iterations < maxIterations) {
+      while (T_melange_calcule < T_reheat && iterations < maxIterations) {
         try {
           const newResults = calculerCombustion(
             combustionParams.composition,
@@ -217,9 +217,9 @@ const DENOXFlueGasParameters = ({ innerData, setInnerData, currentLanguage = 'fr
             combustionParams.temp_air
           );
           currentCombustionResults = newResults;
-          T_melange_calcule_C = (FG_humide_ref * T_out + newResults.volume_fumees * newResults.temperature_flamme) / 
+          T_melange_calcule = (FG_humide_ref * T_out + newResults.volume_fumees * newResults.temperature_flamme) / 
                                 (FG_humide_ref + newResults.volume_fumees);
-          if (T_melange_calcule_C < T_reheat) debit_gaz_rechauffage += 1;
+          if (T_melange_calcule < T_reheat) debit_gaz_rechauffage += 1;
           iterations++;
         } catch (error) {
           console.error("Erreur réchauffage:", error.message);
@@ -230,12 +230,12 @@ const DENOXFlueGasParameters = ({ innerData, setInnerData, currentLanguage = 'fr
 
     return {
       debit_gaz_rechauffage,
-      T_melange_calcule_C,
+      T_melange_calcule,
       iterations,
       converged: iterations < 100 || T_out >= T_reheat,
       combustionResults: currentCombustionResults
     };
-  }, [T_out, T_reheat, flueGasCalculations.FG_humide_EAU_tot_m3_h, combustionParams]);
+  }, [T_out, T_reheat, flueGasCalculations.FG_humide_EAU_tot, combustionParams]);
 
   // Calculs après réchauffage
   const reheatingCombustionResults = useMemo(() => {
@@ -276,14 +276,14 @@ const DENOXFlueGasParameters = ({ innerData, setInnerData, currentLanguage = 'fr
     };
   }, [flueGasCalculations.masses_FG_out, reheatingCombustionResults, T_out, T_reheat]);
 
-  const FG_humide_after_reheating_m3_h = useMemo(() => {
+  const FG_humide_after_reheating = useMemo(() => {
     return CO2_kg_m3(masses_FG_out_after_reheating.CO2) + 
            O2_kg_m3(masses_FG_out_after_reheating.O2) + 
            N2_kg_m3(masses_FG_out_after_reheating.N2) + 
            H2O_kg_m3(masses_FG_out_after_reheating.H2O);
   }, [masses_FG_out_after_reheating]);
 
-  const FG_sec_after_reheating_m3_h = useMemo(() => {
+  const FG_sec_after_reheating = useMemo(() => {
     return CO2_kg_m3(masses_FG_out_after_reheating.CO2) + 
            O2_kg_m3(masses_FG_out_after_reheating.O2) + 
            N2_kg_m3(masses_FG_out_after_reheating.N2);
@@ -292,34 +292,34 @@ const DENOXFlueGasParameters = ({ innerData, setInnerData, currentLanguage = 'fr
   // ============ MISE À JOUR INNERDATA ============
   useEffect(() => {
     if (innerData && setInnerData) {
-      innerData.FG_humide_tot = flueGasCalculations.FG_humide_tot_m3_h;
-      innerData.FG_sec_tot = flueGasCalculations.FG_sec_tot_m3_h;
+      innerData.FG_humide_tot = flueGasCalculations.FG_humide_tot;
+      innerData.FG_sec_tot = flueGasCalculations.FG_sec_tot;
       innerData.T_sortie = T_out;
       innerData.T_reheat = T_reheat;
-      innerData.FG_humide_EAU_tot = flueGasCalculations.FG_humide_EAU_tot_m3_h;
-      innerData.Q_eau_kg_h = flueGasCalculations.Q_eau_kg_h;
-      innerData.Q_gaz_Nm3_h = reheatingCalculations.debit_gaz_rechauffage;
+      innerData.FG_humide_EAU_tot = flueGasCalculations.FG_humide_EAU_tot;
+      innerData.Q_eau = flueGasCalculations.Q_eau;
+      innerData.Q_gaz = reheatingCalculations.debit_gaz_rechauffage;
       innerData.temperature_flamme = reheatingCombustionResults.temperature_flamme;
       innerData.facteur_air = reheatingCombustionResults.facteur_air;
       innerData.volume_air_combustion = reheatingCombustionResults.volume_air;
       innerData.volume_fumees_combustion = reheatingCombustionResults.volume_fumees;
       innerData.debit_gaz_rechauffage = reheatingCalculations.debit_gaz_rechauffage;
-      innerData.T_melange_calcule = reheatingCalculations.T_melange_calcule_C;
+      innerData.T_melange_calcule = reheatingCalculations.T_melange_calcule;
       innerData.reheating_converged = reheatingCalculations.converged;
-      innerData.FG_DENOX_wet_OUT_reheating = FG_humide_after_reheating_m3_h;
-      innerData.FG_DENOX_dry_OUT_reheating = FG_sec_after_reheating_m3_h;
-      innerData.FG_DENOX_out_reheating_kg_h = masses_FG_out_after_reheating;
+      innerData.FG_DENOX_wet_OUT_reheating = FG_humide_after_reheating;
+      innerData.FG_DENOX_dry_OUT_reheating = FG_sec_after_reheating;
+      innerData.FG_DENOX_out_reheating = masses_FG_out_after_reheating;
       innerData.gas_type = gasType;
       innerData.water_type = waterType;
     }
-  }, [innerData, setInnerData, flueGasCalculations, reheatingCalculations, reheatingCombustionResults, masses_FG_out_after_reheating, FG_humide_after_reheating_m3_h, FG_sec_after_reheating_m3_h, T_out, T_reheat, gasType, waterType]);
+  }, [innerData, setInnerData, flueGasCalculations, reheatingCalculations, reheatingCombustionResults, masses_FG_out_after_reheating, FG_humide_after_reheating, FG_sec_after_reheating, T_out, T_reheat, gasType, waterType]);
 
   // ============ ÉLÉMENTS DE TABLEAU ============
   const elementsGeneric = [
     { text: t('Temperature inlet DENOX [°C]'), value: T_IN },
     { text: t('Delta enthalpies [kJ/h]'), value: flueGasCalculations.Delta_H.toFixed(0) },
-    { text: `${t('Sprayed/cooling water [kg/h]')} ${waterInjection ? '(Active)' : '(Disabled)'}`, value: flueGasCalculations.Q_eau_kg_h.toFixed(0) },
-    { text: t('Total humid flue gas output [m³/h]'), value: flueGasCalculations.FG_humide_EAU_tot_m3_h.toFixed(1) },
+    { text: `${t('Sprayed/cooling water [kg/h]')} ${waterInjection ? '(Active)' : '(Disabled)'}`, value: flueGasCalculations.Q_eau.toFixed(0) },
+    { text: t('Total humid flue gas output [m³/h]'), value: flueGasCalculations.FG_humide_EAU_tot.toFixed(1) },
     { text: t('Temperature before reheating [°C]'), value: T_out },
     { text: t('Temperature after reheating [°C]'), value: T_reheat },
     { text: t('Adiabatic flame temperature [°C]'), value: reheatingCombustionResults.temperature_flamme.toFixed(1) },
@@ -327,7 +327,7 @@ const DENOXFlueGasParameters = ({ innerData, setInnerData, currentLanguage = 'fr
     { text: t('Combustion air volume [m³/h]'), value: reheatingCombustionResults.volume_air.toFixed(1) },
     { text: t('Combustion flue gas volume [m³/h]'), value: reheatingCombustionResults.volume_fumees.toFixed(1) },
     { text: t('Gas flow rate for reheating [Nm³/h]'), value: reheatingCalculations.debit_gaz_rechauffage.toFixed(1) },
-    { text: t('Calculated mixing temperature [°C]'), value: reheatingCalculations.T_melange_calcule_C }
+    { text: t('Calculated mixing temperature [°C]'), value: reheatingCalculations.T_melange_calcule }
   ];
 
   // ============ HANDLERS ============

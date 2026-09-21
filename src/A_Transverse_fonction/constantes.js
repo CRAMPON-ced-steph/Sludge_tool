@@ -1,4 +1,4 @@
-export const mole_C = 12;
+export const mole = 12;
 export const mole_H = 2;
 export const mole_O = 16/2;
 export const mole_N = 14/2;

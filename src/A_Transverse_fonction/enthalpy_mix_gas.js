@@ -1,6 +1,9 @@
 import {fh_CO2,fh_H2O, fh_O2,fh_N2,fh_AIR} from '../A_Transverse_fonction/enthalpy_gas';
 import {CpL_T, hL_T}  from '../A_Transverse_fonction/steam_table3.js';
 
+// All variables below are in SI units internally.
+// Use toSI() on input, fromSI() on output, label() for display.
+
 
 // FONCTIONS UTILSEES POUR LE QUENCH
 export const Qeau_remove_to_be_at_T = (T_in, t_eau, t_out, m_CO2, m_H2O, M_N2, M_O2) => {
@@ -145,7 +148,7 @@ const h_fumee_incine = (T, m_CO2, m_H2O, M_N2, M_O2) => {
 
 
 export const Qeau_added_to_be_at_T = (T_in, T_eau, T_out, Pth, m_CO2, m_H2O, M_N2, M_O2) => {
-  let H_in_quench, H_out_quench, Delta_H, Q_eau_kg_h;
+  let H_in_quench, H_out_quench, Delta_H, Q_eau;
 
   H_in_quench = h_fumee(T_in, m_CO2, m_H2O, M_N2, M_O2);
   H_out_quench = h_fumee(T_out, m_CO2, m_H2O, M_N2, M_O2);
@@ -159,9 +162,9 @@ export const Qeau_added_to_be_at_T = (T_in, T_eau, T_out, Pth, m_CO2, m_H2O, M_N
   }
 
   Delta_H = H_in_quench * (1 - Pth / 100) - H_out_quench;
-  Q_eau_kg_h = Delta_H / (fh_H2O(T_out) - hL_T(T_eau) + 540 * 4.1868);
+  Q_eau = Delta_H / (fh_H2O(T_out) - hL_T(T_eau) + 540 * 4.1868);
 
-  return Q_eau_kg_h + qeau_ajout;
+  return Q_eau + qeau_ajout;
 };
 
 export const temp_after_add_wat = (qeau_ajout, T_eau, T_flue_gas, m_CO2, m_H2O, M_N2, M_O2) => {

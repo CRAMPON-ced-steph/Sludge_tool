@@ -10,9 +10,9 @@ const TurbineCalculator = ({ innerData, setInnerData, currentLanguage = 'fr' }) 
 
   const [parameters, setParameters] = useState({
     turbineType: 'contrepression',
-    debitVapeur: innerData?.Q_steam_kg_h / 1000 || 1000,
-    pressionEntree: innerData?.Pression_vapeur_bar || 10,
-    temperatureEntree: innerData?.Temperature_vapeur_C || 180,
+    debitVapeur: innerData?.Q_steam / 1000 || 1000,
+    pressionEntree: innerData?.Pression_vapeur || 10,
+    temperatureEntree: innerData?.Temperature_vapeur || 180,
     pressionSortie: 3,
     temperatureAmbiante: 25,
     rendementTurbine: 85,
@@ -188,18 +188,18 @@ const TurbineCalculator = ({ innerData, setInnerData, currentLanguage = 'fr' }) 
           setInnerData(prev => ({
             ...prev,
             turbine_type: 'sansTurbine',
-            niveau1_pression_bar: parameters.niveau1Pression,
-            niveau1_debit_kg_h: niveaux[0].debitKgH,
+            niveau1_pression: parameters.niveau1Pression,
+            niveau1_debit: niveaux[0].debitKgH,
             niveau1_debit_pct: parameters.niveau1Debit,
-            niveau2_pression_bar: parameters.niveau2Pression,
-            niveau2_debit_kg_h: niveaux[1].debitKgH,
+            niveau2_pression: parameters.niveau2Pression,
+            niveau2_debit: niveaux[1].debitKgH,
             niveau2_debit_pct: parameters.niveau2Debit,
-            niveau3_pression_bar: parameters.niveau3Pression,
-            niveau3_debit_kg_h: niveaux[2].debitKgH,
+            niveau3_pression: parameters.niveau3Pression,
+            niveau3_debit: niveaux[2].debitKgH,
             niveau3_debit_pct: parameters.niveau3Debit,
             total_debit_pct: resultats.totalDebitPct,
-            puissance_electrique_kW: 0,
-            puissance_electrique_MW: 0
+            puissance_electrique: 0,
+            puissance_electrique_mega: 0
           }));
         }
 
@@ -313,25 +313,25 @@ const TurbineCalculator = ({ innerData, setInnerData, currentLanguage = 'fr' }) 
         setInnerData(prev => ({
           ...prev,
           turbine_type: parameters.turbineType,
-          puissance_electrique_kW: Math.round(puissanceElectrique),
-          puissance_electrique_MW: Math.round(puissanceElectrique / 1000 * 100) / 100,
-          puissance_mecanique_kW: Math.round(puissanceMecanique),
-          puissance_mecanique_MW: Math.round(puissanceMecanique / 1000 * 100) / 100,
-          travail_specifique_kJ_kg: Math.round(travailSpecifiqueTotal * 100) / 100,
+          puissance_electrique: Math.round(puissanceElectrique),
+          puissance_electrique_mega: Math.round(puissanceElectrique / 1000 * 100) / 100,
+          puissance_mecanique: Math.round(puissanceMecanique),
+          puissance_mecanique_mega: Math.round(puissanceMecanique / 1000 * 100) / 100,
+          travail_specifique: Math.round(travailSpecifiqueTotal * 100) / 100,
           rendement_global_pct: Math.round(rendementGlobal * 100 * 100) / 100,
           consommation_specifique_kg_kWh: Math.round(consommationSpecifique * 100) / 100,
-          pression_entree_bar: parameters.pressionEntree,
-          pression_sortie_bar: parameters.pressionSortie,
-          temperature_entree_C: parameters.temperatureEntree,
-          debit_vapeur_kg_h: debitKgH,
-          debit_vapeur_t_h: parameters.debitVapeur,
+          pression_entree: parameters.pressionEntree,
+          pression_sortie: parameters.pressionSortie,
+          temperature_entree: parameters.temperatureEntree,
+          debit_vapeur: debitKgH,
+          debit_vapeur_ton: parameters.debitVapeur,
           nb_soutirages_actifs: soutirages.length,
           ...(soutirages.length > 0 && {
             soutirages_data: soutirages.map(s => ({
               nom: s.nom,
-              pression_bar: s.pression,
-              temperature_C: Math.round(s.temperature),
-              debit_kg_h: Math.round(s.debitKgH),
+              pression: s.pression,
+              temperature: Math.round(s.temperature),
+              debit: Math.round(s.debitKgH),
               debit_pct: s.debitPct
             }))
           })

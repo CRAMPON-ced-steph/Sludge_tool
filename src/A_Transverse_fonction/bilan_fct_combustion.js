@@ -1,11 +1,14 @@
 
 import { psat_T } from './steam_table3';
 
+// All variables below are in SI units internally.
+// Use toSI() on input, fromSI() on output, label() for display.
 
 
 
-// Function to calculate cv_kj_kg
-export const cv_kj_kg = (C, H, O, N, S, Cl) => {
+
+// Function to calculate cv_kj
+export const cv_kj = (C, H, O, N, S, Cl) => {
   return 4.1868 * (84 * C + (277.65 - 54) * H - 26.5 * O + 25 * S + 15 * N - 5.5 * Cl);
 };
 

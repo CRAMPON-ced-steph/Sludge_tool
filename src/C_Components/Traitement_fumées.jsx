@@ -3,7 +3,7 @@ import PollutantCalculator from '../C_Components/Tableau_polluants';
 import { R_1, R_2, R_3 } from '../A_Transverse_fonction/FGT_fct';
 import TableGeneric from '../C_Components/Tableau_generique';
 
-const FGT = ({ masses, innerData,Debit_fumees_sec_Nm3_h,  O2_mesure,O2_ref }) => {
+const FGT = ({ masses, innerData,Debit_fumees_sec,  O2_mesure,O2_ref }) => {
 
   const parseStoredValue = (key, defaultValue) => {
     const storedValue = localStorage.getItem(key);
@@ -21,7 +21,7 @@ const FGT = ({ masses, innerData,Debit_fumees_sec_Nm3_h,  O2_mesure,O2_ref }) =>
 
   useEffect(() => {
     calculateConsumptions();
-  }, [sncr, noxTarget, coefStoechio, mercuryTreatment, brHgRatio, masses, Debit_fumees_sec_Nm3_h]);
+  }, [sncr, noxTarget, coefStoechio, mercuryTreatment, brHgRatio, masses, Debit_fumees_sec]);
 
   useEffect(() => {
     localStorage.setItem("sncr", JSON.stringify(sncr));
@@ -32,10 +32,10 @@ const FGT = ({ masses, innerData,Debit_fumees_sec_Nm3_h,  O2_mesure,O2_ref }) =>
   }, [sncr, noxTarget, coefStoechio, mercuryTreatment, brHgRatio]);
 
   const calculateConsumptions = () => {
-    const noxInitial = parseFloat(masses.NOx) * 1e6 /Debit_fumees_sec_Nm3_h || 0;
+    const noxInitial = parseFloat(masses.NOx) * 1e6 /Debit_fumees_sec || 0;
 
     if (sncr === "oui") {
-      const noxReduction = (noxInitial - noxTarget) * Debit_fumees_sec_Nm3_h / 1e6;
+      const noxReduction = (noxInitial - noxTarget) * Debit_fumees_sec / 1e6;
       const ammoniaConsumptionValue = coefStoechio * Math.max(noxReduction, 0);
       setAmmoniaConsumption(ammoniaConsumptionValue);
     } else {
@@ -228,7 +228,7 @@ const FGT = ({ masses, innerData,Debit_fumees_sec_Nm3_h,  O2_mesure,O2_ref }) =>
     HF: innerData.HF ? masses.HF - innerData.HF.mass_reduction : masses.HF,
     SO2: innerData.SOx ? masses.SO2 - innerData.SOx.mass_reduction : masses.SO2,
     N2 : masses.N2,
-    NOx: sncr === "oui" ? (noxTarget*Debit_fumees_sec_Nm3_h)/1e6 : masses.NOx,
+    NOx: sncr === "oui" ? (noxTarget*Debit_fumees_sec)/1e6 : masses.NOx,
     //NOx: masses.NOx || 0,
     CO2: masses.CO2 || 0,
     NH3: masses.NH3 || 0,
@@ -454,7 +454,7 @@ const FGT = ({ masses, innerData,Debit_fumees_sec_Nm3_h,  O2_mesure,O2_ref }) =>
         masses={masses_pollutant_output}
         O2_mesure={O2_mesure}
         O2_ref={O2_ref}
-        Debit_fumees_sec_Nm3_h={Debit_fumees_sec_Nm3_h}
+        Debit_fumees_sec={Debit_fumees_sec}
       />
   
 

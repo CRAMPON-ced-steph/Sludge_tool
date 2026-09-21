@@ -1,4 +1,7 @@
-export const calculatePCI_kcal_kg = (MS, MV, PCI) => {
+// All variables below are in SI units internally.
+// Use toSI() on input, fromSI() on output, label() for display.
+
+export const calculatePCI = (MS, MV, PCI) => {
   return (MS / 100) * (MV / 100) * PCI - ((1 - MS / 100) * 598);
 };
 
@@ -46,8 +49,8 @@ const PCS_kcal_kgMV = (PCI_kcal_kgMV, H) => {
 
 // H vlaeur en % de l'H2O
 
-const PCS_kcal_kg = (PCI_kcal_kg, MS, MV, H) => {
-  return PCI_kcal_kg + 598 * (9 * MS / 100 * MV / 100 * H / 100 + (100 - MS) / 100);
+const PCS = (PCI, MS, MV, H) => {
+  return PCI + 598 * (9 * MS / 100 * MV / 100 * H / 100 + (100 - MS) / 100);
 };
 
 const density_combustible = (type_comb) => {

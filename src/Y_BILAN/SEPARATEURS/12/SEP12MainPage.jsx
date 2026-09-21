@@ -25,7 +25,7 @@ const SEP12MainPage = ({ nodeData, title, onSendData, onClose, onGoBack, current
     try {
       const dataToSend = {
         result: {
-          FG_OUT_kg_h: innerData['FG_OUT_kg_h'] || { CO2: 0, H2O: 0, O2: 0, N2: 0 },
+          FG_OUT: innerData['FG_OUT'] || { CO2: 0, H2O: 0, O2: 0, N2: 0 },
           T_OUT: innerData['T_OUT'] ?? 0,
           FG_flux2: innerData['FG_flux2'] || { CO2: 0, H2O: 0, O2: 0, N2: 0 },
           pct_flux1_SEP12: innerData['pct_flux1_SEP12'] ?? 50,

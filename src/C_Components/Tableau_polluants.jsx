@@ -3,7 +3,7 @@ import {conv_O2_ref} from '../A_Transverse_fonction/conv_calculation';
 import {molarMasses} from '../A_Transverse_fonction/constantes';
 
 
-const PollutantCalculator = ({ masses, O2_mesure, O2_ref,Debit_fumees_sec_Nm3_h}) => {
+const PollutantCalculator = ({ masses, O2_mesure, O2_ref,Debit_fumees_sec}) => {
   const calculatePollutans = (masses) => {
     const pollutant_initial_mass = {
       HCl: parseFloat(masses.HCl) || 0,
@@ -26,20 +26,20 @@ const PollutantCalculator = ({ masses, O2_mesure, O2_ref,Debit_fumees_sec_Nm3_h}
 
 
     const pollutant_concentration= {
-      HCl: parseFloat(masses.HCl)*1e6/Debit_fumees_sec_Nm3_h || 0,
-      HF: parseFloat(masses.HF)*1e6/Debit_fumees_sec_Nm3_h  || 0,
-      Cl: parseFloat(masses.Cl)*1e6/Debit_fumees_sec_Nm3_h  || 0,
-      S: parseFloat(masses.S)*1e6/Debit_fumees_sec_Nm3_h  || 0,
-      SO2: parseFloat(masses.SO2)*1e6/Debit_fumees_sec_Nm3_h  || 0,
-      N2: parseFloat(masses.N2)*1e6/Debit_fumees_sec_Nm3_h  || 0,
-      NOx: parseFloat(masses.NOx)*1e6/Debit_fumees_sec_Nm3_h  || 0,
-      CO2: parseFloat(masses.CO2)*1e6/Debit_fumees_sec_Nm3_h  || 0,
-      NH3: parseFloat(masses.CO2)*1e6/Debit_fumees_sec_Nm3_h  || 0,
-      DustFlyAsh: parseFloat(masses.DustFlyAsh)*1e6/Debit_fumees_sec_Nm3_h  || 0,
-      Mercury: parseFloat(masses.Mercury)*1e6/Debit_fumees_sec_Nm3_h  || 0,
-      PCDDF: parseFloat(masses.PCDDF)*1e6/Debit_fumees_sec_Nm3_h  || 0,
-      Cd_Ti: parseFloat(masses.Cd_Ti)*1e6/Debit_fumees_sec_Nm3_h  || 0,
-      Sb_As_Pb_Cr_Co_Cu_Mn_Ni_V: parseFloat(masses.Sb_As_Pb_Cr_Co_Cu_Mn_Ni_V)*1e6/Debit_fumees_sec_Nm3_h  || 0,
+      HCl: parseFloat(masses.HCl)*1e6/Debit_fumees_sec || 0,
+      HF: parseFloat(masses.HF)*1e6/Debit_fumees_sec  || 0,
+      Cl: parseFloat(masses.Cl)*1e6/Debit_fumees_sec  || 0,
+      S: parseFloat(masses.S)*1e6/Debit_fumees_sec  || 0,
+      SO2: parseFloat(masses.SO2)*1e6/Debit_fumees_sec  || 0,
+      N2: parseFloat(masses.N2)*1e6/Debit_fumees_sec  || 0,
+      NOx: parseFloat(masses.NOx)*1e6/Debit_fumees_sec  || 0,
+      CO2: parseFloat(masses.CO2)*1e6/Debit_fumees_sec  || 0,
+      NH3: parseFloat(masses.CO2)*1e6/Debit_fumees_sec  || 0,
+      DustFlyAsh: parseFloat(masses.DustFlyAsh)*1e6/Debit_fumees_sec  || 0,
+      Mercury: parseFloat(masses.Mercury)*1e6/Debit_fumees_sec  || 0,
+      PCDDF: parseFloat(masses.PCDDF)*1e6/Debit_fumees_sec  || 0,
+      Cd_Ti: parseFloat(masses.Cd_Ti)*1e6/Debit_fumees_sec  || 0,
+      Sb_As_Pb_Cr_Co_Cu_Mn_Ni_V: parseFloat(masses.Sb_As_Pb_Cr_Co_Cu_Mn_Ni_V)*1e6/Debit_fumees_sec  || 0,
     };
 
 

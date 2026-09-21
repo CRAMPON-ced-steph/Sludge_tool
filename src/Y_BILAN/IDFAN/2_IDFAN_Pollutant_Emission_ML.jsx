@@ -30,24 +30,24 @@ const IDFANFlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) =>
   const O2ref = emissions2['O2 ref [%]'];
 
   // Input data with fallback values
-  const Debit_fumees_humide_Nm3_h = innerData?.FG_humide_tot || 1;
-  const Debit_fumees_sec_Nm3_h = innerData?.FG_sec_tot || 1;
+  const Debit_fumees_humide = innerData?.FG_humide_tot || 1;
+  const Debit_fumees_sec = innerData?.FG_sec_tot || 1;
   const FG_O2_calcule = innerData?.O2calcul || 12;
   const masse_dechets = innerData?.MasseDechet || 1;
-  const Inert_kg_h = innerData?.Inertmass || 0;
+  const Inert = innerData?.Inertmass || 0;
 
   const masses_pollutant_input = innerData?.PollutantOutput || {};
 
   const Residus_IN = innerData?.ResidusOutput || {
-    FlyAsh_kg_h: 0,
+    FlyAsh: 0,
     mass_residus_tot: 0,
-    WetBottomAsh_kg_h: 0
+    WetBottomAsh: 0
   };
 
   // Calculate ash flows
-  const Fly_ash_in_kg_h = Residus_IN.FlyAsh_kg_h;
-  const Fly_ash_out_kg_h = Debit_fumees_sec_Nm3_h * FlyAsh_g_Nm3 / 1000;
-  const IDFAN_Ash_kg_h = Fly_ash_in_kg_h - Fly_ash_out_kg_h;
+  const Fly_ash_in = Residus_IN.FlyAsh;
+  const Fly_ash_out = Debit_fumees_sec * FlyAsh_g_Nm3 / 1000;
+  const IDFAN_Ash = Fly_ash_in - Fly_ash_out;
 
   // Output pollutant composition
   const masses_pollutant_output = {
@@ -58,9 +58,9 @@ const IDFANFlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) =>
     SO2: masses_pollutant_input.SO2,
     N2: masses_pollutant_input.N2,
     NOx: masses_pollutant_input.NOx,
-    CO2: innerData?.FG_OUT_kg_h?.CO2 || 0,
+    CO2: innerData?.FG_OUT?.CO2 || 0,
     NH3: 0,
-    DustFlyAsh: Fly_ash_out_kg_h,
+    DustFlyAsh: Fly_ash_out,
     Mercury: masses_pollutant_input.Mercury,
     PCDDF: masses_pollutant_input.PCDDF,
     Cd_Ti: masses_pollutant_input.CdTi,
@@ -69,22 +69,22 @@ const IDFANFlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) =>
 
   // Update innerData with calculated values
   if (innerData) {
-    innerData.IDFAN_Ash_kg_h = IDFAN_Ash_kg_h;
-    innerData.Fly_ash_out_kg_h = Fly_ash_out_kg_h;
+    innerData.IDFAN_Ash = IDFAN_Ash;
+    innerData.Fly_ash_out = Fly_ash_out;
     innerData.PollutantOutput_IDFAN = masses_pollutant_output;
   }
 
   const elementsGeneric = [
     { text: t('Waste Flow [kg/h]'), value: masse_dechets.toFixed(2) },
-    { text: t('Flue gas Flow Wet [Nm3/h]'), value: Debit_fumees_humide_Nm3_h.toFixed(0) },
-    { text: t('Flue gas Flow Dry [Nm3/h]'), value: Debit_fumees_sec_Nm3_h.toFixed(0) },
+    { text: t('Flue gas Flow Wet [Nm3/h]'), value: Debit_fumees_humide.toFixed(0) },
+    { text: t('Flue gas Flow Dry [Nm3/h]'), value: Debit_fumees_sec.toFixed(0) },
     { text: t('O2 calculated [%]'), value: FG_O2_calcule.toFixed(2) },
-    { text: t('Fly ash inlet [kg/h]'), value: Fly_ash_in_kg_h.toFixed(3) },
-    { text: t('Fly ash outlet [kg/h]'), value: Fly_ash_out_kg_h.toFixed(3) },
+    { text: t('Fly ash inlet [kg/h]'), value: Fly_ash_in.toFixed(3) },
+    { text: t('Fly ash outlet [kg/h]'), value: Fly_ash_out.toFixed(3) },
   ];
 
   const residusCalculations = [
-    { text: t('IDFAN ash collected [kg/h]'), value: IDFAN_Ash_kg_h.toFixed(3) },
+    { text: t('IDFAN ash collected [kg/h]'), value: IDFAN_Ash.toFixed(3) },
   ];
 
   const handleChange = (name, value) => {
@@ -177,7 +177,7 @@ const IDFANFlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) =>
         masses={masses_pollutant_input}
         O2_mesure={FG_O2_calcule}
         O2_ref={O2ref}
-        Debit_fumees_sec_Nm3_h={Debit_fumees_sec_Nm3_h}
+        Debit_fumees_sec={Debit_fumees_sec}
       />
 
       <h4>{t('Output flue gas')}</h4>
@@ -185,7 +185,7 @@ const IDFANFlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) =>
         masses={masses_pollutant_output}
         O2_mesure={FG_O2_calcule}
         O2_ref={O2ref}
-        Debit_fumees_sec_Nm3_h={Debit_fumees_sec_Nm3_h}
+        Debit_fumees_sec={Debit_fumees_sec}
       />
 
       <h3>{t('Residues calculated')}</h3>

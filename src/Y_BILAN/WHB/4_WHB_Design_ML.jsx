@@ -42,12 +42,12 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
   const stepMmTranslationKey = 'Step_mm';
 
   const [parametres, setParametres] = useState({
-    T_fumee_init_C: innerData?.T_inlet_WHB || 0,
-    CO2_kg: parseFloat(innerData?.FG_OUT_kg_h?.CO2?.toFixed(2)) || 0,
-    H2O_kg: parseFloat(innerData?.FG_OUT_kg_h?.H2O?.toFixed(2)) || 0,
-    N2_kg: parseFloat(innerData?.FG_OUT_kg_h?.N2?.toFixed(2)) || 0,
-    O2_kg: parseFloat(innerData?.FG_OUT_kg_h?.O2?.toFixed(2)) || 0,
-    CO_kg: 0,
+    T_fumee_init: innerData?.T_inlet_WHB || 0,
+    CO2: parseFloat(innerData?.FG_OUT?.CO2?.toFixed(2)) || 0,
+    H2O: parseFloat(innerData?.FG_OUT?.H2O?.toFixed(2)) || 0,
+    N2: parseFloat(innerData?.FG_OUT?.N2?.toFixed(2)) || 0,
+    O2: parseFloat(innerData?.FG_OUT?.O2?.toFixed(2)) || 0,
+    CO: 0,
     step_mm: 100,
     Height_pass1: 20.2,
     Wide_pass1: 10.1,
@@ -262,18 +262,18 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
   };
 
   // ===== FONCTIONS UTILITAIRES =====
-  const calculerFractionsMolaires = (CO2_kg, H2O_kg, CO_kg, N2_kg, O2_kg) => {
+  const calculerFractionsMolaires = (CO2, H2O, CO, N2, O2) => {
     const M_CO2 = 44.01;
     const M_H2O = 18.015;
     const M_CO = 28.01;
     const M_N2 = 28.014;
     const M_O2 = 31.998;
 
-    const n_CO2 = CO2_kg / M_CO2;
-    const n_H2O = H2O_kg / M_H2O;
-    const n_CO = CO_kg / M_CO;
-    const n_N2 = N2_kg / M_N2;
-    const n_O2 = O2_kg / M_O2;
+    const n_CO2 = CO2 / M_CO2;
+    const n_H2O = H2O / M_H2O;
+    const n_CO = CO / M_CO;
+    const n_N2 = N2 / M_N2;
+    const n_O2 = O2 / M_O2;
     const n_total = n_CO2 + n_H2O + n_CO + n_N2 + n_O2;
 
     return {
@@ -285,12 +285,12 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
     };
   };
 
-  const Emissivite_fumee = (Tfumee, Height_pass, Wide_pass, Lenght_pass, CO2_kg, H2O_kg, CO_kg, N2_kg, O2_kg) => {
+  const Emissivite_fumee = (Tfumee, Height_pass, Wide_pass, Lenght_pass, CO2, H2O, CO, N2, O2) => {
     const V = Height_pass * Wide_pass * Lenght_pass;
     const A = Height_pass * 2 * (Wide_pass + Lenght_pass);
     const L_optique = 3.6 * V / A * 1000;
 
-    const fractions = calculerFractionsMolaires(CO2_kg, H2O_kg, CO_kg, N2_kg, O2_kg);
+    const fractions = calculerFractionsMolaires(CO2, H2O, CO, N2, O2);
 
     let T_epsilon = Tfumee;
     let epsilon = FG_emissivity(T_epsilon, L_optique, fractions.frac_mol_CO2, fractions.frac_mol_H2O, fractions.frac_mol_CO);
@@ -310,17 +310,17 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
     return Tfumee_in - (H_cedee_par_radiation / H_fume_init) * Tfumee_in;
   };
 
-  const h_fumee = (temperature, CO2_kg, H2O_kg, O2_kg, N2_kg, CO_kg) => {
+  const h_fumee = (temperature, CO2, H2O, O2, N2, CO) => {
     const cp_CO2 = 0.846 + 6.9e-4 * temperature;
     const cp_H2O = 1.86 + 1.0e-3 * temperature;
     const cp_O2 = 0.918 + 1.5e-4 * temperature;
     const cp_N2 = 1.040 + 1.0e-4 * temperature;
     const cp_CO = 1.040 + 1.0e-4 * temperature;
 
-    const masse_totale = CO2_kg + H2O_kg + O2_kg + N2_kg + CO_kg;
+    const masse_totale = CO2 + H2O + O2 + N2 + CO;
     if (masse_totale === 0) return 0;
 
-    const cp_moyen = (CO2_kg * cp_CO2 + H2O_kg * cp_H2O + O2_kg * cp_O2 + N2_kg * cp_N2 + CO_kg * cp_CO) / masse_totale;
+    const cp_moyen = (CO2 * cp_CO2 + H2O * cp_H2O + O2 * cp_O2 + N2 * cp_N2 + CO * cp_CO) / masse_totale;
     return masse_totale * cp_moyen * temperature;
   };
 
@@ -330,7 +330,7 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
       setErreur('');
 
       const {
-        T_fumee_init_C, CO2_kg, H2O_kg, N2_kg, O2_kg, CO_kg, step_mm,
+        T_fumee_init, CO2, H2O, N2, O2, CO, step_mm,
         Height_pass1, Wide_pass1, Lenght_pass1,
         Height_pass2, Wide_pass2, Lenght_pass2,
         Height_pass3, Wide_pass3, Lenght_pass3,
@@ -338,7 +338,7 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
       } = parametres;
 
       const step = step_mm / 1000;
-      const H_in = h_fumee(T_fumee_init_C, CO2_kg, H2O_kg, O2_kg, N2_kg, CO_kg);
+      const H_in = h_fumee(T_fumee_init, CO2, H2O, O2, N2, CO);
 
       const resultatsPassages = [];
       const donneesGraph = [];
@@ -366,12 +366,12 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
           data.heat_exchanged = 0;
           data.H_end_section = H_in;
           data.emissivity = 0;
-          data.T_end_section = T_fumee_init_C;
+          data.T_end_section = T_fumee_init;
           data.position = position_cumulative;
         } else {
           const prev = pass1_data[i - 2];
           data.step = prev.step + step;
-          data.emissivity = Emissivite_fumee(prev.T_end_section, Height_pass1, Wide_pass1, Lenght_pass1, CO2_kg, H2O_kg, CO_kg, N2_kg, O2_kg);
+          data.emissivity = Emissivite_fumee(prev.T_end_section, Height_pass1, Wide_pass1, Lenght_pass1, CO2, H2O, CO, N2, O2);
           data.heat_exchanged = H_cedee_par_radiation(surface_radiente1_m2, data.emissivity, prev.T_end_section);
           data.H_end_section = prev.H_end_section - data.heat_exchanged;
           data.T_end_section = Tend_section(prev.T_end_section, data.heat_exchanged, prev.H_end_section);
@@ -391,7 +391,7 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
       position_cumulative += Height_pass1;
 
       // PASSAGE 2
-      const T_fumee_init_pass2_C = pass1_data[pass1_data.length - 1].T_end_section;
+      const T_fumee_init_pass2 = pass1_data[pass1_data.length - 1].T_end_section;
       const H_fumee_init_pass2 = pass1_data[pass1_data.length - 1].H_end_section;
       const perimetre2_m = (Wide_pass2 + Lenght_pass2) * 2;
       const surface_radiente2_m2 = step * perimetre2_m;
@@ -411,15 +411,15 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
 
         if (i === 1) {
           data.step = step;
-          data.emissivity = Emissivite_fumee(T_fumee_init_pass2_C, Height_pass2, Wide_pass2, Lenght_pass2, CO2_kg, H2O_kg, CO_kg, N2_kg, O2_kg);
-          data.heat_exchanged = H_cedee_par_radiation(surface_radiente2_m2, data.emissivity, T_fumee_init_pass2_C);
+          data.emissivity = Emissivite_fumee(T_fumee_init_pass2, Height_pass2, Wide_pass2, Lenght_pass2, CO2, H2O, CO, N2, O2);
+          data.heat_exchanged = H_cedee_par_radiation(surface_radiente2_m2, data.emissivity, T_fumee_init_pass2);
           data.H_end_section = H_fumee_init_pass2 - data.heat_exchanged;
-          data.T_end_section = Tend_section(T_fumee_init_pass2_C, data.heat_exchanged, H_fumee_init_pass2);
+          data.T_end_section = Tend_section(T_fumee_init_pass2, data.heat_exchanged, H_fumee_init_pass2);
           data.position = position_cumulative + data.step;
         } else {
           const prev = pass2_data[i - 2];
           data.step = prev.step + step;
-          data.emissivity = Emissivite_fumee(prev.T_end_section, Height_pass2, Wide_pass2, Lenght_pass2, CO2_kg, H2O_kg, CO_kg, N2_kg, O2_kg);
+          data.emissivity = Emissivite_fumee(prev.T_end_section, Height_pass2, Wide_pass2, Lenght_pass2, CO2, H2O, CO, N2, O2);
           data.heat_exchanged = H_cedee_par_radiation(surface_radiente2_m2, data.emissivity, prev.T_end_section);
           data.H_end_section = prev.H_end_section - data.heat_exchanged;
           data.T_end_section = Tend_section(prev.T_end_section, data.heat_exchanged, prev.H_end_section);
@@ -439,7 +439,7 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
       position_cumulative += Height_pass2;
 
       // PASSAGE 3
-      const T_fumee_init_pass3_C = pass2_data[pass2_data.length - 1].T_end_section;
+      const T_fumee_init_pass3 = pass2_data[pass2_data.length - 1].T_end_section;
       const H_fumee_init_pass3 = pass2_data[pass2_data.length - 1].H_end_section;
       const perimetre3_m = (Wide_pass3 + Lenght_pass3) * 2;
       const surface_radiente3_m2 = step * perimetre3_m;
@@ -459,15 +459,15 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
 
         if (i === 1) {
           data.step = step;
-          data.emissivity = Emissivite_fumee(T_fumee_init_pass3_C, Height_pass3, Wide_pass3, Lenght_pass3, CO2_kg, H2O_kg, CO_kg, N2_kg, O2_kg);
-          data.heat_exchanged = H_cedee_par_radiation(surface_radiente3_m2, data.emissivity, T_fumee_init_pass3_C);
+          data.emissivity = Emissivite_fumee(T_fumee_init_pass3, Height_pass3, Wide_pass3, Lenght_pass3, CO2, H2O, CO, N2, O2);
+          data.heat_exchanged = H_cedee_par_radiation(surface_radiente3_m2, data.emissivity, T_fumee_init_pass3);
           data.H_end_section = H_fumee_init_pass3 - data.heat_exchanged;
-          data.T_end_section = Tend_section(T_fumee_init_pass3_C, data.heat_exchanged, H_fumee_init_pass3);
+          data.T_end_section = Tend_section(T_fumee_init_pass3, data.heat_exchanged, H_fumee_init_pass3);
           data.position = position_cumulative + data.step;
         } else {
           const prev = pass3_data[i - 2];
           data.step = prev.step + step;
-          data.emissivity = Emissivite_fumee(prev.T_end_section, Height_pass3, Wide_pass3, Lenght_pass3, CO2_kg, H2O_kg, CO_kg, N2_kg, O2_kg);
+          data.emissivity = Emissivite_fumee(prev.T_end_section, Height_pass3, Wide_pass3, Lenght_pass3, CO2, H2O, CO, N2, O2);
           data.heat_exchanged = H_cedee_par_radiation(surface_radiente3_m2, data.emissivity, prev.T_end_section);
           data.H_end_section = prev.H_end_section - data.heat_exchanged;
           data.T_end_section = Tend_section(prev.T_end_section, data.heat_exchanged, prev.H_end_section);
@@ -486,8 +486,8 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
 
       // CALCUL DES PERFORMANCES
       const temperature_finale = pass3_data[pass3_data.length - 1].T_end_section;
-      const chute_temperature = T_fumee_init_C - temperature_finale;
-      const efficacite_thermique = (chute_temperature / T_fumee_init_C) * 100;
+      const chute_temperature = T_fumee_init - temperature_finale;
+      const efficacite_thermique = (chute_temperature / T_fumee_init) * 100;
 
       const chaleur_totale_recuperee = donneesGraph.reduce((sum, point) => sum + (point.heat_exchanged || 0), 0);
 
@@ -498,9 +498,9 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
 
       resultatsPassages.push({
         nom: t('pressureLevel1'),
-        temperature_entree: T_fumee_init_C,
+        temperature_entree: T_fumee_init,
         temperature_sortie: pass1_data[pass1_data.length - 1].T_end_section,
-        chute_temperature: T_fumee_init_C - pass1_data[pass1_data.length - 1].T_end_section,
+        chute_temperature: T_fumee_init - pass1_data[pass1_data.length - 1].T_end_section,
         surface_echange: surface_totale_pass1,
         chaleur_recuperee: pass1_data.reduce((sum, d) => sum + d.heat_exchanged, 0),
         emissivite_moyenne: pass1_data.length > 0 ? pass1_data.reduce((sum, d) => sum + d.emissivity, 0) / pass1_data.length : 0
@@ -508,9 +508,9 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
 
       resultatsPassages.push({
         nom: t('pressureLevel2'),
-        temperature_entree: T_fumee_init_pass2_C,
+        temperature_entree: T_fumee_init_pass2,
         temperature_sortie: pass2_data[pass2_data.length - 1].T_end_section,
-        chute_temperature: T_fumee_init_pass2_C - pass2_data[pass2_data.length - 1].T_end_section,
+        chute_temperature: T_fumee_init_pass2 - pass2_data[pass2_data.length - 1].T_end_section,
         surface_echange: surface_totale_pass2,
         chaleur_recuperee: pass2_data.reduce((sum, d) => sum + d.heat_exchanged, 0),
         emissivite_moyenne: pass2_data.length > 0 ? pass2_data.reduce((sum, d) => sum + d.emissivity, 0) / pass2_data.length : 0
@@ -518,9 +518,9 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
 
       resultatsPassages.push({
         nom: t('pressureLevel3'),
-        temperature_entree: T_fumee_init_pass3_C,
+        temperature_entree: T_fumee_init_pass3,
         temperature_sortie: pass3_data[pass3_data.length - 1].T_end_section,
-        chute_temperature: T_fumee_init_pass3_C - pass3_data[pass3_data.length - 1].T_end_section,
+        chute_temperature: T_fumee_init_pass3 - pass3_data[pass3_data.length - 1].T_end_section,
         surface_echange: surface_totale_pass3,
         chaleur_recuperee: pass3_data.reduce((sum, d) => sum + d.heat_exchanged, 0),
         emissivite_moyenne: pass3_data.length > 0 ? pass3_data.reduce((sum, d) => sum + d.emissivity, 0) / pass3_data.length : 0
@@ -528,20 +528,20 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
 
       // CALCUL DES ÉCHANGEURS SUPPLÉMENTAIRES
       const deltaT_surchauffeur = temperature_finale - T_apres_surchauffeur;
-      const H_avant_surchauffeur = h_fumee(temperature_finale, CO2_kg, H2O_kg, O2_kg, N2_kg, CO_kg);
-      const H_apres_surchauffeur = h_fumee(T_apres_surchauffeur, CO2_kg, H2O_kg, O2_kg, N2_kg, CO_kg);
+      const H_avant_surchauffeur = h_fumee(temperature_finale, CO2, H2O, O2, N2, CO);
+      const H_apres_surchauffeur = h_fumee(T_apres_surchauffeur, CO2, H2O, O2, N2, CO);
       const Q_surchauffeur = H_avant_surchauffeur - H_apres_surchauffeur;
 
       const deltaT_echangeur = T_apres_surchauffeur - T_apres_echangeur;
-      const H_apres_echangeur = h_fumee(T_apres_echangeur, CO2_kg, H2O_kg, O2_kg, N2_kg, CO_kg);
+      const H_apres_echangeur = h_fumee(T_apres_echangeur, CO2, H2O, O2, N2, CO);
       const Q_echangeur = H_apres_surchauffeur - H_apres_echangeur;
 
       const deltaT_economiseur = T_apres_echangeur - T_apres_economiseur;
-      const H_apres_economiseur = h_fumee(T_apres_economiseur, CO2_kg, H2O_kg, O2_kg, N2_kg, CO_kg);
+      const H_apres_economiseur = h_fumee(T_apres_economiseur, CO2, H2O, O2, N2, CO);
       const Q_economiseur = H_apres_echangeur - H_apres_economiseur;
 
       setResultats({
-        temperature_initiale: T_fumee_init_C,
+        temperature_initiale: T_fumee_init,
         temperature_finale: temperature_finale,
         chute_temperature: chute_temperature,
         efficacite_thermique: efficacite_thermique,
@@ -638,16 +638,16 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
   };
 
   const elements_eau_WHB = [
-    { text: t('waterPurgeLosses'), value: innerData?.Eau_purge_kg_h || 0 }
+    { text: t('waterPurgeLosses'), value: innerData?.Eau_purge || 0 }
   ];
-  const Eau_demin_m3_h = (innerData?.Eau_purge_kg_h || 0) / 1000;
+  const Eau_demin = (innerData?.Eau_purge || 0) / 1000;
 
-  const Q_eau_m3_h = innerData?.Debit_eau_m3_h || 0;
-  const Hmt = (innerData?.Pression_vapeur_bar || 0) + 20;
-  const P_pompe_alim_kW = Q_eau_m3_h * Hmt / (36 * 0.7);
+  const Q_eau = innerData?.Debit_eau || 0;
+  const Hmt = (innerData?.Pression_vapeur || 0) + 20;
+  const P_pompe_alim = Q_eau * Hmt / (36 * 0.7);
 
   const elements_Pompe_alim = [
-    { text: 'Puissance_pompe_alimentaire', value: P_pompe_alim_kW },
+    { text: 'Puissance_pompe_alimentaire', value: P_pompe_alim },
   ];
 
   const type_camion = '15t';
@@ -673,9 +673,9 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
       break;
   }
 
-  const Refidis_kg_h = innerData?.Boiler_ash || 0;
+  const Refidis = innerData?.Boiler_ash || 0;
 
-  const CO2_transport_refidis = CO2_transport_kg_km * distance_km * (Refidis_kg_h / 1000);
+  const CO2_transport_refidis = CO2_transport_kg_km * distance_km * (Refidis / 1000);
   const cout_transport_refidis = cout_transport_euro_km * distance_km;
 
   useEffect(() => {
@@ -685,7 +685,7 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
         return parseFloat(value.toPrecision(figures));
       };
 
-      const consoElec1 = P_pompe_alim_kW;
+      const consoElec1 = P_pompe_alim;
       const consoElec2 = 0;
       const consoElec3 = 0;
       const consoElec4 = 0;
@@ -701,28 +701,28 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
 
       const Conso_EauPotable_m3 = 0;
       const Conso_EauRefroidissement_m3 = 0;
-      const Conso_EauDemin_m3 = Eau_demin_m3_h;
+      const Conso_EauDemin_m3 = Eau_demin;
       const Conso_EauRiviere_m3 = 0;
       const Conso_EauAdoucie_m3 = 0;
 
-      const Conso_CaCO3_kg = innerData?.Conso_reactifs?.CaCO3 || 0;
-      const Conso_CaO_kg = innerData?.Conso_reactifs?.CaO || 0;
-      const Conso_CaOH2_dry_kg = innerData?.Conso_reactifs?.CaOH2_dry || 0;
-      const Conso_CaOH2_wet_kg = innerData?.Conso_reactifs?.CaOH2_wet || 0;
-      const Conso_NaOH_kg = innerData?.Conso_reactifs?.NaOH || 0;
-      const Conso_NaOHCO3_kg = innerData?.Conso_reactifs?.NaOHCO3 || 0;
-      const Conso_Ammonia_kg = innerData?.Conso_reactifs?.Ammonia || 0;
-      const Conso_NaBrCaBr2_kg = innerData?.Conso_reactifs?.NaBrCaBr2 || 0;
-      const Conso_CAP_kg = innerData?.Conso_reactifs?.CAP || 0;
+      const Conso_CaCO3 = innerData?.Conso_reactifs?.CaCO3 || 0;
+      const Conso_CaO = innerData?.Conso_reactifs?.CaO || 0;
+      const Conso_CaOH2_dry = innerData?.Conso_reactifs?.CaOH2_dry || 0;
+      const Conso_CaOH2_wet = innerData?.Conso_reactifs?.CaOH2_wet || 0;
+      const Conso_NaOH = innerData?.Conso_reactifs?.NaOH || 0;
+      const Conso_NaOHCO3 = innerData?.Conso_reactifs?.NaOHCO3 || 0;
+      const Conso_Ammonia = innerData?.Conso_reactifs?.Ammonia || 0;
+      const Conso_NaBrCaBr2 = innerData?.Conso_reactifs?.NaBrCaBr2 || 0;
+      const Conso_CAP = innerData?.Conso_reactifs?.CAP || 0;
 
-      const conso_gaz_H_MW = 0;
-      const conso_gaz_L_MW = 0;
-      const conso_gaz_Process_MW = 0;
+      const conso_gaz_H = 0;
+      const conso_gaz_L = 0;
+      const conso_gaz_Process = 0;
       const conso_fuel = 0;
 
-      const conso_incineration_ash_kg_h = 0;
-      const conso_boiler_ash_kg_h = Refidis_kg_h;
-      const conso_fly_ash_kg_h = 0;
+      const conso_incineration_ash = 0;
+      const conso_boiler_ash = Refidis;
+      const conso_fly_ash = 0;
 
       const CO2_transport_incineratino_ash = 0;
       const CO2_transport_boiler_ash = CO2_transport_refidis;
@@ -734,15 +734,15 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
       const cout_transport_fly_ash = 0;
       const cout_transport_reactifs = innerData?.Conso_reactifs?.cout || 0;
 
-      const production_electrique_kW = toSignificantFigures(Math.abs(innerData?.puissance_electrique_kW || 0));
-      const debit_vapeur_HP_th = toSignificantFigures(innerData?.debit_vapeur_HP_kg_h || 0);
-      const debit_vapeur_MP_th = toSignificantFigures(innerData?.debit_vapeur_MP_kg_h || 0);
-      const debit_vapeur_BP_th = toSignificantFigures(innerData?.debit_vapeur_BP_kg_h || 0);
+      const production_electrique = toSignificantFigures(Math.abs(innerData?.puissance_electrique || 0));
+      const debit_vapeur_HP_th = toSignificantFigures(innerData?.debit_vapeur_HP || 0);
+      const debit_vapeur_MP_th = toSignificantFigures(innerData?.debit_vapeur_MP || 0);
+      const debit_vapeur_BP_th = toSignificantFigures(innerData?.debit_vapeur_BP || 0);
 
-      const gain_production_electrique = toSignificantFigures(Math.abs(innerData?.puissance_electrique_kW || 0) / 1000) * sellingElectricityPrice;
-      const gain_debit_vapeur_HP = toSignificantFigures(innerData?.debit_vapeur_HP_kg_h || 0) / 1000 * steamPrices.highPressure;
-      const gain_debit_vapeur_MP = toSignificantFigures(innerData?.debit_vapeur_MP_kg_h || 0) / 1000 * steamPrices.lowPressure1;
-      const gain_debit_vapeur_BP = toSignificantFigures(innerData?.debit_vapeur_BP_kg_h || 0) / 1000 * steamPrices.lowPressure2;
+      const gain_production_electrique = toSignificantFigures(Math.abs(innerData?.puissance_electrique || 0) / 1000) * sellingElectricityPrice;
+      const gain_debit_vapeur_HP = toSignificantFigures(innerData?.debit_vapeur_HP || 0) / 1000 * steamPrices.highPressure;
+      const gain_debit_vapeur_MP = toSignificantFigures(innerData?.debit_vapeur_MP || 0) / 1000 * steamPrices.lowPressure1;
+      const gain_debit_vapeur_BP = toSignificantFigures(innerData?.debit_vapeur_BP || 0) / 1000 * steamPrices.lowPressure2;
 
       setInnerData(prevData => ({
         ...prevData,
@@ -762,22 +762,22 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
         Conso_EauDemin_m3,
         Conso_EauRiviere_m3,
         Conso_EauAdoucie_m3,
-        Conso_CaCO3_kg,
-        Conso_CaO_kg,
-        Conso_CaOH2_dry_kg,
-        Conso_CaOH2_wet_kg,
-        Conso_NaOH_kg,
-        Conso_NaOHCO3_kg,
-        Conso_Ammonia_kg,
-        Conso_NaBrCaBr2_kg,
+        Conso_CaCO3,
+        Conso_CaO,
+        Conso_CaOH2_dry,
+        Conso_CaOH2_wet,
+        Conso_NaOH,
+        Conso_NaOHCO3,
+        Conso_Ammonia,
+        Conso_NaBrCaBr2,
         truck15TPrice: cout_transport_reactifs,
-        conso_gaz_H_MW,
-        conso_gaz_L_MW,
-        conso_gaz_Process_MW,
+        conso_gaz_H,
+        conso_gaz_L,
+        conso_gaz_Process,
         conso_fuel,
-        conso_incineration_ash_kg_h,
-        conso_boiler_ash_kg_h,
-        conso_fly_ash_kg_h,
+        conso_incineration_ash,
+        conso_boiler_ash,
+        conso_fly_ash,
         CO2_transport_incineratino_ash,
         CO2_transport_boiler_ash,
         CO2_transport_fly_ash,
@@ -786,7 +786,7 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
         cout_transport_boiler_ash,
         cout_transport_fly_ash,
         cout_transport_reactifs,
-        production_electrique_kW,
+        production_electrique,
         debit_vapeur_HP_th,
         debit_vapeur_MP_th,
         debit_vapeur_BP_th,
@@ -799,9 +799,9 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
   }, [
     innerData,
     setInnerData,
-    P_pompe_alim_kW,
-    Eau_demin_m3_h,
-    Refidis_kg_h,
+    P_pompe_alim,
+    Eau_demin,
+    Refidis,
     CO2_transport_refidis,
     cout_transport_refidis
   ]);
@@ -827,8 +827,8 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
               <span style={styles.label}>{t('flueGasTemperatureInlet')} (°C)</span>
               <input
                 type="number"
-                value={parametres.T_fumee_init_C}
-                onChange={(e) => setParametres({...parametres, T_fumee_init_C: parseFloat(e.target.value) || 0})}
+                value={parametres.T_fumee_init}
+                onChange={(e) => setParametres({...parametres, T_fumee_init: parseFloat(e.target.value) || 0})}
                 style={styles.input}
               />
             </div>
@@ -837,8 +837,8 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
               <span style={styles.label}>CO₂ (kg/h)</span>
               <input
                 type="number"
-                value={parametres.CO2_kg}
-                onChange={(e) => setParametres({...parametres, CO2_kg: parseFloat(e.target.value) || 0})}
+                value={parametres.CO2}
+                onChange={(e) => setParametres({...parametres, CO2: parseFloat(e.target.value) || 0})}
                 style={styles.input}
               />
             </div>
@@ -847,8 +847,8 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
               <span style={styles.label}>H₂O (kg/h)</span>
               <input
                 type="number"
-                value={parametres.H2O_kg}
-                onChange={(e) => setParametres({...parametres, H2O_kg: parseFloat(e.target.value) || 0})}
+                value={parametres.H2O}
+                onChange={(e) => setParametres({...parametres, H2O: parseFloat(e.target.value) || 0})}
                 style={styles.input}
               />
             </div>
@@ -857,8 +857,8 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
               <span style={styles.label}>N₂ (kg/h)</span>
               <input
                 type="number"
-                value={parametres.N2_kg}
-                onChange={(e) => setParametres({...parametres, N2_kg: parseFloat(e.target.value) || 0})}
+                value={parametres.N2}
+                onChange={(e) => setParametres({...parametres, N2: parseFloat(e.target.value) || 0})}
                 style={styles.input}
               />
             </div>
@@ -867,8 +867,8 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
               <span style={styles.label}>O₂ (kg/h)</span>
               <input
                 type="number"
-                value={parametres.O2_kg}
-                onChange={(e) => setParametres({...parametres, O2_kg: parseFloat(e.target.value) || 0})}
+                value={parametres.O2}
+                onChange={(e) => setParametres({...parametres, O2: parseFloat(e.target.value) || 0})}
                 style={styles.input}
               />
             </div>
@@ -877,8 +877,8 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
               <span style={styles.label}>CO (kg/h)</span>
               <input
                 type="number"
-                value={parametres.CO_kg}
-                onChange={(e) => setParametres({...parametres, CO_kg: parseFloat(e.target.value) || 0})}
+                value={parametres.CO}
+                onChange={(e) => setParametres({...parametres, CO: parseFloat(e.target.value) || 0})}
                 style={styles.input}
               />
             </div>
@@ -887,7 +887,7 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
               <span style={styles.label}>frac_mol_CO₂</span>
               <input
                 type="text"
-                value={calculerFractionsMolaires(parametres.CO2_kg, parametres.H2O_kg, parametres.CO_kg, parametres.N2_kg, parametres.O2_kg).frac_mol_CO2.toFixed(4)}
+                value={calculerFractionsMolaires(parametres.CO2, parametres.H2O, parametres.CO, parametres.N2, parametres.O2).frac_mol_CO2.toFixed(4)}
                 readOnly
                 style={{...styles.input, backgroundColor: '#f0f0f0', color: '#666666'}}
               />
@@ -897,7 +897,7 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
               <span style={styles.label}>frac_mol_H₂O</span>
               <input
                 type="text"
-                value={calculerFractionsMolaires(parametres.CO2_kg, parametres.H2O_kg, parametres.CO_kg, parametres.N2_kg, parametres.O2_kg).frac_mol_H2O.toFixed(4)}
+                value={calculerFractionsMolaires(parametres.CO2, parametres.H2O, parametres.CO, parametres.N2, parametres.O2).frac_mol_H2O.toFixed(4)}
                 readOnly
                 style={{...styles.input, backgroundColor: '#f0f0f0', color: '#666666'}}
               />
@@ -907,7 +907,7 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
               <span style={styles.label}>frac_mol_CO</span>
               <input
                 type="text"
-                value={calculerFractionsMolaires(parametres.CO2_kg, parametres.H2O_kg, parametres.CO_kg, parametres.N2_kg, parametres.O2_kg).frac_mol_CO.toFixed(4)}
+                value={calculerFractionsMolaires(parametres.CO2, parametres.H2O, parametres.CO, parametres.N2, parametres.O2).frac_mol_CO.toFixed(4)}
                 readOnly
                 style={{...styles.input, backgroundColor: '#f0f0f0', color: '#666666'}}
               />
@@ -917,7 +917,7 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
               <span style={styles.label}>frac_mol_N₂</span>
               <input
                 type="text"
-                value={calculerFractionsMolaires(parametres.CO2_kg, parametres.H2O_kg, parametres.CO_kg, parametres.N2_kg, parametres.O2_kg).frac_mol_N2.toFixed(4)}
+                value={calculerFractionsMolaires(parametres.CO2, parametres.H2O, parametres.CO, parametres.N2, parametres.O2).frac_mol_N2.toFixed(4)}
                 readOnly
                 style={{...styles.input, backgroundColor: '#f0f0f0', color: '#666666'}}
               />
@@ -927,7 +927,7 @@ const WHBDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
               <span style={styles.label}>frac_mol_O₂</span>
               <input
                 type="text"
-                value={calculerFractionsMolaires(parametres.CO2_kg, parametres.H2O_kg, parametres.CO_kg, parametres.N2_kg, parametres.O2_kg).frac_mol_O2.toFixed(4)}
+                value={calculerFractionsMolaires(parametres.CO2, parametres.H2O, parametres.CO, parametres.N2, parametres.O2).frac_mol_O2.toFixed(4)}
                 readOnly
                 style={{...styles.input, backgroundColor: '#f0f0f0', color: '#666666'}}
               />

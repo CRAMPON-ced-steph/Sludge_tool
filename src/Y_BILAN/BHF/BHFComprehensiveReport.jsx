@@ -38,11 +38,11 @@ const BHFComprehensiveReport = ({
   const FlueGasSection = () => {
     const T_IN = innerData?.T_OUT || 200;
     const P_IN = innerData?.P_OUT || 0;
-    const FG_IN = innerData?.FG_OUT_kg_h || { CO2: 1, H2O: 1, O2: 1, N2: 1 };
+    const FG_IN = innerData?.FG_OUT || { CO2: 1, H2O: 1, O2: 1, N2: 1 };
     const FG_humide = innerData?.FG_humide_tot || 0;
     const FG_sec = innerData?.FG_sec_tot || 0;
     const FG_humide_EAU = innerData?.FG_humide_EAU_tot || 0;
-    const Q_eau = innerData?.Q_eau_kg_h || 0;
+    const Q_eau = innerData?.Q_eau || 0;
     const T_sortie = innerData?.T_sortie || 0;
 
     return (
@@ -200,11 +200,11 @@ const BHFComprehensiveReport = ({
             <tbody>
               <tr>
                 <td className="label">{t('Dry residus [kg/h]')}</td>
-                <td className="value">{residus.DryBottomAsh_kg_h?.toFixed(2) || '0.00'} kg/h</td>
+                <td className="value">{residus.DryBottomAsh?.toFixed(2) || '0.00'} kg/h</td>
               </tr>
               <tr>
                 <td className="label">{t('Wet residus [kg/h]')}</td>
-                <td className="value">{residus.WetBottomAsh_kg_h?.toFixed(2) || '0.00'} kg/h</td>
+                <td className="value">{residus.WetBottomAsh?.toFixed(2) || '0.00'} kg/h</td>
               </tr>
             </tbody>
           </table>
@@ -280,7 +280,7 @@ const BHFComprehensiveReport = ({
               </tr>
               <tr>
                 <td className="label">{t('Pressure [Bar]')}</td>
-                <td className="value">{innerData?.pression_air_comprime_bar?.toFixed(1) || '0.0'} bar</td>
+                <td className="value">{innerData?.pression_air_comprime?.toFixed(1) || '0.0'} bar</td>
               </tr>
             </tbody>
           </table>
@@ -292,7 +292,7 @@ const BHFComprehensiveReport = ({
             <tbody>
               <tr>
                 <td className="label">{t('Residus [kg/h]')}</td>
-                <td className="value">{innerData?.conso_fly_ash_kg_h?.toFixed(2) || '0.00'} kg/h</td>
+                <td className="value">{innerData?.conso_fly_ash?.toFixed(2) || '0.00'} kg/h</td>
               </tr>
             </tbody>
           </table>

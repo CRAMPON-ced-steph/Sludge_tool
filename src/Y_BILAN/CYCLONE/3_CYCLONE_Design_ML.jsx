@@ -17,16 +17,16 @@ const CYCLONEDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
 
   // Default parameters
   const defaultParameters_cyclone = {
-    FlueGasFlow_Nm3_h: 6062,
-    Tempe_flue_gas_C: 180,
+    FlueGasFlow_norm: 6062,
+    Tempe_flue_gas: 180,
     VelocityTarget: 25,
   };
 
   // State management
   const [Parameters_cyclone, setParameters_cyclone] = useState(() => {
     return {
-      FlueGasFlow_Nm3_h: innerData?.FG_humide_tot || defaultParameters_cyclone.FlueGasFlow_Nm3_h,
-      Tempe_flue_gas_C: defaultParameters_cyclone.Tempe_flue_gas_C,
+      FlueGasFlow_norm: innerData?.FG_humide_tot || defaultParameters_cyclone.FlueGasFlow_norm,
+      Tempe_flue_gas: defaultParameters_cyclone.Tempe_flue_gas,
       VelocityTarget: defaultParameters_cyclone.VelocityTarget,
     };
   });
@@ -36,8 +36,8 @@ const CYCLONEDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
   const [constants, setConstants] = useState({});
 
   // Extract parameters
-  const FlueGasFlow_Nm3_h = Parameters_cyclone['FlueGasFlow_Nm3_h'];
-  const Tempe_flue_gas_C = Parameters_cyclone['Tempe_flue_gas_C'];
+  const FlueGasFlow_norm = Parameters_cyclone['FlueGasFlow_norm'];
+  const Tempe_flue_gas = Parameters_cyclone['Tempe_flue_gas'];
   const VelocityTarget = Parameters_cyclone['VelocityTarget'];
 
   // Cyclone model data
@@ -64,13 +64,13 @@ const CYCLONEDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
       return acc;
     }, {});
 
-    const flueGasFlow = Parameters_cyclone.FlueGasFlow_Nm3_h;
-    const temperature = Parameters_cyclone.Tempe_flue_gas_C;
+    const flueGasFlow = Parameters_cyclone.FlueGasFlow_norm;
+    const temperature = Parameters_cyclone.Tempe_flue_gas;
     const velocityTarget = Parameters_cyclone.VelocityTarget;
 
     const airDensity = P_ref / (287.05 * (temperature + T_ref));
     const volumeFlowRate = flueGasFlow * (temperature + T_ref) / T_ref;
-    const FlueGasFlow_m3_h = flueGasFlow * (T_ref + temperature) / T_ref;
+    const FlueGasFlow_real = flueGasFlow * (T_ref + temperature) / T_ref;
 
     // Iterative algorithm to find optimal diameter
     let D = 0.1;
@@ -80,7 +80,7 @@ const CYCLONEDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
 
     do {
       S_a_b_m2 = modelConstants['a/D'] * D * modelConstants['b/D'] * D;
-      Velocity_section_m_s = FlueGasFlow_m3_h / 3600 / S_a_b_m2;
+      Velocity_section_m_s = FlueGasFlow_real / 3600 / S_a_b_m2;
       L_vortex_m = 2.3 * modelConstants['d/D'] * D * Math.pow(D, 2/3) / 
                   Math.pow(modelConstants['a/D'] * D * modelConstants['b/D'] * D, 1/3);
 
@@ -195,7 +195,7 @@ const CYCLONEDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
       setInnerData(prevData => ({
         ...prevData,
         P_out_mmCE,
-        PDC_Pa: headLosses.PDC,
+        PDC: headLosses.PDC,
         PDC_mmCE,
         consoElec1: 4,
         labelElec1: t('Conveyor'),
@@ -203,9 +203,9 @@ const CYCLONEDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
         Conso_EauPotable_m3: 0,
         Conso_EauRefroidissement_m3: 0,
         Conso_EauDemin_m3: 0,
-        conso_incineration_ash_kg_h: 0,
-        conso_boiler_ash_kg_h: 1,
-        conso_fly_ash_kg_h: 0,
+        conso_incineration_ash: 0,
+        conso_boiler_ash: 1,
+        conso_fly_ash: 0,
       }));
     }
   }, [setInnerData, headLosses.PDC, P_out_mmCE, PDC_mmCE, t]);
@@ -340,13 +340,13 @@ const CYCLONEDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
         <div style={{ display: 'grid', gap: '12px' }}>
           <ParameterInput
             translationKey="Flue Gas Flow [Nm3/h]"
-            value={FlueGasFlow_Nm3_h}
-            onChange={(v) => handleChange('FlueGasFlow_Nm3_h', v)}
+            value={FlueGasFlow_norm}
+            onChange={(v) => handleChange('FlueGasFlow_norm', v)}
           />
           <ParameterInput
             translationKey="Temperature Flue Gas [°C]"
-            value={Tempe_flue_gas_C}
-            onChange={(v) => handleChange('Tempe_flue_gas_C', v)}
+            value={Tempe_flue_gas}
+            onChange={(v) => handleChange('Tempe_flue_gas', v)}
           />
           <ParameterInput
             translationKey="Velocity Target [m/s]"

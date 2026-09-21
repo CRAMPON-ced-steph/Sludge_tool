@@ -190,28 +190,28 @@ const COOLINGTOWERDesign = ({ innerData, setInnerData, currentLanguage = 'fr' })
         Conso_EauAdoucie_m3: toSignificantFigures(1),
 
         // Reagent consumption
-        Conso_CaCO3_kg: toSignificantFigures(1),
-        Conso_CaO_kg: toSignificantFigures(1),
-        Conso_CaOH2_dry_kg: toSignificantFigures(1),
-        Conso_CaOH2_wet_kg: toSignificantFigures(0),
-        Conso_NaOH_kg: toSignificantFigures(0),
-        Conso_NaOHCO3_kg: toSignificantFigures(0),
-        Conso_Ammonia_kg: toSignificantFigures(0),
-        Conso_NaBrCaBr2_kg: toSignificantFigures(0),
+        Conso_CaCO3: toSignificantFigures(1),
+        Conso_CaO: toSignificantFigures(1),
+        Conso_CaOH2_dry: toSignificantFigures(1),
+        Conso_CaOH2_wet: toSignificantFigures(0),
+        Conso_NaOH: toSignificantFigures(0),
+        Conso_NaOHCO3: toSignificantFigures(0),
+        Conso_Ammonia: toSignificantFigures(0),
+        Conso_NaBrCaBr2: toSignificantFigures(0),
 
         // Transport
         truck15TPrice: toSignificantFigures(truck15TPrice || 0),
 
         // Gas consumption
-        conso_gaz_H_MW: toSignificantFigures(0),
-        conso_gaz_L_MW: toSignificantFigures(0),
-        conso_gaz_Process_MW: toSignificantFigures(0),
+        conso_gaz_H: toSignificantFigures(0),
+        conso_gaz_L: toSignificantFigures(0),
+        conso_gaz_Process: toSignificantFigures(0),
         conso_fuel: toSignificantFigures(0),
 
         // Ash consumption
-        conso_incineration_ash_kg_h: toSignificantFigures(1),
-        conso_boiler_ash_kg_h: toSignificantFigures(1),
-        conso_fly_ash_kg_h: toSignificantFigures(1),
+        conso_incineration_ash: toSignificantFigures(1),
+        conso_boiler_ash: toSignificantFigures(1),
+        conso_fly_ash: toSignificantFigures(1),
 
         // CO2 transport
         CO2_transport_incineratino_ash: toSignificantFigures(90),

@@ -66,11 +66,11 @@ const FlueGasPollutantEmission = ({ innerData, setInnerData, currentLanguage = '
   const HF_stoechiométrie = emissionsDENOX['HF stoechiométrie'];
 
   // Data from innerData
-  const Debit_fumees_sec_Nm3_h = innerData?.FG_DENOX_dry_OUT_reheating || 10000;
-  const Debit_fumees_humide_Nm3_h = innerData?.FG_DENOX_wet_OUT_reheating || 10000;
+  const Debit_fumees_sec = innerData?.FG_DENOX_dry_OUT_reheating || 10000;
+  const Debit_fumees_humide = innerData?.FG_DENOX_wet_OUT_reheating || 10000;
   const FG_O2_calcule = innerData?.O2_calculated_after_reheating_pourcent || 12;
   const masse_dechets = innerData?.masse || 10;
-  const Inert_kg_h = innerData?.Inertmass || 1;
+  const Inert = innerData?.Inertmass || 1;
   const masses_pollutant_input = innerData?.PollutantOutput || {};
 
   // ============ CALCULS MÉMORISÉS - COEFFICIENTS R ============
@@ -164,34 +164,34 @@ const FlueGasPollutantEmission = ({ innerData, setInnerData, currentLanguage = '
   // ============ CALCULS MÉMORISÉS - SCR ============
   const scrCalculations = useMemo(() => {
     try {
-      const NOx_input_kg_h = masses_pollutant_input.NOx || 0;
-      const NOx_input_mg_Nm3 = (NOx_input_kg_h * 1e6) / Debit_fumees_sec_Nm3_h;
+      const NOx_input = masses_pollutant_input.NOx || 0;
+      const NOx_input_mg_Nm3 = (NOx_input * 1e6) / Debit_fumees_sec;
       const NOx_to_reduce = SCR_enabled ? Math.max(0, NOx_input_mg_Nm3 - NOx_limit_mg_Nm3) : 0;
-      const NOx_mass_to_reduce = NOx_to_reduce * Debit_fumees_sec_Nm3_h / 1e6;
+      const NOx_mass_to_reduce = NOx_to_reduce * Debit_fumees_sec / 1e6;
 
-      let NH3_consumption_kg_h = 0;
+      let NH3_consumption = 0;
       if (SCR_enabled && NOx_mass_to_reduce > 0) {
-        NH3_consumption_kg_h = NOx_mass_to_reduce * (17/30) * Stoichiometry;
+        NH3_consumption = NOx_mass_to_reduce * (17/30) * Stoichiometry;
       }
 
       return {
-        NOx_input_kg_h,
+        NOx_input,
         NOx_input_mg_Nm3,
         NOx_to_reduce,
         NOx_mass_to_reduce,
-        NH3_consumption_kg_h,
+        NH3_consumption,
       };
     } catch (error) {
       console.error('Erreur calculs SCR:', error);
       return {
-        NOx_input_kg_h: 0,
+        NOx_input: 0,
         NOx_input_mg_Nm3: 0,
         NOx_to_reduce: 0,
         NOx_mass_to_reduce: 0,
-        NH3_consumption_kg_h: 0,
+        NH3_consumption: 0,
       };
     }
-  }, [masses_pollutant_input, SCR_enabled, Debit_fumees_sec_Nm3_h, NOx_limit_mg_Nm3, Stoichiometry]);
+  }, [masses_pollutant_input, SCR_enabled, Debit_fumees_sec, NOx_limit_mg_Nm3, Stoichiometry]);
 
   // ============ CALCULS MÉMORISÉS - POLLUANTS DE SORTIE ============
   const outputPollutants = useMemo(() => {
@@ -203,7 +203,7 @@ const FlueGasPollutantEmission = ({ innerData, setInnerData, currentLanguage = '
         N2: masses_pollutant_input.N2 || 0,
         NOx: masses_pollutant_input.NOx - scrCalculations.NOx_mass_to_reduce,
         CO2: masses_pollutant_input.CO2 || 0,
-        NH3: SCR_enabled ? scrCalculations.NH3_consumption_kg_h : masses_pollutant_input.NH3 || 0,
+        NH3: SCR_enabled ? scrCalculations.NH3_consumption : masses_pollutant_input.NH3 || 0,
         DustFlyAsh: masses_pollutant_input.DustFlyAsh || 0,
         Mercury: masses_pollutant_input.Mercury || 0,
         PCDDF: masses_pollutant_input.PCDDF || 0,
@@ -224,27 +224,27 @@ const FlueGasPollutantEmission = ({ innerData, setInnerData, currentLanguage = '
   // ============ CALCULS MÉMORISÉS - RÉSIDUS ============
   const residueCalculations = useMemo(() => {
     try {
-      let FlyAsh_kg_h = 0;
-      let DryBottomAsh_kg_h = 0;
+      let FlyAsh = 0;
+      let DryBottomAsh = 0;
 
-      if (Inert_kg_h !== 0) {
-        FlyAsh_kg_h = FlyAsh_g_Nm3 * Debit_fumees_sec_Nm3_h / 1000;
-        DryBottomAsh_kg_h = Inert_kg_h - FlyAsh_kg_h;
+      if (Inert !== 0) {
+        FlyAsh = FlyAsh_g_Nm3 * Debit_fumees_sec / 1000;
+        DryBottomAsh = Inert - FlyAsh;
       }
 
-      DryBottomAsh_kg_h = DryBottomAsh_kg_h + reductionCalculations.mass_residus_tot;
-      const WetBottomAsh_kg_h = DryBottomAsh_kg_h / (Bottom_Ash_Siccity / 100);
+      DryBottomAsh = DryBottomAsh + reductionCalculations.mass_residus_tot;
+      const WetBottomAsh = DryBottomAsh / (Bottom_Ash_Siccity / 100);
 
       return {
-        FlyAsh_kg_h,
-        DryBottomAsh_kg_h,
-        WetBottomAsh_kg_h,
+        FlyAsh,
+        DryBottomAsh,
+        WetBottomAsh,
       };
     } catch (error) {
       console.error('Erreur calculs résidus:', error);
-      return { FlyAsh_kg_h: 0, DryBottomAsh_kg_h: 0, WetBottomAsh_kg_h: 0 };
+      return { FlyAsh: 0, DryBottomAsh: 0, WetBottomAsh: 0 };
     }
-  }, [Inert_kg_h, FlyAsh_g_Nm3, Debit_fumees_sec_Nm3_h, Bottom_Ash_Siccity, reductionCalculations.mass_residus_tot]);
+  }, [Inert, FlyAsh_g_Nm3, Debit_fumees_sec, Bottom_Ash_Siccity, reductionCalculations.mass_residus_tot]);
 
   // ============ CALCULS MÉMORISÉS - RÉACTIFS ============
   const reagentCalculations = useMemo(() => {
@@ -281,7 +281,7 @@ const FlueGasPollutantEmission = ({ innerData, setInnerData, currentLanguage = '
         }
       });
 
-      const NH3_mass = scrCalculations.NH3_consumption_kg_h;
+      const NH3_mass = scrCalculations.NH3_consumption;
       if (reagentsTypes?.Ammonia && NH3_mass > 0) {
         totalCost += (NH3_mass / 1000) * reagentsTypes.Ammonia.cost;
         totalCO2 += (NH3_mass / 1000) * reagentsTypes.Ammonia.co2PerTrip;
@@ -306,9 +306,9 @@ const FlueGasPollutantEmission = ({ innerData, setInnerData, currentLanguage = '
   useEffect(() => {
     if (innerData && setInnerData) {
       innerData.Residus = {
-        DryBottomAsh_kg_h: residueCalculations.DryBottomAsh_kg_h,
-        WetBottomAsh_kg_h: residueCalculations.WetBottomAsh_kg_h,
-        FlyAsh_kg_h: residueCalculations.FlyAsh_kg_h,
+        DryBottomAsh: residueCalculations.DryBottomAsh,
+        WetBottomAsh: residueCalculations.WetBottomAsh,
+        FlyAsh: residueCalculations.FlyAsh,
       };
       innerData.PInput = masses_pollutant_input;
       innerData.Poutput = outputPollutants;
@@ -324,16 +324,16 @@ const FlueGasPollutantEmission = ({ innerData, setInnerData, currentLanguage = '
   // ============ ÉLÉMENTS DE TABLEAU ============
   const elementsGeneric = [
     { text: t('Waste Flow [kg/h]'), value: masse_dechets },
-    { text: t('Flue gas Flow Wet [Nm3/h]'), value: Debit_fumees_humide_Nm3_h.toFixed(0) },
-    { text: t('Flue gas Flow Dry [Nm3/h]'), value: Debit_fumees_sec_Nm3_h.toFixed(0) },
+    { text: t('Flue gas Flow Wet [Nm3/h]'), value: Debit_fumees_humide.toFixed(0) },
+    { text: t('Flue gas Flow Dry [Nm3/h]'), value: Debit_fumees_sec.toFixed(0) },
     { text: t('O2 calculated [%]'), value: FG_O2_calcule.toFixed(2) },
-    { text: t('inert mass [kg/h]'), value: Inert_kg_h.toFixed(2) },
+    { text: t('inert mass [kg/h]'), value: Inert.toFixed(2) },
   ];
 
   const residusCalculations = [
-    { text: t('Bottom ash [kg/h]'), value: residueCalculations.DryBottomAsh_kg_h },
-    { text: t('Bottom ash wet [kg/h]'), value: residueCalculations.WetBottomAsh_kg_h },
-    { text: t('Fly ash [kg/h]'), value: residueCalculations.FlyAsh_kg_h },
+    { text: t('Bottom ash [kg/h]'), value: residueCalculations.DryBottomAsh },
+    { text: t('Bottom ash wet [kg/h]'), value: residueCalculations.WetBottomAsh },
+    { text: t('Fly ash [kg/h]'), value: residueCalculations.FlyAsh },
   ];
 
   // ============ STYLES ============
@@ -458,7 +458,7 @@ const FlueGasPollutantEmission = ({ innerData, setInnerData, currentLanguage = '
         masses={masses_pollutant_input} 
         O2_mesure={FG_O2_calcule} 
         O2_ref={O2ref} 
-        Debit_fumees_sec_Nm3_h={Debit_fumees_sec_Nm3_h}
+        Debit_fumees_sec={Debit_fumees_sec}
       />
 
       <h4>{t('SCR (Selective Catalytic Reduction)')}</h4>
@@ -500,7 +500,7 @@ const FlueGasPollutantEmission = ({ innerData, setInnerData, currentLanguage = '
                 <label style={{ marginBottom: '5px', fontSize: '12px' }}>{t('NH3 consumption [kg/h]')}:</label>
                 <input
                   type="text"
-                  value={scrCalculations.NH3_consumption_kg_h.toFixed(3)}
+                  value={scrCalculations.NH3_consumption.toFixed(3)}
                   readOnly
                   style={{ width: '80px', backgroundColor: '#f0f0f0' }}
                 />
@@ -685,7 +685,7 @@ const FlueGasPollutantEmission = ({ innerData, setInnerData, currentLanguage = '
         masses={outputPollutants} 
         O2_mesure={FG_O2_calcule} 
         O2_ref={O2ref} 
-        Debit_fumees_sec_Nm3_h={Debit_fumees_sec_Nm3_h}
+        Debit_fumees_sec={Debit_fumees_sec}
       />
 
       <h3>{t('Bottom ashes calculated')}</h3>

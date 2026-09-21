@@ -62,27 +62,27 @@ const QUENCHDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
 
   const T_IN = innerData?.T_OUT || 200;
   const T_sortie = innerData?.T_sortie || 80;
-  const Debit_fumees_humide_Nm3_h = innerData?.FG_humide_EAU_tot || 28000;
-  const Eau_add = innerData?.Q_eau_kg_h || 5000;
+  const Debit_fumees_humide = innerData?.FG_humide_EAU_tot || 28000;
+  const Eau_add = innerData?.Q_eau_mass || 5000;
 
   const DiameterQuench = Design_parameters['Quench diameter [m]'];
   const P_pulverisation = Design_parameters['Pression pulverisation [bar]'];
   const nozzleType = Design_parameters['Type de buse'];
   const waterType = Design_parameters['Type d\'eau'];
 
-  const Puissance_pompe_kW = Parametres_conso_Elec['Puissance pompe [kW]'];
+  const Puissance_pompe = Parametres_conso_Elec['Puissance pompe [kW]'];
   const Rendement_pompe = Parametres_conso_Elec['Rendement pompe [%]'];
 
   // Calculations
   const Surface_Quench = 0.25 * Math.PI * DiameterQuench * DiameterQuench;
-  const Q_eau_m3_h = Eau_add / 1000;
+  const Q_eau_vol = Eau_add / 1000;
   const Q_eau_add_l_min = Eau_add / 60;
-  const V_FG_m_s = (Debit_fumees_humide_Nm3_h / 3600) / Surface_Quench;
+  const V_FG_m_s = (Debit_fumees_humide / 3600) / Surface_Quench;
 
-  const T_IN_K = T_IN + T_ref;
-  const T_sortie_K = T_sortie + T_ref;
+  const T_IN_kelvin = T_IN + T_ref;
+  const T_sortie_kelvin = T_sortie + T_ref;
 
-  const Conso_elec_pompe_reelle_kW = Puissance_pompe_kW / (Rendement_pompe / 100);
+  const Conso_elec_pompe_reelle = Puissance_pompe / (Rendement_pompe / 100);
 
   // Water type mapping
   const getWaterPrice = (waterType) => {
@@ -98,19 +98,19 @@ const QUENCHDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
   };
 
   const currentWaterPrice = getWaterPrice(waterType);
-  const waterCostPerHour = Q_eau_m3_h * currentWaterPrice;
+  const waterCostPerHour = Q_eau_vol * currentWaterPrice;
 
   // Water consumption by type
   let Qv_eau_potable_m3 = 0, Qv_Eau_Refroidissement_m3 = 0, Qv_Eau_Riviere_m3 = 0;
   let Qv_Eau_Demin_m3 = 0, Qv_Eau_Adoucie_m3 = 0;
 
   switch(waterType) {
-    case 'eau potable': Qv_eau_potable_m3 = Q_eau_m3_h; break;
-    case 'eau de refroidissement': Qv_Eau_Refroidissement_m3 = Q_eau_m3_h; break;
-    case 'eau de rivière': Qv_Eau_Riviere_m3 = Q_eau_m3_h; break;
-    case 'eau déminéralisée': Qv_Eau_Demin_m3 = Q_eau_m3_h; break;
-    case 'eau adoucie': Qv_Eau_Adoucie_m3 = Q_eau_m3_h; break;
-    default: Qv_eau_potable_m3 = Q_eau_m3_h;
+    case 'eau potable': Qv_eau_potable_m3 = Q_eau_vol; break;
+    case 'eau de refroidissement': Qv_Eau_Refroidissement_m3 = Q_eau_vol; break;
+    case 'eau de rivière': Qv_Eau_Riviere_m3 = Q_eau_vol; break;
+    case 'eau déminéralisée': Qv_Eau_Demin_m3 = Q_eau_vol; break;
+    case 'eau adoucie': Qv_Eau_Adoucie_m3 = Q_eau_vol; break;
+    default: Qv_eau_potable_m3 = Q_eau_vol;
   }
 
   // Quench calculator functions
@@ -152,7 +152,7 @@ const QUENCHDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
   const n = currentNozzle.defaultN;
   const sprayQuality = getSprayQuality(dMean, n);
   const sprayCharacteristics = calculateSprayCharacteristics(dMean, n, P_pulverisation, Q_eau_add_l_min);
-  const quenchHeight = calculateQuenchHeight(V_FG_m_s, dMean, n, T_IN, 293);
+  const quenchHeight = calculateQuenchHeight(V_FG_m_s, dMean, n, T_IN_kelvin, 293);
 
   // Event handlers
   const handleParametresChange = (name, value) => {
@@ -213,7 +213,7 @@ const QUENCHDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
       setInnerData(prevData => ({
         ...prevData,
         P_out_mmCE,
-        consoElec1: toSignificantFigures(Conso_elec_pompe_reelle_kW),
+        consoElec1: toSignificantFigures(Conso_elec_pompe_reelle),
         labelElec1: t('pompe quench'),
         Conso_EauPotable_m3: toSignificantFigures(Qv_eau_potable_m3),
         Conso_EauRefroidissement_m3: toSignificantFigures(Qv_Eau_Refroidissement_m3),
@@ -224,12 +224,12 @@ const QUENCHDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
         Pression_pulverisation: P_pulverisation,
         Type_buse: nozzleType,
         Type_eau: waterType,
-        Puissance_pompe_quench: Puissance_pompe_kW,
+        Puissance_pompe_quench: Puissance_pompe,
         Rendement_pompe,
         PDC_mmCE_QUENCH: PDC_mmCE,
       }));
     }
-  }, [Conso_elec_pompe_reelle_kW, Puissance_pompe_kW, Rendement_pompe, Eau_add, waterType, P_out_mmCE, DiameterQuench, P_pulverisation, nozzleType, PDC_mmCE, setInnerData, t]);
+  }, [Conso_elec_pompe_reelle, Puissance_pompe, Rendement_pompe, Eau_add, waterType, P_out_mmCE, DiameterQuench, P_pulverisation, nozzleType, PDC_mmCE, setInnerData, t]);
 
   // UI Components
   const Section = ({ title, results, children }) => (
@@ -307,16 +307,16 @@ const QUENCHDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
   const elements_PDC = [{ text: t('Pression de sortie [mmCE]'), value: P_out_mmCE.toFixed(2) }];
 
   const elements_conso_pompe = [
-    { text: t('Puissance pompe nominale [kW]'), value: Puissance_pompe_kW.toFixed(2) },
+    { text: t('Puissance pompe nominale [kW]'), value: Puissance_pompe.toFixed(2) },
     { text: t('Rendement pompe [%]'), value: Rendement_pompe.toFixed(1) },
-    { text: t('Consommation réelle [kW]'), value: Conso_elec_pompe_reelle_kW.toFixed(2) },
+    { text: t('Consommation réelle [kW]'), value: Conso_elec_pompe_reelle.toFixed(2) },
   ];
 
   const elementsGeneric = [
     { text: t('Temperature inlet QUENCH [°C]'), value: T_IN.toFixed(1) },
     { text: t('Temperature outlet QUENCH [°C]'), value: T_sortie.toFixed(1) },
-    { text: t('Inlet temperature [K]'), value: T_IN_K.toFixed(0) },
-    { text: t('Outlet temperature [K]'), value: T_sortie_K.toFixed(0) },
+    { text: t('Inlet temperature [K]'), value: T_IN.toFixed(0) },
+    { text: t('Outlet temperature [K]'), value: T_sortie.toFixed(0) },
     { text: t('Quench surface area [m2]'), value: Surface_Quench.toFixed(2) },
     { text: t('Sprayed/cooling water [kg/h]'), value: Eau_add.toFixed(0) },
     { text: t('Spray pressure [bar]'), value: P_pulverisation.toFixed(0) },
@@ -346,7 +346,7 @@ const QUENCHDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
     { text: t('Type d\'eau'), value: waterTypeLabels[waterType] },
     { text: t('Surface quench [m²]'), value: Surface_Quench.toFixed(2) },
     { text: t('Hauteur quench [m]'), value: quenchHeight.toFixed(2) },
-    { text: t('Puissance pompe [kW]'), value: Puissance_pompe_kW.toFixed(2) },
+    { text: t('Puissance pompe [kW]'), value: Puissance_pompe.toFixed(2) },
     { text: t('Consommation eau [kg/h]'), value: Eau_add.toFixed(0) },
   ];
 
@@ -389,7 +389,7 @@ const QUENCHDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
 
       {/* Consommation électrique de la pompe */}
       <Section title={t('Consommation électrique de la pompe')} results={elements_conso_pompe}>
-        <ParameterInput translationKey="Puissance pompe [kW]" value={Puissance_pompe_kW} 
+        <ParameterInput translationKey="Puissance pompe [kW]" value={Puissance_pompe} 
           onChange={(v) => handleParametresChange('Puissance pompe [kW]', v)} />
         <ParameterInput translationKey="Rendement pompe [%]" value={Rendement_pompe} 
           onChange={(v) => handleParametresChange('Rendement pompe [%]', v)} />
@@ -405,7 +405,7 @@ const QUENCHDesign = ({ innerData, setInnerData, currentLanguage = 'fr' }) => {
           <p><strong>{t('Type d\'eau')}:</strong> {waterTypeLabels[waterType]}</p>
           <p><strong>{t('Surface quench')}:</strong> {Surface_Quench.toFixed(2)} m²</p>
           <p><strong>{t('Hauteur quench')}:</strong> {quenchHeight.toFixed(2)} m</p>
-          <p><strong>{t('Puissance pompe')}:</strong> {Puissance_pompe_kW} kW</p>
+          <p><strong>{t('Puissance pompe')}:</strong> {Puissance_pompe} kW</p>
           <p><strong>{t('Consommation eau')}:</strong> {Eau_add.toFixed(0)} kg/h</p>
         </div>
         <h4>{t('Paramètres calculés détaillés')}</h4>

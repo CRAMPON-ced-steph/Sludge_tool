@@ -13,8 +13,8 @@ const SEP21FlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) =>
   };
 
   // ✅ DONNÉES D'ENTRÉE
-  const Debit_fumees_humide_Nm3_h = innerData?.FG_humide_tot || 1;
-  const Debit_fumees_sec_Nm3_h = innerData?.FG_sec_tot || 1;
+  const Debit_fumees_humide = innerData?.FG_humide_tot || 1;
+  const Debit_fumees_sec = innerData?.FG_sec_tot || 1;
   const FG_O2_calcule = innerData?.O2_calcule || 12;
   const masse_dechets = innerData?.masse || 10;
 
@@ -41,7 +41,7 @@ const SEP21FlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) =>
     HF: masses_pollutant_input.HF || 0,
     N2: masses_pollutant_input.N2 || 0,
     NOx: masses_pollutant_input.NOx || 0,
-    CO2: innerData?.FG_OUT_kg_h?.CO2 || masses_pollutant_input.CO2 || 0,
+    CO2: innerData?.FG_OUT?.CO2 || masses_pollutant_input.CO2 || 0,
     NH3: masses_pollutant_input.NH3 || 0,
     DustFlyAsh: masses_pollutant_input.DustFlyAsh || 0,
     Mercury: masses_pollutant_input.Mercury || 0,
@@ -58,8 +58,8 @@ const SEP21FlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) =>
 
   const elementsGeneric = [
     { text: t('Waste Flow [kg/h]'), value: masse_dechets.toFixed(2) },
-    { text: t('Flue gas Flow Wet [Nm3/h]'), value: Debit_fumees_humide_Nm3_h.toFixed(0) },
-    { text: t('Flue gas Flow Dry [Nm3/h]'), value: Debit_fumees_sec_Nm3_h.toFixed(0) },
+    { text: t('Flue gas Flow Wet [Nm3/h]'), value: Debit_fumees_humide.toFixed(0) },
+    { text: t('Flue gas Flow Dry [Nm3/h]'), value: Debit_fumees_sec.toFixed(0) },
     { text: t('O2 calculated [%]'), value: FG_O2_calcule.toFixed(2) },
   ];
 
@@ -74,7 +74,7 @@ const SEP21FlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) =>
         masses={masses_pollutant_input}
         O2_mesure={FG_O2_calcule}
         O2_ref={11}
-        Debit_fumees_sec_Nm3_h={Debit_fumees_sec_Nm3_h}
+        Debit_fumees_sec={Debit_fumees_sec}
       />
 
       <h4>{t('Output flue gas (pass-through)')}</h4>
@@ -82,7 +82,7 @@ const SEP21FlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) =>
         masses={masses_pollutant_output}
         O2_mesure={FG_O2_calcule}
         O2_ref={11}
-        Debit_fumees_sec_Nm3_h={Debit_fumees_sec_Nm3_h}
+        Debit_fumees_sec={Debit_fumees_sec}
       />
     </div>
   );

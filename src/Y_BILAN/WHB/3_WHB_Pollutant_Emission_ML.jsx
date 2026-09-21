@@ -36,11 +36,11 @@ const WHBFlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) => {
 
   const FlyAsh_g_Nm3 = emissions2['Fly ashes content outlet [g/Nm3]'];
   const O2ref = emissions2['O2 ref [%]'];
-  const Debit_fumees_humide_Nm3_h = innerData?.FG_humide_tot || 1;
-  const Debit_fumees_sec_Nm3_h = innerData?.FG_sec_tot || 1;
+  const Debit_fumees_humide = innerData?.FG_humide_tot || 1;
+  const Debit_fumees_sec = innerData?.FG_sec_tot || 1;
   const FG_O2_calcule = innerData?.O2calcul || 12;
   const masse_dechets = innerData?.MasseDechet || 1;
-  const Inert_kg_h = innerData?.Inertmass || 0;
+  const Inert = innerData?.Inertmass || 0;
 
   const masses_pollutant_input = innerData?.PollutantOutput || {};
 
@@ -49,60 +49,60 @@ const WHBFlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) => {
   } = getOpexData();
 
   const Residus_IN = innerData?.ResidusOutput || {
-    FlyAsh_kg_h: 0,
+    FlyAsh: 0,
     mass_residus_tot: 0,
-    WetBottomAsh_kg_h: 0
+    WetBottomAsh: 0
   };
 
-  const Fly_ash_in_kg_h = Residus_IN.FlyAsh_kg_h;
-  const Fly_ash_out_kg_h = Debit_fumees_sec_Nm3_h * FlyAsh_g_Nm3 / 1000;
+  const Fly_ash_in = Residus_IN.FlyAsh;
+  const Fly_ash_out = Debit_fumees_sec * FlyAsh_g_Nm3 / 1000;
 
-  const WHB_Ash_kg_h = Fly_ash_in_kg_h - Fly_ash_out_kg_h;
+  const WHB_Ash = Fly_ash_in - Fly_ash_out;
 
   const masses_pollutant_output = masses_pollutant_input;
 
-  let DryBottomAsh_kg_h = Fly_ash_in_kg_h;
-  let FlyAsh_kg_h = Fly_ash_in_kg_h;
-  let WetBottomAsh_kg_h = 0;
+  let DryBottomAsh = Fly_ash_in;
+  let FlyAsh = Fly_ash_in;
+  let WetBottomAsh = 0;
 
-  if (Inert_kg_h !== 0) {
-    FlyAsh_kg_h = Fly_ash_out_kg_h;
-    DryBottomAsh_kg_h = Fly_ash_out_kg_h;
-    WetBottomAsh_kg_h = DryBottomAsh_kg_h / 0.66;
+  if (Inert !== 0) {
+    FlyAsh = Fly_ash_out;
+    DryBottomAsh = Fly_ash_out;
+    WetBottomAsh = DryBottomAsh / 0.66;
   }
 
   // Calcul des consommations totales par réactif (kg/h)
-  const Conso_CaCO3_kg = 0;
-  const Conso_CaO_kg = 0;
-  const Conso_CaOH2wet_kg = 0;
-  const Conso_CaOH2dry_kg = 0;
-  const Conso_NaOH_kg = 0;
-  const Conso_NaOHCO3_kg = 0;
-  const Conso_Ammonia_kg = 0;
-  const Conso_NaBrCaBr2_kg = 0;
-  const Conso_CAP_kg = 0;
+  const Conso_CaCO3 = 0;
+  const Conso_CaO = 0;
+  const Conso_CaOH2wet = 0;
+  const Conso_CaOH2dry = 0;
+  const Conso_NaOH = 0;
+  const Conso_NaOHCO3 = 0;
+  const Conso_Ammonia = 0;
+  const Conso_NaBrCaBr2 = 0;
+  const Conso_CAP = 0;
 
   // Calcul des coûts pour chaque réactif (en €)
-  const Cout_CaCO3 = reagentsTypes?.CaCO3 ? (Conso_CaCO3_kg / 1000 * reagentsTypes.CaCO3.cost) : 0;
-  const Cout_CaO = reagentsTypes?.CaO ? (Conso_CaO_kg / 1000 * reagentsTypes.CaO.cost) : 0;
-  const Cout_CaOH2wet = reagentsTypes?.CaOH2wet ? (Conso_CaOH2wet_kg / 1000 * reagentsTypes.CaOH2wet.cost) : 0;
-  const Cout_CaOH2dry = reagentsTypes?.CaOH2dry ? (Conso_CaOH2dry_kg / 1000 * reagentsTypes.CaOH2dry.cost) : 0;
-  const Cout_NaOH = reagentsTypes?.NaOH ? (Conso_NaOH_kg / 1000 * reagentsTypes.NaOH.cost) : 0;
-  const Cout_NaOHCO3 = reagentsTypes?.NaOHCO3 ? (Conso_NaOHCO3_kg / 1000 * reagentsTypes.NaOHCO3.cost) : 0;
-  const Cout_Ammonia = reagentsTypes?.Ammonia ? (Conso_Ammonia_kg / 1000 * reagentsTypes.Ammonia.cost) : 0;
-  const Cout_NaBrCaBr2 = reagentsTypes?.NaBr_CaBr2 ? (Conso_NaBrCaBr2_kg / 1000 * reagentsTypes.NaBr_CaBr2.cost) : 0;
-  const Cout_CAP = reagentsTypes?.CAP ? (Conso_CAP_kg / 1000 * reagentsTypes.CAP.cost) : 0;
+  const Cout_CaCO3 = reagentsTypes?.CaCO3 ? (Conso_CaCO3 / 1000 * reagentsTypes.CaCO3.cost) : 0;
+  const Cout_CaO = reagentsTypes?.CaO ? (Conso_CaO / 1000 * reagentsTypes.CaO.cost) : 0;
+  const Cout_CaOH2wet = reagentsTypes?.CaOH2wet ? (Conso_CaOH2wet / 1000 * reagentsTypes.CaOH2wet.cost) : 0;
+  const Cout_CaOH2dry = reagentsTypes?.CaOH2dry ? (Conso_CaOH2dry / 1000 * reagentsTypes.CaOH2dry.cost) : 0;
+  const Cout_NaOH = reagentsTypes?.NaOH ? (Conso_NaOH / 1000 * reagentsTypes.NaOH.cost) : 0;
+  const Cout_NaOHCO3 = reagentsTypes?.NaOHCO3 ? (Conso_NaOHCO3 / 1000 * reagentsTypes.NaOHCO3.cost) : 0;
+  const Cout_Ammonia = reagentsTypes?.Ammonia ? (Conso_Ammonia / 1000 * reagentsTypes.Ammonia.cost) : 0;
+  const Cout_NaBrCaBr2 = reagentsTypes?.NaBr_CaBr2 ? (Conso_NaBrCaBr2 / 1000 * reagentsTypes.NaBr_CaBr2.cost) : 0;
+  const Cout_CAP = reagentsTypes?.CAP ? (Conso_CAP / 1000 * reagentsTypes.CAP.cost) : 0;
 
   // Calcul des émissions CO2 pour chaque réactif (en kg CO2)
-  const CO2_CaCO3 = reagentsTypes?.CaCO3 ? (Conso_CaCO3_kg / 1000 * reagentsTypes.CaCO3.co2PerTrip) : 0;
-  const CO2_CaO = reagentsTypes?.CaO ? (Conso_CaO_kg / 1000 * reagentsTypes.CaO.co2PerTrip) : 0;
-  const CO2_CaOH2wet = reagentsTypes?.CaOH2wet ? (Conso_CaOH2wet_kg / 1000 * reagentsTypes.CaOH2wet.co2PerTrip) : 0;
-  const CO2_CaOH2dry = reagentsTypes?.CaOH2dry ? (Conso_CaOH2dry_kg / 1000 * reagentsTypes.CaOH2dry.co2PerTrip) : 0;
-  const CO2_NaOH = reagentsTypes?.NaOH ? (Conso_NaOH_kg / 1000 * reagentsTypes.NaOH.co2PerTrip) : 0;
-  const CO2_NaOHCO3 = reagentsTypes?.NaOHCO3 ? (Conso_NaOHCO3_kg / 1000 * reagentsTypes.NaOHCO3.co2PerTrip) : 0;
-  const CO2_Ammonia = reagentsTypes?.Ammonia ? (Conso_Ammonia_kg / 1000 * reagentsTypes.Ammonia.co2PerTrip) : 0;
-  const CO2_NaBrCaBr2 = reagentsTypes?.NaBr_CaBr2 ? (Conso_NaBrCaBr2_kg / 1000 * reagentsTypes.NaBr_CaBr2.co2PerTrip) : 0;
-  const CO2_CAP = reagentsTypes?.CAP ? (Conso_CAP_kg / 1000 * reagentsTypes.CAP.co2PerTrip) : 0;
+  const CO2_CaCO3 = reagentsTypes?.CaCO3 ? (Conso_CaCO3 / 1000 * reagentsTypes.CaCO3.co2PerTrip) : 0;
+  const CO2_CaO = reagentsTypes?.CaO ? (Conso_CaO / 1000 * reagentsTypes.CaO.co2PerTrip) : 0;
+  const CO2_CaOH2wet = reagentsTypes?.CaOH2wet ? (Conso_CaOH2wet / 1000 * reagentsTypes.CaOH2wet.co2PerTrip) : 0;
+  const CO2_CaOH2dry = reagentsTypes?.CaOH2dry ? (Conso_CaOH2dry / 1000 * reagentsTypes.CaOH2dry.co2PerTrip) : 0;
+  const CO2_NaOH = reagentsTypes?.NaOH ? (Conso_NaOH / 1000 * reagentsTypes.NaOH.co2PerTrip) : 0;
+  const CO2_NaOHCO3 = reagentsTypes?.NaOHCO3 ? (Conso_NaOHCO3 / 1000 * reagentsTypes.NaOHCO3.co2PerTrip) : 0;
+  const CO2_Ammonia = reagentsTypes?.Ammonia ? (Conso_Ammonia / 1000 * reagentsTypes.Ammonia.co2PerTrip) : 0;
+  const CO2_NaBrCaBr2 = reagentsTypes?.NaBr_CaBr2 ? (Conso_NaBrCaBr2 / 1000 * reagentsTypes.NaBr_CaBr2.co2PerTrip) : 0;
+  const CO2_CAP = reagentsTypes?.CAP ? (Conso_CAP / 1000 * reagentsTypes.CAP.co2PerTrip) : 0;
 
   // Coût total de consommation des réactifs
   const cout_conso_reactifs = Cout_CaCO3 + Cout_CaO + Cout_CaOH2wet + Cout_CaOH2dry +
@@ -114,35 +114,35 @@ const WHBFlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) => {
 
   // Objet de consommation des réactifs
   const Conso_Reactifs = {
-    CaCO3: Conso_CaCO3_kg,
-    CaO: Conso_CaO_kg,
-    CaOH2wet: Conso_CaOH2wet_kg,
-    CaOH2dry: Conso_CaOH2dry_kg,
-    NaOH: Conso_NaOH_kg,
-    NaOHCO3: Conso_NaOHCO3_kg,
-    Ammonia: Conso_Ammonia_kg,
-    NaBrCaBr2: Conso_NaBrCaBr2_kg,
-    CAP: Conso_CAP_kg,
+    CaCO3: Conso_CaCO3,
+    CaO: Conso_CaO,
+    CaOH2wet: Conso_CaOH2wet,
+    CaOH2dry: Conso_CaOH2dry,
+    NaOH: Conso_NaOH,
+    NaOHCO3: Conso_NaOHCO3,
+    Ammonia: Conso_Ammonia,
+    NaBrCaBr2: Conso_NaBrCaBr2,
+    CAP: Conso_CAP,
     cout: cout_conso_reactifs,
     CO2_transport: CO2_total_reactifs,
   };
 
   const Residus = {
-    DryBottomAsh_kg_h,
-    WetBottomAsh_kg_h,
-    FlyAsh_kg_h,
+    DryBottomAsh,
+    WetBottomAsh,
+    FlyAsh,
   };
 
   const elementsGeneric = [
     { text: t('wasteFlow'), value: masse_dechets },
-    { text: t('flueGasFlowWet'), value: Debit_fumees_humide_Nm3_h },
-    { text: t('flueGasFlowDry'), value: Debit_fumees_sec_Nm3_h },
+    { text: t('flueGasFlowWet'), value: Debit_fumees_humide },
+    { text: t('flueGasFlowDry'), value: Debit_fumees_sec },
     { text: t('o2Calculated'), value: FG_O2_calcule },
     { text: t('flyAshesContentOutlet'), value: FlyAsh_g_Nm3 },
   ];
 
   const residusCalculations = [
-    { text: t('boilerAsh'), value: WHB_Ash_kg_h },
+    { text: t('boilerAsh'), value: WHB_Ash },
   ];
 
   // Mise à jour de innerData
@@ -151,7 +151,7 @@ const WHBFlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) => {
     innerData['PInput'] = masses_pollutant_input;
     innerData['Poutput'] = masses_pollutant_output;
     innerData['Conso_reactifs'] = Conso_Reactifs;
-    innerData['Boiler_ash'] = WHB_Ash_kg_h;
+    innerData['Boiler_ash'] = WHB_Ash;
   }
 
   const handleChange = (name, value) => {
@@ -236,10 +236,10 @@ const WHBFlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) => {
 
       <h3>{t('flueGasComposition')}</h3>
       <h4>{t('inputFlueGas')}</h4>
-      <PollutantCalculator masses={masses_pollutant_input} O2_mesure={FG_O2_calcule} O2_ref={O2ref} Debit_fumees_sec_Nm3_h={Debit_fumees_sec_Nm3_h} />
+      <PollutantCalculator masses={masses_pollutant_input} O2_mesure={FG_O2_calcule} O2_ref={O2ref} Debit_fumees_sec={Debit_fumees_sec} />
 
       <h4>{t('outputFlueGas')}</h4>
-      <PollutantCalculator masses={masses_pollutant_output} O2_mesure={FG_O2_calcule} O2_ref={O2ref} Debit_fumees_sec_Nm3_h={Debit_fumees_sec_Nm3_h} />
+      <PollutantCalculator masses={masses_pollutant_output} O2_mesure={FG_O2_calcule} O2_ref={O2ref} Debit_fumees_sec={Debit_fumees_sec} />
 
       <h3>{t('residuesCalculated')}</h3>
       <TableGeneric elements={residusCalculations} />

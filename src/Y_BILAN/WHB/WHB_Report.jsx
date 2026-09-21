@@ -38,22 +38,22 @@ const computeOpexCosts = (innerData) => {
   const { purchaseElectricityPrice = 0, ratioElec = 0, availability = 8000, currency = '€', airConsumptionPrice = 0, powerRatio = 0, waterPrices = {} } = getOpexData();
   const d = innerData || {};
   const elecRows = [1,2,3,4,5,6,7,8].map(i => ({ label: d[`labelElec${i}`] || `Poste ${i}`, kW: d[`consoElec${i}`] || 0 })).filter(r => r.kW > 0);
-  const totalElec_kW = elecRows.reduce((s, r) => s + r.kW, 0);
-  const coutElec = (totalElec_kW / 1000) * purchaseElectricityPrice;
-  const co2Elec = (ratioElec * totalElec_kW) / 1000;
+  const totalElec = elecRows.reduce((s, r) => s + r.kW, 0);
+  const coutElec = (totalElec / 1000) * purchaseElectricityPrice;
+  const co2Elec = (ratioElec * totalElec) / 1000;
   const conso_air = d.conso_air_co_N_m3 || 0;
   const coutAir = (conso_air / 1000) * airConsumptionPrice;
   const co2Air = (conso_air * powerRatio * ratioElec) / 1000;
   const eauRows = [
     { label: 'Eau potable', m3h: d.Conso_EauPotable_m3 || 0, prix: waterPrices?.potable || 0 },
     { label: 'Eau déminéralisée', m3h: d.Conso_EauDemin_m3 || 0, prix: waterPrices?.demineralized || 0 },
-    { label: "Eau d'alimentation chaudière", m3h: d.Debit_eau_m3_h || 0, prix: waterPrices?.demineralized || 0 },
+    { label: "Eau d'alimentation chaudière", m3h: d.Debit_eau || 0, prix: waterPrices?.demineralized || 0 },
   ].filter(r => r.m3h > 0);
   const coutEau = eauRows.reduce((s, r) => s + r.m3h * r.prix, 0);
   const totalCout_h = coutElec + coutAir + coutEau;
   const totalCout_an = totalCout_h * availability;
   const totalCO2_kgh = co2Elec + co2Air;
-  return { elecRows, totalElec_kW, coutElec, co2Elec, coutAir, co2Air, eauRows, coutEau, totalCout_h, totalCout_an, totalCO2_kgh, currency, availability };
+  return { elecRows, totalElec, coutElec, co2Elec, coutAir, co2Air, eauRows, coutEau, totalCout_h, totalCout_an, totalCO2_kgh, currency, availability };
 };
 
 const WHB_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
@@ -62,12 +62,12 @@ const WHB_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
   const T_OUT = innerData.T_OUT || innerData.T_WHB_out || 0;
   const T_IN = innerData.T_inlet_WHB || 0;
   const O2_calcule = innerData.O2_calcule || 0;
-  const FG_OUT_kg_h = innerData.FG_OUT_kg_h || {};
-  const _nm3Computed = { CO2: CO2_kg_m3(FG_OUT_kg_h.CO2||0), H2O: H2O_kg_m3(FG_OUT_kg_h.H2O||0), O2: O2_kg_m3(FG_OUT_kg_h.O2||0), N2: N2_kg_m3(FG_OUT_kg_h.N2||0) };
+  const FG_OUT_mass = innerData.FG_OUT_mass || {};
+  const _nm3Computed = { CO2: CO2_kg_m3(FG_OUT_mass.CO2||0), H2O: H2O_kg_m3(FG_OUT_mass.H2O||0), O2: O2_kg_m3(FG_OUT_mass.O2||0), N2: N2_kg_m3(FG_OUT_mass.N2||0) };
   _nm3Computed.dry = _nm3Computed.CO2 + _nm3Computed.O2 + _nm3Computed.N2;
   _nm3Computed.wet = _nm3Computed.dry + _nm3Computed.H2O;
-  const FG_OUT_Nm3_h = innerData.FG_OUT_Nm3_h || innerData.FG_WHB_OUT_Nm3_h || _nm3Computed;
-  const FG_wet_total = (FG_OUT_kg_h.CO2 || 0) + (FG_OUT_kg_h.H2O || 0) + (FG_OUT_kg_h.O2 || 0) + (FG_OUT_kg_h.N2 || 0);
+  const FG_OUT_vol = innerData.FG_OUT_vol || innerData.FG_WHB_OUT || _nm3Computed;
+  const FG_wet_total = (FG_OUT_mass.CO2 || 0) + (FG_OUT_mass.H2O || 0) + (FG_OUT_mass.O2 || 0) + (FG_OUT_mass.N2 || 0);
   const PInput = innerData.PInput || {};
   const Poutput = innerData.Poutput || {};
   const elecRows = [1,2,3,4,5,6,7,8].map(i => ({ label: innerData[`labelElec${i}`] || `Poste ${i}`, value: innerData[`consoElec${i}`] })).filter(r => parseFloat(r.value) > 0);
@@ -80,12 +80,12 @@ const WHB_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
       <Section title={`1. ${t('steamParameters')}`}>
         <div style={styles.twoCol}>
           <SubSection title={t('steamProduction')}>
-            <KV label={t('steamFlow')} value={fmt(innerData.Q_steam_kg_h || innerData['Débit_vapeur_kg_h'], 0)} />
-            <KV label={t('steamPressure')} value={fmt(innerData.Pression_vapeur_bar, 1)} />
-            <KV label={t('steamTemperature')} value={fmt(innerData.Temperature_vapeur_C, 1)} />
-            <KV label={t('feedwaterFlow')} value={fmt(innerData.Q_feedwater_kg_h, 0)} />
-            <KV label={t('boilerBlowdown')} value={fmt(innerData.Q_purge_kg_h || innerData.Eau_purge_kg_h, 0)} />
-            <KV label={t('flashDrumSteam')} value={fmt(innerData.Q_flash_drum_event_kg_h, 0)} />
+            <KV label={t('steamFlow')} value={fmt(innerData.Q_steam || innerData['Débit_vapeur'], 0)} />
+            <KV label={t('steamPressure')} value={fmt(innerData.Pression_vapeur, 1)} />
+            <KV label={t('steamTemperature')} value={fmt(innerData.Temperature_vapeur, 1)} />
+            <KV label={t('feedwaterFlow')} value={fmt(innerData.Q_feedwater, 0)} />
+            <KV label={t('boilerBlowdown')} value={fmt(innerData.Q_purge || innerData.Eau_purge, 0)} />
+            <KV label={t('flashDrumSteam')} value={fmt(innerData.Q_flash_drum_event, 0)} />
           </SubSection>
           <SubSection title={t('temperatures')}>
             <KV label={t('flueGasInletTemp')} value={fmt(T_IN, 0)} />
@@ -99,11 +99,11 @@ const WHB_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
         <div style={styles.twoCol}>
           <SubSection>
             <KV label={t('wetFlowTotal')} value={fmt(FG_wet_total)} />
-            <KV label={t('dryFlow')} value={fmt(FG_OUT_Nm3_h.dry, 0)} />
-            <KV label={t('wetFlow')} value={fmt(FG_OUT_Nm3_h.wet, 0)} />
+            <KV label={t('dryFlow')} value={fmt(FG_OUT_vol.dry, 0)} />
+            <KV label={t('wetFlow')} value={fmt(FG_OUT_vol.wet, 0)} />
           </SubSection>
           <SubSection title={t('outletGasComposition')}>
-            <GasTable data={{ 'kg/h': FG_OUT_kg_h, 'Nm³/h': { CO2: FG_OUT_Nm3_h.CO2, H2O: FG_OUT_Nm3_h.H2O, O2: FG_OUT_Nm3_h.O2, N2: FG_OUT_Nm3_h.N2 } }} />
+            <GasTable data={{ 'kg/h': FG_OUT_mass, 'Nm³/h': { CO2: FG_OUT_vol.CO2, H2O: FG_OUT_vol.H2O, O2: FG_OUT_vol.O2, N2: FG_OUT_vol.N2 } }} />
           </SubSection>
         </div>
       </Section>
@@ -116,12 +116,12 @@ const WHB_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
       <Section title={`4. ${t('steamValorization')}`}>
         <div style={styles.twoCol}>
           <SubSection title={t('netProduction')}>
-            <KV label={t('netSteamProduced')} value={fmt(innerData.Q_steam_net_kg_h || innerData.Q_steam_kg_h || innerData['Débit_vapeur_kg_h'], 0)} />
-            <KV label={t('recoveredPower')} value={fmt(innerData.P_recuperee_kW)} />
+            <KV label={t('netSteamProduced')} value={fmt(innerData.Q_steam_net || innerData.Q_steam || innerData['Débit_vapeur'], 0)} />
+            <KV label={t('recoveredPower')} value={fmt(innerData.P_recuperee)} />
           </SubSection>
           <SubSection title={t('turbineValorization')}>
             <KV label={t('turbineType')} value={innerData.turbine_type || '—'} />
-            <KV label={t('electricPower')} value={fmt(innerData.puissance_electrique_kW || innerData.P_elec_turbine_kW)} />
+            <KV label={t('electricPower')} value={fmt(innerData.puissance_electrique || innerData.P_elec_turbine)} />
             <KV label={t('globalEfficiency')} value={fmt(innerData.rendement_global_pct || innerData.rendement_turbine, 1)} />
           </SubSection>
         </div>
@@ -134,7 +134,7 @@ const WHB_Report = ({ innerData = {}, currentLanguage = 'fr' }) => {
       </Section>
 
       <Section title={`6. ${t('opex')} — ${t('hourlyCosts')}`}>
-        {opex.totalElec_kW === 0 && opex.coutEau === 0
+        {opex.totalElec === 0 && opex.coutEau === 0
           ? <p style={{ color: '#999', fontSize: 12, padding: '10px 14px' }}>{t('opexNotAvailable')}</p>
           : (
             <div>

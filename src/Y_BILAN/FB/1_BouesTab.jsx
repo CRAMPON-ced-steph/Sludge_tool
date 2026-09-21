@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 
 import { getTranslatedParameter, getLanguageCode } from '../../F_Gestion_Langues/Fonction_Traduction';
 import { translations } from './FB_traduction';
+import UnitInput from '../../C_Components/UnitInput';
 
 // ✅ Hook personnalisé pour traductions dynamiques
 const useTranslation = (currentLanguage = 'fr') => {
@@ -16,9 +17,9 @@ const useTranslation = (currentLanguage = 'fr') => {
 import {
   PCI_kJ_kgMV,
   PCI_kcal_kgMV,
-  PCI_kcal_kg,
+  PCI,
   PCS_kcal_kgMV,
-  PCS_kcal_kg,
+  PCS,
   PCI_Dulong,
 } from '../../A_Transverse_fonction/bilan_fct_FB';
 
@@ -96,18 +97,18 @@ const defaultFonctionnement = () => ({
 const defaultBoue = () => {
   const MS_pourcent = 25;
   const MV_pourcent = 70;
-  const MS_kg_h = 2000;
-  const BoueBrute = MS_kg_h / (MS_pourcent / 100);
-  const MV_kg_h = MS_kg_h * (MV_pourcent / 100);
+  const MS = 2000;
+  const BoueBrute = MS / (MS_pourcent / 100);
+  const MV = MS * (MV_pourcent / 100);
   return {
     sludgeType: 'PRIMAIRE',
     MS_pourcent,
     MV_pourcent,
-    MS_kg_h,
-    BoueBrute_kg_h: +BoueBrute.toFixed(1),
-    MV_kg_h: +MV_kg_h.toFixed(1),
-    EauExtraite_kg_h: +(BoueBrute - MS_kg_h).toFixed(1),
-    MM_kg_h: +(MS_kg_h - MV_kg_h).toFixed(1),
+    MS,
+    BoueBrute: +BoueBrute.toFixed(1),
+    MV: +MV.toFixed(1),
+    EauExtraite: +(BoueBrute - MS).toFixed(1),
+    MM: +(MS - MV).toFixed(1),
   };
 };
 
@@ -193,28 +194,28 @@ const BouesTab = ({ innerData, currentLanguage  }) => {
   useEffect(() => {
     const MS_pourcent = Number(boue.MS_pourcent) || 0;
     const MV_pourcent = Number(boue.MV_pourcent) || 0;
-    const MS_kg_h = Number(boue.MS_kg_h) || 0;
+    const MS = Number(boue.MS) || 0;
 
-    const BoueBrute = MS_pourcent > 0 ? MS_kg_h / (MS_pourcent / 100) : 0;
-    const MV_kg_h = MS_kg_h * (MV_pourcent / 100);
-    const EauExtraite = BoueBrute - MS_kg_h;
-    const MM_kg_h = MS_kg_h - MV_kg_h;
+    const BoueBrute = MS_pourcent > 0 ? MS / (MS_pourcent / 100) : 0;
+    const MV = MS * (MV_pourcent / 100);
+    const EauExtraite = BoueBrute - MS;
+    const MM = MS - MV;
 
     setBoue((prev) => ({
       ...prev,
-      BoueBrute_kg_h: +BoueBrute.toFixed(1),
-      MV_kg_h: +MV_kg_h.toFixed(1),
-      EauExtraite_kg_h: +EauExtraite.toFixed(1),
-      MM_kg_h: +MM_kg_h.toFixed(1),
+      BoueBrute: +BoueBrute.toFixed(1),
+      MV: +MV.toFixed(1),
+      EauExtraite: +EauExtraite.toFixed(1),
+      MM: +MM.toFixed(1),
     }));
-  }, [boue.MS_pourcent, boue.MV_pourcent, boue.MS_kg_h]);
+  }, [boue.MS_pourcent, boue.MV_pourcent, boue.MS]);
 
   // ============================================================
   // CALCUL CHONS (kg/h par élément)
   // ============================================================
 
   useEffect(() => {
-    const MV = Number(boue.MV_kg_h) || 0;
+    const MV = Number(boue.MV) || 0;
     const elements = ['C', 'H', 'O', 'N', 'S', 'Cl'];
 
     setChons((prev) => {
@@ -228,7 +229,7 @@ const BouesTab = ({ innerData, currentLanguage  }) => {
       next.sumPercent = +sum.toFixed(2);
       return next;
     });
-  }, [chons.C, chons.H, chons.O, chons.N, chons.S, chons.Cl, boue.MV_kg_h]);
+  }, [chons.C, chons.H, chons.O, chons.N, chons.S, chons.Cl, boue.MV]);
 
   // ============================================================
   // MISE À JOUR innerData
@@ -244,12 +245,12 @@ const BouesTab = ({ innerData, currentLanguage  }) => {
     innerData.sludgeType = boue.sludgeType;
     innerData.MS_pourcent = Number(boue.MS_pourcent);
     innerData.MV_pourcent = Number(boue.MV_pourcent);
-    innerData.MS_kg_h = Number(boue.MS_kg_h);
-    innerData.BoueBrute_kg_h = Number(boue.BoueBrute_kg_h);
-    innerData.MV_kg_h = Number(boue.MV_kg_h);
-    innerData.EauExtraite_kg_h = Number(boue.EauExtraite_kg_h);
-    innerData.MM_kg_h = Number(boue.MM_kg_h);
-    innerData.MasseBoueBrute = Number(boue.BoueBrute_kg_h);
+    innerData.MS = Number(boue.MS);
+    innerData.BoueBrute = Number(boue.BoueBrute);
+    innerData.MV = Number(boue.MV);
+    innerData.EauExtraite = Number(boue.EauExtraite);
+    innerData.MM = Number(boue.MM);
+    innerData.MasseBoueBrute = Number(boue.BoueBrute);
 
     // Alias legacy
     innerData.siccite = Number(boue.MS_pourcent);
@@ -266,16 +267,16 @@ const BouesTab = ({ innerData, currentLanguage  }) => {
     // PCI / PCS
     const pci_kJ_kgMV = PCI_kJ_kgMV(boue.sludgeType);
     const pci_kcal_kgMV = PCI_kcal_kgMV(boue.sludgeType);
-    const pci_kcal_kg = PCI_kcal_kg(Number(boue.MS_pourcent), Number(boue.MV_pourcent), pci_kcal_kgMV);
+    const pci = PCI(Number(boue.MS_pourcent), Number(boue.MV_pourcent), pci_kcal_kgMV);
     const pcs_kcal_kgMV = PCS_kcal_kgMV(pci_kcal_kgMV, Number(chons.H));
-    const pcs_kcal_kg = PCS_kcal_kg(pci_kcal_kg, Number(boue.MS_pourcent), Number(boue.MV_pourcent), Number(chons.H));
+    const pcs = PCS(pci, Number(boue.MS_pourcent), Number(boue.MV_pourcent), Number(chons.H));
     const pci_dulong = PCI_Dulong(Number(chons.C), Number(chons.H), Number(chons.O), Number(chons.S));
 
     innerData.pciKJkgMV = pci_kJ_kgMV;
     innerData.PCIKCALKGMV = pci_kcal_kgMV;
-    innerData.pciKcalkg = pci_kcal_kg;
+    innerData.pciKcalkg = pci;
     innerData.pcsKcalkgMV = pcs_kcal_kgMV;
-    innerData.pcsKcalkg = pcs_kcal_kg;
+    innerData.pcsKcalkg = pcs;
     innerData.pciDulong = pci_dulong;
 
     // Métaux lourds - Export individuel
@@ -301,52 +302,52 @@ const BouesTab = ({ innerData, currentLanguage  }) => {
     };
 
     // Calculs des masses métalliques [kg/h]
-    const MS_kg_h = Number(boue.MS_kg_h);
+    const MS = Number(boue.MS);
 
-    const Al_kg_h = (Number(heavyMetals.al) * MS_kg_h) / 1e6;
-    const As_kg_h = (Number(heavyMetals.as) * MS_kg_h) / 1e6;
-    const Cd_kg_h = (Number(heavyMetals.cd) * MS_kg_h) / 1e6;
-    const Cr_kg_h = (Number(heavyMetals.cr) * MS_kg_h) / 1e6;
-    const Cu_kg_h = (Number(heavyMetals.cu) * MS_kg_h) / 1e6;
-    const Fe_kg_h = (Number(heavyMetals.fe) * MS_kg_h) / 1e6;
-    const Hg_kg_h = (Number(heavyMetals.hg) * MS_kg_h) / 1e6;
-    const Ni_kg_h = (Number(heavyMetals.ni) * MS_kg_h) / 1e6;
-    const Pb_kg_h = (Number(heavyMetals.pb) * MS_kg_h) / 1e6;
-    const Zn_kg_h = (Number(heavyMetals.zn) * MS_kg_h) / 1e6;
-    const PCDDF_kg_h = (Number(heavyMetals.pcddf) * MS_kg_h) / 1e6;
-    const Ti_kg_h = (Number(heavyMetals.ti) * MS_kg_h) / 1e6;
-    const HF_kg_h = (Number(heavyMetals.hf ?? 500) * MS_kg_h) / 1e6;
+    const Al = (Number(heavyMetals.al) * MS) / 1e6;
+    const As = (Number(heavyMetals.as) * MS) / 1e6;
+    const Cd = (Number(heavyMetals.cd) * MS) / 1e6;
+    const Cr = (Number(heavyMetals.cr) * MS) / 1e6;
+    const Cu = (Number(heavyMetals.cu) * MS) / 1e6;
+    const Fe = (Number(heavyMetals.fe) * MS) / 1e6;
+    const Hg = (Number(heavyMetals.hg) * MS) / 1e6;
+    const Ni = (Number(heavyMetals.ni) * MS) / 1e6;
+    const Pb = (Number(heavyMetals.pb) * MS) / 1e6;
+    const Zn = (Number(heavyMetals.zn) * MS) / 1e6;
+    const PCDDF = (Number(heavyMetals.pcddf) * MS) / 1e6;
+    const Ti = (Number(heavyMetals.ti) * MS) / 1e6;
+    const HF = (Number(heavyMetals.hf ?? 500) * MS) / 1e6;
 
-    const masse_pollutant_metallique_kg_h = {
-      Al_kg_h,
-      As_kg_h,
-      Cd_kg_h,
-      Cr_kg_h,
-      Cu_kg_h,
-      Fe_kg_h,
-      Hg_kg_h,
-      Ni_kg_h,
-      Pb_kg_h,
-      Zn_kg_h,
-      PCDDF_kg_h,
-      Ti_kg_h,
-      HF_kg_h,
+    const masse_pollutant_metallique = {
+      Al,
+      As,
+      Cd,
+      Cr,
+      Cu,
+      Fe,
+      Hg,
+      Ni,
+      Pb,
+      Zn,
+      PCDDF,
+      Ti,
+      HF,
     };
 
-    innerData.masse_pollutant_metallique_kg_h = masse_pollutant_metallique_kg_h;
-    innerData.Al_kg_h = Al_kg_h;
-    innerData.As_kg_h = As_kg_h;
-    innerData.Cd_kg_h = Cd_kg_h;
-    innerData.Cr_kg_h = Cr_kg_h;
-    innerData.Cu_kg_h = Cu_kg_h;
-    innerData.Fe_kg_h = Fe_kg_h;
-    innerData.Hg_kg_h = Hg_kg_h;
-    innerData.Ni_kg_h = Ni_kg_h;
-    innerData.Pb_kg_h = Pb_kg_h;
-    innerData.Zn_kg_h = Zn_kg_h;
-    innerData.PCDDF_kg_h = PCDDF_kg_h;
-    innerData.Ti_kg_h = Ti_kg_h;
-    innerData.HF_kg_h = HF_kg_h;
+    innerData.masse_pollutant_metallique = masse_pollutant_metallique;
+    innerData.Al = Al;
+    innerData.As = As;
+    innerData.Cd = Cd;
+    innerData.Cr = Cr;
+    innerData.Cu = Cu;
+    innerData.Fe = Fe;
+    innerData.Hg = Hg;
+    innerData.Ni = Ni;
+    innerData.Pb = Pb;
+    innerData.Zn = Zn;
+    innerData.PCDDF = PCDDF;
+    innerData.Ti = Ti;
+    innerData.HF = HF;
   }, [fonctionnement, boue, chons, heavyMetals, innerData]);
 
   // ============================================================
@@ -561,12 +562,12 @@ const BouesTab = ({ innerData, currentLanguage  }) => {
           </div>
           <div>
             <label style={labelStyle}>{t('Quantité de boues') || 'Quantité de boues'} [kg MS/h]</label>
-            <input
-              type="number"
+            <UnitInput
+              valueSI={boue.MS}
+              quantity="massFlow"
+              onChange={(siVal) => setBoue((p) => ({ ...p, MS: Number(siVal) || 0 }))}
               min="0"
               step="0.1"
-              value={boue.MS_kg_h}
-              onChange={(e) => setBoue((p) => ({ ...p, MS_kg_h: Number(e.target.value) || 0 }))}
               style={inputStyle}
             />
           </div>
@@ -574,10 +575,10 @@ const BouesTab = ({ innerData, currentLanguage  }) => {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px', alignItems: 'start' }}>
           {[
-            { label: t('Matière brute') || 'Matière brute', unit: '[kg/h]', val: boue.BoueBrute_kg_h },
-            { label: t('Matière volatile') || 'Matière volatile', unit: '[kg/h]', val: boue.MV_kg_h },
-            { label: t('Matière minérale') || 'Matière minérale', unit: '[kg/h]', val: boue.MM_kg_h },
-            { label: t('Eau extraite') || 'Eau extraite', unit: '[kg/h]', val: boue.EauExtraite_kg_h },
+            { label: t('Matière brute') || 'Matière brute', unit: '[kg/h]', val: boue.BoueBrute },
+            { label: t('Matière volatile') || 'Matière volatile', unit: '[kg/h]', val: boue.MV },
+            { label: t('Matière minérale') || 'Matière minérale', unit: '[kg/h]', val: boue.MM },
+            { label: t('Eau extraite') || 'Eau extraite', unit: '[kg/h]', val: boue.EauExtraite },
           ].map(({ label, unit, val }) => (
             <div key={label}>
               <label style={labelStyle}>
@@ -692,36 +693,36 @@ const BouesTab = ({ innerData, currentLanguage  }) => {
           </p>
 
           {(() => {
-            const MS_kg_h = Number(boue.MS_kg_h) || 0;
+            const MS = Number(boue.MS) || 0;
 
-            const Al_kg_h = (Number(heavyMetals.al) * MS_kg_h) / 1e6;
-            const As_kg_h = (Number(heavyMetals.as) * MS_kg_h) / 1e6;
-            const Cd_kg_h = (Number(heavyMetals.cd) * MS_kg_h) / 1e6;
-            const Cr_kg_h = (Number(heavyMetals.cr) * MS_kg_h) / 1e6;
-            const Cu_kg_h = (Number(heavyMetals.cu) * MS_kg_h) / 1e6;
-            const Fe_kg_h = (Number(heavyMetals.fe) * MS_kg_h) / 1e6;
-            const Hg_kg_h = (Number(heavyMetals.hg) * MS_kg_h) / 1e6;
-            const Ni_kg_h = (Number(heavyMetals.ni) * MS_kg_h) / 1e6;
-            const Pb_kg_h = (Number(heavyMetals.pb) * MS_kg_h) / 1e6;
-            const Zn_kg_h = (Number(heavyMetals.zn) * MS_kg_h) / 1e6;
-            const PCDDF_kg_h = (Number(heavyMetals.pcddf) * MS_kg_h) / 1e6;
-            const Ti_kg_h = (Number(heavyMetals.ti) * MS_kg_h) / 1e6;
-            const HF_kg_h = (Number(heavyMetals.hf ?? 500) * MS_kg_h) / 1e6;
+            const Al = (Number(heavyMetals.al) * MS) / 1e6;
+            const As = (Number(heavyMetals.as) * MS) / 1e6;
+            const Cd = (Number(heavyMetals.cd) * MS) / 1e6;
+            const Cr = (Number(heavyMetals.cr) * MS) / 1e6;
+            const Cu = (Number(heavyMetals.cu) * MS) / 1e6;
+            const Fe = (Number(heavyMetals.fe) * MS) / 1e6;
+            const Hg = (Number(heavyMetals.hg) * MS) / 1e6;
+            const Ni = (Number(heavyMetals.ni) * MS) / 1e6;
+            const Pb = (Number(heavyMetals.pb) * MS) / 1e6;
+            const Zn = (Number(heavyMetals.zn) * MS) / 1e6;
+            const PCDDF = (Number(heavyMetals.pcddf) * MS) / 1e6;
+            const Ti = (Number(heavyMetals.ti) * MS) / 1e6;
+            const HF = (Number(heavyMetals.hf ?? 500) * MS) / 1e6;
 
             const masses = [
-              { label: 'Al (Aluminium)', value: Al_kg_h, color: '#8b5cf6' },
-              { label: 'As (Arsenic)', value: As_kg_h, color: '#f59e0b' },
-              { label: 'Cd (Cadmium)', value: Cd_kg_h, color: '#ef4444' },
-              { label: 'Cr (Chrome)', value: Cr_kg_h, color: '#10b981' },
-              { label: 'Cu (Cuivre)', value: Cu_kg_h, color: '#f97316' },
-              { label: 'Fe (Fer)', value: Fe_kg_h, color: '#6b7280' },
-              { label: 'Hg (Mercure)', value: Hg_kg_h, color: '#ec4899' },
-              { label: 'Ni (Nickel)', value: Ni_kg_h, color: '#06b6d4' },
-              { label: 'Pb (Plomb)', value: Pb_kg_h, color: '#64748b' },
-              { label: 'Zn (Zinc)', value: Zn_kg_h, color: '#3b82f6' },
-              { label: 'PCDDF', value: PCDDF_kg_h, color: '#a855f7' },
-              { label: 'Ti (Titane)', value: Ti_kg_h, color: '#14b8a6' },
-              { label: 'HF (Acide fluorhydrique)', value: HF_kg_h, color: '#dc2626' },
+              { label: 'Al (Aluminium)', value: Al, color: '#8b5cf6' },
+              { label: 'As (Arsenic)', value: As, color: '#f59e0b' },
+              { label: 'Cd (Cadmium)', value: Cd, color: '#ef4444' },
+              { label: 'Cr (Chrome)', value: Cr, color: '#10b981' },
+              { label: 'Cu (Cuivre)', value: Cu, color: '#f97316' },
+              { label: 'Fe (Fer)', value: Fe, color: '#6b7280' },
+              { label: 'Hg (Mercure)', value: Hg, color: '#ec4899' },
+              { label: 'Ni (Nickel)', value: Ni, color: '#06b6d4' },
+              { label: 'Pb (Plomb)', value: Pb, color: '#64748b' },
+              { label: 'Zn (Zinc)', value: Zn, color: '#3b82f6' },
+              { label: 'PCDDF', value: PCDDF, color: '#a855f7' },
+              { label: 'Ti (Titane)', value: Ti, color: '#14b8a6' },
+              { label: 'HF (Acide fluorhydrique)', value: HF, color: '#dc2626' },
             ];
 
             return (

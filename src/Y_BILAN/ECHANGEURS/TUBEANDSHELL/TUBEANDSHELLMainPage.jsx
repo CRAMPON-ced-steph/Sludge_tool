@@ -14,7 +14,7 @@ const TUBEANDSHELLMainPage = ({ nodeData, title, onSendData, onClose, onGoBack, 
 
   // Valeurs amont capturées une fois au montage — stables à travers les changements d'onglet
   const T_IN_upstream  = useRef(nodeData?.result?.T_OUT ?? 580).current;
-  const FG_IN_upstream = useRef(nodeData?.result?.FG_OUT_kg_h || { CO2: 3467, H2O: 3193, O2: 3151, N2: 17658 }).current;
+  const FG_IN_upstream = useRef(nodeData?.result?.FG_OUT || { CO2: 3467, H2O: 3193, O2: 3151, N2: 17658 }).current;
   const P_IN_upstream  = useRef(nodeData?.result?.P_OUT ?? 0).current;
 
   const tabs = [

@@ -56,11 +56,11 @@ const FlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) => {
   const HF_stoechiométrie = emissionsREACTOR['HF stoechiométrie'];
 
   // Input data from innerData
-  const Debit_fumees_sec_Nm3_h = innerData?.FG_RK_OUT_Nm3_h?.dry || 10000;
-  const Debit_fumees_humide_Nm3_h = innerData?.FG_RK_OUT_Nm3_h?.wet || 10000;
+  const Debit_fumees_sec = innerData?.FG_RK_OUT?.dry || 10000;
+  const Debit_fumees_humide = innerData?.FG_RK_OUT?.wet || 10000;
   const FG_O2_calcule = innerData?.O2calcul || 12;
   const masse_dechets = innerData?.masse || 10;
-  const Inert_kg_h = innerData?.Inertmass || 1;
+  const Inert = innerData?.Inertmass || 1;
   const masses_pollutant_input = innerData?.PollutantOutput || {};
 
   // Calculate R1, R2, R3 ratios
@@ -138,17 +138,17 @@ const FlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) => {
   masses_pollutant_output.S = masses_pollutant_output.SO2 / 2;
 
   // Calculate ash masses
-  let DryBottomAsh_kg_h = 0;
-  let FlyAsh_kg_h = 0;
-  let WetBottomAsh_kg_h = 0;
+  let DryBottomAsh = 0;
+  let FlyAsh = 0;
+  let WetBottomAsh = 0;
 
-  if (Inert_kg_h !== 0) {
-    FlyAsh_kg_h = FlyAsh_g_Nm3 * Debit_fumees_sec_Nm3_h / 1000;
-    DryBottomAsh_kg_h = Inert_kg_h - FlyAsh_kg_h;
+  if (Inert !== 0) {
+    FlyAsh = FlyAsh_g_Nm3 * Debit_fumees_sec / 1000;
+    DryBottomAsh = Inert - FlyAsh;
   }
 
-  DryBottomAsh_kg_h = DryBottomAsh_kg_h + mass_residus_tot;
-  WetBottomAsh_kg_h = DryBottomAsh_kg_h / (Bottom_Ash_Siccity / 100);
+  DryBottomAsh = DryBottomAsh + mass_residus_tot;
+  WetBottomAsh = DryBottomAsh / (Bottom_Ash_Siccity / 100);
 
   // Reagent consumption assignments
   let conso_CaCO3_SOx = 0, conso_CaO_SOx = 0, conso_CaOH2wet_SOx = 0;
@@ -180,40 +180,40 @@ const FlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) => {
   if (HF_reactif === 'NaOHCO3') conso_NaOHCO3_HF = mass_reactif_reel_HF;
 
   // Total consumption by reagent type
-  const Conso_CaCO3_kg = conso_CaCO3_SOx + conso_CaCO3_HCl + conso_CaCO3_HF;
-  const Conso_CaO_kg = conso_CaO_SOx + conso_CaO_HCl + conso_CaO_HF;
-  const Conso_CaOH2wet_kg = conso_CaOH2wet_SOx + conso_CaOH2wet_HCl + conso_CaOH2wet_HF;
-  const Conso_CaOH2dry_kg = conso_CaOH2dry_SOx + conso_CaOH2dry_HCl + conso_CaOH2dry_HF;
-  const Conso_NaOH_kg = conso_NaOH_SOx + conso_NaOH_HCl + conso_NaOH_HF;
-  const Conso_NaOHCO3_kg = conso_NaOHCO3_SOx + conso_NaOHCO3_HCl + conso_NaOHCO3_HF;
+  const Conso_CaCO3 = conso_CaCO3_SOx + conso_CaCO3_HCl + conso_CaCO3_HF;
+  const Conso_CaO = conso_CaO_SOx + conso_CaO_HCl + conso_CaO_HF;
+  const Conso_CaOH2wet = conso_CaOH2wet_SOx + conso_CaOH2wet_HCl + conso_CaOH2wet_HF;
+  const Conso_CaOH2dry = conso_CaOH2dry_SOx + conso_CaOH2dry_HCl + conso_CaOH2dry_HF;
+  const Conso_NaOH = conso_NaOH_SOx + conso_NaOH_HCl + conso_NaOH_HF;
+  const Conso_NaOHCO3 = conso_NaOHCO3_SOx + conso_NaOHCO3_HCl + conso_NaOHCO3_HF;
 
   const Conso_Reactifs = {
-    CaCO3: Conso_CaCO3_kg,
-    CaO: Conso_CaO_kg,
-    CaOH2wet: Conso_CaOH2wet_kg,
-    CaOH2dry: Conso_CaOH2dry_kg,
-    NaOH: Conso_NaOH_kg,
-    NaOHCO3: Conso_NaOHCO3_kg,
+    CaCO3: Conso_CaCO3,
+    CaO: Conso_CaO,
+    CaOH2wet: Conso_CaOH2wet,
+    CaOH2dry: Conso_CaOH2dry,
+    NaOH: Conso_NaOH,
+    NaOHCO3: Conso_NaOHCO3,
   };
 
   const Residus = {
-    DryBottomAsh_kg_h,
-    WetBottomAsh_kg_h,
-    FlyAsh_kg_h,
+    DryBottomAsh,
+    WetBottomAsh,
+    FlyAsh,
   };
 
   const elementsGeneric = [
     { text: t('Waste Flow [kg/h]'), value: masse_dechets.toFixed(2) },
-    { text: t('Flue gas Flow Wet [Nm3/h]'), value: Debit_fumees_humide_Nm3_h.toFixed(0) },
-    { text: t('Flue gas Flow Dry [Nm3/h]'), value: Debit_fumees_sec_Nm3_h.toFixed(0) },
+    { text: t('Flue gas Flow Wet [Nm3/h]'), value: Debit_fumees_humide.toFixed(0) },
+    { text: t('Flue gas Flow Dry [Nm3/h]'), value: Debit_fumees_sec.toFixed(0) },
     { text: t('O2 calculated [%]'), value: FG_O2_calcule.toFixed(2) },
-    { text: t('inert mass [kg/h]'), value: Inert_kg_h.toFixed(2) },
+    { text: t('inert mass [kg/h]'), value: Inert.toFixed(2) },
   ];
 
   const residusCalculations = [
-    { text: t('Dry residus [kg/h]'), value: DryBottomAsh_kg_h.toFixed(2) },
-    { text: t('Wet residus [kg/h]'), value: WetBottomAsh_kg_h.toFixed(2) },
-    { text: t('Fly ash [kg/h]'), value: FlyAsh_kg_h.toFixed(2) },
+    { text: t('Dry residus [kg/h]'), value: DryBottomAsh.toFixed(2) },
+    { text: t('Wet residus [kg/h]'), value: WetBottomAsh.toFixed(2) },
+    { text: t('Fly ash [kg/h]'), value: FlyAsh.toFixed(2) },
   ];
 
   // Update innerData
@@ -314,7 +314,7 @@ const FlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) => {
         masses={masses_pollutant_input}
         O2_mesure={FG_O2_calcule}
         O2_ref={O2ref}
-        Debit_fumees_sec_Nm3_h={Debit_fumees_sec_Nm3_h}
+        Debit_fumees_sec={Debit_fumees_sec}
       />
 
       <h4>{t('Pollutant Treatment Table')}</h4>
@@ -517,7 +517,7 @@ const FlueGasPollutantEmission = ({ innerData, currentLanguage = 'fr' }) => {
         masses={masses_pollutant_output}
         O2_mesure={FG_O2_calcule}
         O2_ref={O2ref}
-        Debit_fumees_sec_Nm3_h={Debit_fumees_sec_Nm3_h}
+        Debit_fumees_sec={Debit_fumees_sec}
       />
 
       <h3>{t('Residus calculated')}</h3>

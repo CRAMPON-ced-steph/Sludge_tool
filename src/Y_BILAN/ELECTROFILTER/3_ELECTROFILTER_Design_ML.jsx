@@ -32,8 +32,8 @@ const ELECTROFILTER_Design = ({ innerData = {}, setInnerData, currentLanguage = 
   } = opexData;
 
   // Valeurs par défaut sécurisées pour les débits de fumées
-  const Debit_fumees_sec_Nm3_h = innerData?.FG_RK_OUT_Nm3_h?.dry || 28666;
-  const Debit_fumees_humide_Nm3_h = innerData?.FG_RK_OUT_Nm3_h?.wet || 28666;
+  const Debit_fumees_sec = innerData?.FG_RK_OUT?.dry || 28666;
+  const Debit_fumees_humide = innerData?.FG_RK_OUT?.wet || 28666;
 
   // PDC calcul
   const [PDC_calcul, setPDC_calcul] = useState({
@@ -46,7 +46,7 @@ const ELECTROFILTER_Design = ({ innerData = {}, setInnerData, currentLanguage = 
   const P_out_mmCE = P_in_mmCE - PDC_mmCE;
   
   const T_IN = innerData?.T_OUT || 200;
-  const Qv_humide_m3_h = coeff_Nm3_to_m3(P_in_mmCE, T_IN) * Debit_fumees_humide_Nm3_h;
+  const Qv_humide = coeff_Nm3_to_m3(P_in_mmCE, T_IN) * Debit_fumees_humide;
 
   // Paramètres du dimensionnement de l'électrofiltre
   const [parametres, setParametres] = useState({
@@ -58,9 +58,9 @@ const ELECTROFILTER_Design = ({ innerData = {}, setInnerData, currentLanguage = 
   const Rdt_capture = parametres['Rendement de capture [%]'];
   const Vitesse_migration = parametres['Vitesse de migration [m/s]'];
   const PDC = parametres['PDC électrofiltre [mmCE]'];
-  const Qv_Nm3_h = innerData?.FG_humide_tot || 10000;
+  const Qv = innerData?.FG_humide_tot || 10000;
   const P_inlet = innerData.P_OUT || 0;
-  const surfacePlaques = Math.abs(Qv_Nm3_h / (Vitesse_migration * 3600) * Math.log(1 - Rdt_capture / 100));
+  const surfacePlaques = Math.abs(Qv / (Vitesse_migration * 3600) * Math.log(1 - Rdt_capture / 100));
   const nombrePlaques = Math.ceil(surfacePlaques / 9);
   const nombreChamps = 2;
   const nombreRueChamps = surfacePlaques / nombrePlaques / nombreChamps;
@@ -71,9 +71,9 @@ const ELECTROFILTER_Design = ({ innerData = {}, setInnerData, currentLanguage = 
     'consommation vis de transport [kW]': getInitialValue('Vis_de_transport', 4),
   });
 
-  const conso_elec_champs_kW = Math.ceil(nombreRueChamps * 3.6);
-  const conso_vis_transport_kW = Estimation_conso_Electrofiltre['consommation vis de transport [kW]'];
-  const conso_elec_marteau_debatissage_kW = 2 * nombreChamps;
+  const conso_elec_champs = Math.ceil(nombreRueChamps * 3.6);
+  const conso_vis_transport = Estimation_conso_Electrofiltre['consommation vis de transport [kW]'];
+  const conso_elec_marteau_debatissage = 2 * nombreChamps;
 
   // Consommation air comprimé
   const [conso_air_comprime, setConso_air_comprime] = useState({
@@ -83,10 +83,10 @@ const ELECTROFILTER_Design = ({ innerData = {}, setInnerData, currentLanguage = 
   });
 
   const nombre_cycle_nb = conso_air_comprime['Nombre de cycles de nettoyage [Nb]'];
-  const pression_air_comprime_bar = parseFloat(conso_air_comprime['Pression air comprimé [Bar]'] || '7');
+  const pression_air_comprime = parseFloat(conso_air_comprime['Pression air comprimé [Bar]'] || '7');
   const air_comprime_par_cycle = conso_air_comprime['Air comprime par cycle [Nm3/cycle]'];
-  const conso_air_co_Nm3_h = air_comprime_par_cycle * nombre_cycle_nb;
-  const Conso_elec_air_co_kW = conso_air_co_Nm3_h * powerRatio;
+  const conso_air_co = air_comprime_par_cycle * nombre_cycle_nb;
+  const Conso_elec_air_co = conso_air_co * powerRatio;
 
   // Évacuation des résidus
   const [evacuation_electrofiltre_ash, setEvacuation_electrofiltre_ash] = useState({
@@ -95,13 +95,13 @@ const ELECTROFILTER_Design = ({ innerData = {}, setInnerData, currentLanguage = 
   });
 
   const residus_a_evacuer = innerData?.Residus || {
-    DryBottomAsh_kg_h: 0,
-    WetBottomAsh_kg_h: 0,
+    DryBottomAsh: 0,
+    WetBottomAsh: 0,
   };
 
   const type_camion = evacuation_electrofiltre_ash['Type de camion'];
   const distance_km = evacuation_electrofiltre_ash['Distance [km]'];
-  const cendres_kg_h = residus_a_evacuer.WetBottomAsh_kg_h;
+  const cendres = residus_a_evacuer.WetBottomAsh;
 
   let CO2_transport_kg_km, cout_transport_euro_km;
   switch(type_camion) {
@@ -122,8 +122,8 @@ const ELECTROFILTER_Design = ({ innerData = {}, setInnerData, currentLanguage = 
       cout_transport_euro_km = truck15TPrice;
   }
 
-  let CO2_transport_total = CO2_transport_kg_km * distance_km * (cendres_kg_h / 1000);
-  let cout_transport_total = cendres_kg_h === 0 ? 0 : cout_transport_euro_km * distance_km;
+  let CO2_transport_total = CO2_transport_kg_km * distance_km * (cendres / 1000);
+  let cout_transport_total = cendres === 0 ? 0 : cout_transport_euro_km * distance_km;
 
   // Fonction pour gérer les changements de paramètres
   const handleParametresChange = (name, value) => {
@@ -208,9 +208,9 @@ const ELECTROFILTER_Design = ({ innerData = {}, setInnerData, currentLanguage = 
   const elementsGeneric = [
     { text: t('Surface des plaques [m²]'), value: surfacePlaques.toFixed(2) },
     { text: t('Nombre de plaques [Nb]'), value: nombrePlaques },
-    { text: t('Consommation air comprimé [Nm3/h]'), value: conso_air_co_Nm3_h.toFixed(2) },
-    { text: t('Pression air comprimé [Bar]'), value: pression_air_comprime_bar.toFixed(1) },
-    { text: t('Residus électrofiltre [kg/h]'), value: cendres_kg_h.toFixed(2) },
+    { text: t('Consommation air comprimé [Nm3/h]'), value: conso_air_co.toFixed(2) },
+    { text: t('Pression air comprimé [Bar]'), value: pression_air_comprime.toFixed(1) },
+    { text: t('Residus électrofiltre [kg/h]'), value: cendres.toFixed(2) },
     { text: t('CO2 transport total [kg]'), value: CO2_transport_total.toFixed(2) },
     { text: t('Coût transport total [€]'), value: cout_transport_total.toFixed(2) },
   ];
@@ -225,31 +225,31 @@ const ELECTROFILTER_Design = ({ innerData = {}, setInnerData, currentLanguage = 
       setInnerData(prevData => ({
         ...prevData,
         P_out_mmCE,
-        consoElec1: toSignificantFigures(conso_elec_champs_kW),
-        consoElec2: toSignificantFigures(conso_vis_transport_kW),
-        consoElec3: toSignificantFigures(conso_elec_marteau_debatissage_kW),
-        consoElec4: toSignificantFigures(Conso_elec_air_co_kW),
+        consoElec1: toSignificantFigures(conso_elec_champs),
+        consoElec2: toSignificantFigures(conso_vis_transport),
+        consoElec3: toSignificantFigures(conso_elec_marteau_debatissage),
+        consoElec4: toSignificantFigures(Conso_elec_air_co),
         labelElec1: t('Consommation élec des champs'),
         labelElec2: t('Consommation vis de transport'),
         labelElec3: t('Consommation élec des marteaux débatisseurs'),
         labelElec4: t('Air comprimé'),
-        conso_air_co_N_m3: conso_air_co_Nm3_h,
-        pression_air_comprime_bar,
-        conso_fly_ash_kg_h: toSignificantFigures(cendres_kg_h),
+        conso_air_co_N_m3: conso_air_co,
+        pression_air_comprime,
+        conso_fly_ash: toSignificantFigures(cendres),
         CO2_transport_fly_ash: toSignificantFigures(CO2_transport_total),
         cout_transport_fly_ash: toSignificantFigures(cout_transport_total),
       }));
     }
   }, [
-    conso_elec_champs_kW,
-    conso_vis_transport_kW,
-    conso_elec_marteau_debatissage_kW,
-    Conso_elec_air_co_kW,
-    conso_air_co_Nm3_h,
-    pression_air_comprime_bar,
+    conso_elec_champs,
+    conso_vis_transport,
+    conso_elec_marteau_debatissage,
+    Conso_elec_air_co,
+    conso_air_co,
+    pression_air_comprime,
     cout_transport_total,
     CO2_transport_total,
-    cendres_kg_h,
+    cendres,
     P_out_mmCE,
     setInnerData,
     t,
@@ -311,14 +311,14 @@ const ELECTROFILTER_Design = ({ innerData = {}, setInnerData, currentLanguage = 
       <Section 
         title="Estimation des consommations électriques"
         results={[
-          { text: t('Consommation élec des champs [kW]'), value: conso_elec_champs_kW.toFixed(2) },
-          { text: t('Consommation vis de transport [kW]'), value: conso_vis_transport_kW.toFixed(2) },
-          { text: t('Consommation élec des marteaux débatisseurs [kW]'), value: conso_elec_marteau_debatissage_kW.toFixed(2) },
+          { text: t('Consommation élec des champs [kW]'), value: conso_elec_champs.toFixed(2) },
+          { text: t('Consommation vis de transport [kW]'), value: conso_vis_transport.toFixed(2) },
+          { text: t('Consommation élec des marteaux débatisseurs [kW]'), value: conso_elec_marteau_debatissage.toFixed(2) },
         ]}
       >
         <ParameterInput 
           translationKey="consommation vis de transport [kW]" 
-          value={conso_vis_transport_kW} 
+          value={conso_vis_transport} 
           onChange={(v) => handleParametresChange('consommation vis de transport [kW]', v)} 
         />
       </Section>
@@ -327,8 +327,8 @@ const ELECTROFILTER_Design = ({ innerData = {}, setInnerData, currentLanguage = 
       <Section 
         title="Consommation d'air comprimé"
         results={[
-          { text: t('Consommation air comprimé [Nm3/h]'), value: conso_air_co_Nm3_h.toFixed(2) },
-          { text: t('Conso élec air comprimé [kW]'), value: Conso_elec_air_co_kW.toFixed(2) },
+          { text: t('Consommation air comprimé [Nm3/h]'), value: conso_air_co.toFixed(2) },
+          { text: t('Conso élec air comprimé [kW]'), value: Conso_elec_air_co.toFixed(2) },
         ]}
       >
         <ParameterInput 
@@ -338,7 +338,7 @@ const ELECTROFILTER_Design = ({ innerData = {}, setInnerData, currentLanguage = 
         />
         <ParameterInput 
           translationKey="Pression air comprimé [Bar]" 
-          value={pression_air_comprime_bar} 
+          value={pression_air_comprime} 
           onChange={(v) => handleParametresChange('Pression air comprimé [Bar]', v)}
           options={['7', '10', '13', '15']} 
         />
@@ -353,7 +353,7 @@ const ELECTROFILTER_Design = ({ innerData = {}, setInnerData, currentLanguage = 
       <Section 
         title="Évacuation des résidus électrofiltre"
         results={[
-          { text: t('Residus électrofiltre [kg/h]'), value: cendres_kg_h.toFixed(2) },
+          { text: t('Residus électrofiltre [kg/h]'), value: cendres.toFixed(2) },
           { text: t('Type de camion'), value: type_camion },
           { text: t('Distance [km]'), value: distance_km.toFixed(0) },
           { text: t('CO2 transport total [kg]'), value: CO2_transport_total.toFixed(2) },
@@ -381,9 +381,9 @@ const ELECTROFILTER_Design = ({ innerData = {}, setInnerData, currentLanguage = 
           <p><strong>{t('Rendement de capture [%]')}:</strong> {Rdt_capture}%</p>
           <p><strong>{t('Vitesse de migration [m/s]')}:</strong> {Vitesse_migration} m/s</p>
           <p><strong>{t('Nombre de plaques [Nb]')}:</strong> {nombrePlaques}</p>
-          <p><strong>{t('Pression air comprimé [Bar]')}:</strong> {pression_air_comprime_bar} Bar</p>
-          <p><strong>{t('Consommation air comprimé [Nm3/h]')}:</strong> {conso_air_co_Nm3_h.toFixed(2)} Nm³/h</p>
-          <p><strong>{t('Residus électrofiltre [kg/h]')}:</strong> {cendres_kg_h.toFixed(2)} kg/h</p>
+          <p><strong>{t('Pression air comprimé [Bar]')}:</strong> {pression_air_comprime} Bar</p>
+          <p><strong>{t('Consommation air comprimé [Nm3/h]')}:</strong> {conso_air_co.toFixed(2)} Nm³/h</p>
+          <p><strong>{t('Residus électrofiltre [kg/h]')}:</strong> {cendres.toFixed(2)} kg/h</p>
           <p><strong>{t('Type de camion')}:</strong> {type_camion}</p>
         </div>
         <h4>{t('Paramètres calculés détaillés')}</h4>
