@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from 'react';
 
-const UnitContext = createContext();
+const UnitContext = createContext({ unitSystem: 'SI', toggle: () => {} });
 
 export function UnitProvider({ children }) {
   const [unitSystem, setUnitSystem] = useState('SI');
